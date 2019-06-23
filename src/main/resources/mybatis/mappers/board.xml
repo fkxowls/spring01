@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+      PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.article">
+
+	<select id="listArticle2" resultType="articleVo">
+	<![CDATA[
+	SELECT 	 X.*
+             
+ 	FROM (
+ 			SELECT  /*+ INDEX_DESC(ARTICLE ARTICLE_NO)*/
+ 					ROWNUM AS RNUM
+ 				    , A.*      
+         	 FROM (
+         	 		SELECT    ARTICLE_NO
+            				 , PARENT_NO
+            				 , TITLE
+           					 , CONTENT
+           					 , WRITE_MEMBER_ID
+            		 		 
+            		FROM ARTICLE
+            		ORDER BY ARTICLE_NO DESC
+         	 	  ) A
+ 	 		 WHERE ROWNUM <= #{endNum}
+ 	 	  ) X
+ 	 WHERE   X.RNUM >= #{startNum}
+ 	 ]]>
+	</select>
+	<select id="listArticle" resultType="articleVo">
+            SELECT	ROWNUM as rNum
+                    ,LEVEL AS LVL
+                    , ARTICLE_NO
+                    , PARENT_NO
+                    , TITLE
+                    , CONTENT
+                    , WRITE_MEMBER_ID
+                    <!-- , WRITE_DATE -->
+            FROM    ARTICLE
+			WHERE   ARTICLE_NO > 0
+            START WITH
+                    PARENT_NO           = 0 
+            CONNECT BY
+                    PRIOR ARTICLE_NO    = PARENT_NO 
+            ORDER SIBLINGS BY
+                    ARTICLE_NO DESC
+       		
+	</select>
+	
+	<select id="viewArticle" parameterType="int" resultType="articleVo">
+		SELECT 
+				* 
+		FROM 	ARTICLE 
+		WHERE 	ARTICLE_NO = #{articleNo}
+	</select>
+	
+	<insert id="insertArticle" parameterType="articleVo">
+		INSERT INTO ARTICLE
+		(
+			ARTICLE_NO
+			,PARENT_No
+			,TITLE
+			,CONTENT
+			,WRITE_MEMBER_ID
+		)
+		VALUES
+		(
+			NO_SEQ.NEXTVAL
+			,0
+			,#{title}
+			,#{content}
+			,#{writeMemberId}
+		)
+	</insert>
+	
+	<update id="updateArticle" parameterType="articleVo">
+		UPDATE ARTICLE
+		SET
+			TITLE		= #{title}
+			,CONTENT	= #{content}
+		WHERE
+			ARTICLE_NO	= #{articleNo}
+	</update>
+	
+	<select id="totalArticle" resultType="int">
+		SELECT
+				COUNT(ARTICLE_NO)
+		FROM	ARTICLE
+				
+	</select>
+	
+	<select id="getSequence" resultType="int">
+		SELECT 
+				MAX(ARTICLE_NO)
+		FROM 	ARTICLE
+	</select>
+	
+	<delete id="deleteArticle" parameterType="int">
+		DELETE 	
+		FROM	ARTICLE
+		WHERE	ARTICLE_NO = #{articleNo}
+	
+	</delete>
+	
+	<insert id="insertReply" parameterType="articleVo">
+		<selectKey keyProperty="articleNo" resultType="Integer" order="BEFORE">
+			SELECT
+					NO_SEQ.NEXTVAL
+			FROM	DUAL
+		</selectKey>
+			INSERT INTO ARTICLE
+			(
+				ARTICLE_NO
+				,PARENT_No
+				,TITLE
+				,CONTENT
+				,WRITE_MEMBER_ID
+			)
+			VALUES
+			(
+				#{articleNo}
+				,#{parentNo}
+				,#{title}
+				,#{content}
+				,#{writeMemberId}
+			)
+	</insert>
+	
+	
+</mapper>

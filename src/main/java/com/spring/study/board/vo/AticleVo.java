@@ -1,0 +1,76 @@
+package com.spring.study.board.vo;
+
+import java.sql.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public class AticleVo {
+	
+	private int articleNo;
+	private int parentNo;
+	private String title;
+	private String content;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
+	private Date writeDate;
+	private String writeMemberId;
+	private String lvl;
+	private int rnum;
+	
+	public int getRnum() {
+		return rnum;
+	}
+	public void setRnum(int rnum) {
+		this.rnum = rnum;
+	}
+	public String getLvl() {
+		return lvl;
+	}
+	public void setLvl(String lvl) {
+		this.lvl = lvl;
+	}
+	public int getArticleNo() {
+		return articleNo;
+	}
+	public void setArticleNo(int articleNo) {
+		this.articleNo = articleNo;
+	}
+	public int getParentNo() {
+		return parentNo;
+	}
+	public void setParentNo(int parentNo) {
+		this.parentNo = parentNo;
+	}
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	public String getContent() {
+		return content;
+	}
+	public void setContent(String content) {
+		this.content = content;
+	}
+	public Date getWriteDate() {
+		return writeDate;
+	}
+	public void setWriteDate(Date writeDate) {
+		this.writeDate = writeDate;
+	}
+	public String getwriteMemberId() {
+		return writeMemberId;
+	}
+	public void setwriteMemberId(String writeMemberId) {
+		this.writeMemberId = writeMemberId;
+	}
+	
+	@Override
+	public String toString() {
+	
+		return "제목: "+title+", 내용: "+content;
+	}
+	
+}

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+      PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mapper.comment">
+	<select id="listComment" parameterType="int" resultType="articleReplyVo">
+		SELECT
+  	    		  A.*
+			FROM    (
+  	          SELECT	ROWNUM as rNum
+    	                ,LEVEL AS LVL
+        	            , ARTICLE_NO
+            	        , REPLY_NO
+                	    , PARENT_NO
+                    	, CONTENT
+	                    , WRITE_MEMBER_ID
+    	               
+        	    FROM    ARTICLE_REPLY
+            	START WITH
+                	    PARENT_NO           = 0 
+            	CONNECT BY
+            	        PRIOR ARTICLE_NO    = PARENT_NO 
+	            ORDER SIBLINGS BY
+    	                ARTICLE_NO DESC
+       			 ) A
+       			 WHERE ARTICLE_NO = #{article_no}
+		<!-- WHERE   rNum BETWEEN (#{pageNum}-1)*10+1   AND (#{pageNum}-1)*10+10  -->
+	
+	
+	</select>
+	
+	<insert id="insertComment" parameterType="articleReplyVo">
+		INSERT INTO ARTICLE_REPLY
+		VALUES
+		(
+		 	 COMMENT_SEQ.NEXTVAL
+		 	 ,#{articleNo}
+			 ,#{parentNo}
+			 ,#{content}
+			 ,#{writeMemberId}
+			 ,sysdate
+		)
+	
+	</insert>
+	
+	
+</mapper>

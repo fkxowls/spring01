@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+"-//Apache Software Foundation//DTD Tiles Configuration 3.0//EN"
+"http://tiles.apache.org/dtds/tiles-config_3_0.dtd">
+<tiles-definitions>
+	<definition name="board.tiles"
+		template="/WEB-INF/views/common/layout.jsp">
+		<put-attribute name="title" value="" />
+		<put-attribute name="header"
+			value="/WEB-INF/views/common/header.jsp" />
+		<!-- <put-attribute name="side" value="/WEB-INF/views/common/side.jsp" 
+			/> -->
+		<put-attribute name="body" value="" />
+		<!-- <put-attribute name="footer" value="/WEB-INF/views/common/footer.jsp" 
+			/> -->
+	</definition>
+
+
+	<!-- <definition name="*" extends="tilse.test"><put-attribute name="body" 
+		value="/WEB-INF/views/{1}.jsp" /></definition> -->
+
+	<definition name="board/listArticle" extends="board.tiles">
+
+		<put-attribute name="body"
+			value="/WEB-INF/views/board/listArticle.jsp" />
+
+	</definition>
+	<definition name="board/viewArticle" extends="board.tiles">
+
+		<put-attribute name="body"
+			value="/WEB-INF/views/board/viewArticle.jsp" />
+
+	</definition>
+	<definition name="board/modifyForm" extends="board.tiles">
+		<put-attribute name="body"
+			value="/WEB-INF/views/board/modifyForm.jsp" />
+
+	</definition>
+	<definition name="board/replyArticleForm"
+		extends="board.tiles">
+		<put-attribute name="body"
+			value="/WEB-INF/views/board/replyArticleForm.jsp" />
+	</definition>
+	<definition name="board/addArticleForm"
+		extends="board.tiles">
+		<put-attribute name="body"
+			value="/WEB-INF/views/board/addArticleForm.jsp" />
+	</definition>
+	
+	
+	<definition name="member/loginForm"
+		extends="board.tiles">
+		<put-attribute name="body"
+			value="/WEB-INF/views/member/loginForm.jsp" />
+	</definition>
+	
+
+	<!-- <definition name ="board/viewArticle" extends="board.tiles"> <put-attribute 
+		name="body" value="/WEB-INF/views/board/viewArticle.jsp" /> <put-attribute 
+		name="js" value="/WEB-INF/views/board/viewArticleJs.jsp" /> </definition> 
+		<definition name ="board/listArticle" extends="board.tiles"> <put-attribute 
+		name="body" value="/WEB-INF/views/board/listArticle.jsp" /> </definition> -->
+
+
+
+</tiles-definitions>
+
