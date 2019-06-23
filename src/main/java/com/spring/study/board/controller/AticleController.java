@@ -75,10 +75,7 @@ public class AticleController {
 
 		//ListPagingVo paging = articleService.paging(num);
 
-		
 		List<AticleVo> articleList = articleService.listArticle();
-
-	
 
 		return articleList;
 
