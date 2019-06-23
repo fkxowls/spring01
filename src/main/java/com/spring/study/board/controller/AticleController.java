@@ -37,32 +37,9 @@ public class AticleController {
 	@Autowired
 	ArticleService articleService;
 
-	/*
-	 * 
-	 * 
-	 * @RequestMapping(value="/listArticle", method=RequestMethod.GET) public String
-	 * listArticle(Model model,HttpServletRequest req) {
-	 * logger.info("===========		listArticle() start	==============");
-	 * 
-	 * 
-	 * PageNumVo pnv = articleService.pageNum(req);
-	 * logger.info("===========		pageNum:{}",pnv.getPageNum()); List article =
-	 * articleService.listArticle(pnv.getPageNum()); int totalArticle =
-	 * articleService.getTotalArticles();
-	 * 
-	 * model.addAttribute("pageNum",pnv.getPageNum());
-	 * model.addAttribute("totalArticle",totalArticle);
-	 * model.addAttribute("startPage",pnv.getStartPage());
-	 * model.addAttribute("articleList",article);
-	 * 
-	 * return "board/listArticle"; }
-	 */
 	@RequestMapping(value = "listArticleForm", method = RequestMethod.GET)
 	public String listArticleForm(Model model, @RequestParam(value = "startNum", required = false) String num) {
 		logger.info("===========		listArticleForm() start	==============");
-		
-		//ListPagingVo paging = articleService.paging(num);
-		//model.addAttribute("startNum", paging.getStartNum());
 		
 		return "board/listArticle";
 	}
@@ -72,8 +49,6 @@ public class AticleController {
 	@ResponseBody
 	public List<AticleVo> listArticle(@RequestParam(value = "endNum", required = false) String num) {
 		logger.info("===========		listArticle() start	==============");
-
-		//ListPagingVo paging = articleService.paging(num);
 
 		List<AticleVo> articleList = articleService.listArticle();
 
@@ -108,9 +83,6 @@ public class AticleController {
 		AticleVo articleVo = new AticleVo();
 		logger.info("===========		viewArticle() start	==============");
 		int _articleNum = Integer.parseInt(articleNum);
-		// model.addAttribute("nowArticleNo",articleNum);
-		// HttpSession session = req.getSession();
-		// session.setAttribute("nowArticleNo", articleNum);
 		articleVo = articleService.viewArticle(_articleNum);
 		model.addAttribute("articleVo", articleVo);
 
@@ -124,15 +96,6 @@ public class AticleController {
 		logger.info("============		modifArticle() start		============");
 
 		articleService.modifyArticle(articleVo);
-		/*
-		try {
-			resp.sendRedirect("/board/viewArticle.do?articleNo="+articleVo.getArticleNo());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
-		//return "redirect:/board/viewArticle.do?articleNo="+articleVo.getArticleNo();
 	}
 
 	@RequestMapping(value = "/inserComment", method = RequestMethod.POST)
@@ -142,8 +105,6 @@ public class AticleController {
 		logger.info("============		replyVo:{}", replyVo.getContent());
 
 		// TODO 뷰단에서 사용자명 계속 전달하는 것 다 걷어내고, 이 위치에서 세션에서 멤버ID 가져온다
-//		replyVo.setWriteMemberId(writeMemberId);
-		
 		return articleService.insertComment(replyVo);
 	}
 
@@ -175,16 +136,11 @@ public class AticleController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		//return "redircet:/board/deleteArticle2.do?articleNo=" + articleVo.getArticleNo();
-		// return "redirect:/board/listArticle.do";
 	}
 
 	@RequestMapping(value = "/deleteArticle2", method = RequestMethod.POST)
-	// @ResponseBody
-	// public String deleteArticle(@RequestBody() AticleVo articleVo) {
 	public String deleteArticle(@RequestParam("articleNo") int articleNo) {
 		logger.info("===========		deleteArticle() start		=================");
-		// articleService.deleteArticle(articleVo.getArticleNo());
 		articleService.deleteArticle(articleNo);
 		return "redirect:/board/listArticle.do";
 	}
@@ -195,16 +151,6 @@ public class AticleController {
 		model.addAttribute("articleVo", articleVo);
 		return "board/modifyForm";
 	}
-
-	/*
-	 * @RequestMapping(value="/modifyForm", method=RequestMethod.POST) public String
-	 * modifyForm(@ModelAttribute("articleVo") AticleVo articleVo, Model model) {
-	 * logger.info("===========		modifyForm() start		==============");
-	 * 
-	 * model.addAttribute("articleVo", articleVo);
-	 * 
-	 * return "board/modifyForm"; }
-	 */
 
 	@RequestMapping(value = "/inserReComment", method = RequestMethod.POST)
 	@ResponseBody
