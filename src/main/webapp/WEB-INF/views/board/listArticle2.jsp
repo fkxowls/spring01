@@ -28,7 +28,7 @@
  </h1>
 	<table align="center" id="articleList" border="1" width="80%">
 		<tr height="10" align="center" bgcolor="lightgreen">
-			<td>글번호: </td>
+			<td>글번호호 </td>
 			<td>작성자</td>
 			<td>제목</td>
 			<td>작성일</td>
