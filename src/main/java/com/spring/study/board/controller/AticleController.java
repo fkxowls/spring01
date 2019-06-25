@@ -38,7 +38,7 @@ public class AticleController {
 	@Autowired
 	ArticleService articleService;
 
-	@RequestMapping(value = "listArticleForm222", method = RequestMethod.GET)
+	@RequestMapping(value = "listArticleForm22", method = RequestMethod.GET)
 	public String listArticleForm(Model model, @RequestParam(value = "startNum", required = false) String num) {
 		logger.info("===========		listArticleForm() start	==============");
 		
