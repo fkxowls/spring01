@@ -21,7 +21,7 @@
 
 	<definition name="board/listArticle" extends="board.tiles">
 		<put-attribute name="body"
-			value="/WEB-INF/views/board/listArticle.jsp" />
+			value="/WEB-INF/views/board/listArticle2.jsp" />
 	</definition>
 	<definition name="board/viewArticle" extends="board.tiles">
 
