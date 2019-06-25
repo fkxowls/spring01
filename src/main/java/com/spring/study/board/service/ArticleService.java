@@ -15,6 +15,7 @@ import com.spring.study.board.controller.AticleController;
 import com.spring.study.board.dao.ArticleDAO;
 import com.spring.study.board.vo.ArticleReplyVo;
 import com.spring.study.board.vo.AticleVo;
+import com.spring.study.board.vo.EndPagePaging;
 import com.spring.study.board.vo.HasNextPaging;
 
 @Service("ArticleService")
@@ -91,24 +92,25 @@ public class ArticleService {
 
 	}
 
+	//endPage 요소들 처리하는 메서드
+	public EndPagePaging EndPaging() {
+		EndPagePaging vo = new EndPagePaging();
+		
+		int totalCount = articleDAO.getTotalArticles();
+		vo.setPageSize(10);
+		vo.setTotalCount(totalCount);
+		List<AticleVo> list = articleDAO.ListArticle();
+		vo.setList(list);
+		
+		return vo;
+	}
+	
 	//endPage
 	public ListPagingVo paging(String num) {
 		ListPagingVo Vo = new ListPagingVo();
 		Vo.setPagePerCount(10);
 		Vo.setTotalCount(articleDAO.getTotalArticles());
-		// Vo로 못 넘길까???
-		/*
-		if (num == null || num.equals("")) {
-			Vo.setStartNum(1);
-			Vo.setEndNum(Vo.getStartNum() + Vo.getPagePerCount() - 1);// ?
-
-		} else {
-			Vo.setStartNum(Integer.parseInt(num) + Vo.getPagePerCount());
-			Vo.setEndNum(Vo.getStartNum() + Vo.getPagePerCount() - 1);// ?
-		}
-		*/
-		Vo.setEndPage(getTotalArticles(), Vo.getPagePerCount());
-
+	
 		
 
 		return Vo;

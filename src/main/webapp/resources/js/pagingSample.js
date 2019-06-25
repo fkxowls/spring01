@@ -36,6 +36,8 @@ function getMoreContents(btnEl, domId) {
 	});
 }
 
+
+
 ssg.ViewModel.howdy.ItemMore = (function () {
     var hash = "#ajaxmore";
 

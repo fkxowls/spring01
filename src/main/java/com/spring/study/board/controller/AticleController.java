@@ -26,6 +26,7 @@ import com.spring.study.ListPagingVo;
 import com.spring.study.board.service.ArticleService;
 import com.spring.study.board.vo.ArticleReplyVo;
 import com.spring.study.board.vo.AticleVo;
+import com.spring.study.board.vo.EndPagePaging;
 import com.spring.study.board.vo.HasNextPaging;
 
 @Controller
@@ -41,7 +42,16 @@ public class AticleController {
 	public String listArticleForm(Model model, @RequestParam(value = "startNum", required = false) String num) {
 		logger.info("===========		listArticleForm() start	==============");
 		
+		EndPagePaging vo = new EndPagePaging();
+		
+		
+		
+		model.addAttribute("totalArticles", vo.getTotalCount());
+		model.addAttribute("totalPage", vo.getTotalPage());
+		model.addAttribute("articleList", vo.getList());
+		
 		return "board/listArticle";
+	
 	}
 						
 	// endPage
@@ -50,9 +60,9 @@ public class AticleController {
 	public List<AticleVo> listArticle(@RequestParam(value = "endNum", required = false) String num) {
 		logger.info("===========		listArticle() start	==============");
 
-		List<AticleVo> articleList = articleService.listArticle();
+		//List<AticleVo> articleList = articleService.listArticle();
 
-		return articleList;
+		return null;
 
 	}
 	// hasNext

@@ -1,36 +1,22 @@
 package com.spring.study.board.vo;
 
+import java.util.List;
+
 public class EndPagePaging {
 	private int page;
-	private int countList;
 	private int totalCount;
 	private int totalPage;
-	private int startNum;
-	private int endNum;
-	
-	public EndPagePaging(int page, int countList, int totalCount) {
-		this.page=page;
-		this.countList=countList;
-		this.totalCount=totalCount;
-	}
-	
-	
+	private int pageSize;
+	private boolean hasNext;
+
+	private List<AticleVo> list;
+
 	public int getPage() {
 		return page;
 	}
 
 	public void setPage(int page) {
 		this.page = page;
-	}
-
-	public int getCountList() {
-		return countList;
-	}
-
-	public void setCountList(int countList) {
-		if (countList < 1)
-			countList = 0;
-		this.countList = countList;
 	}
 
 	public int getTotalCount() {
@@ -42,32 +28,41 @@ public class EndPagePaging {
 	}
 
 	public int getTotalPage() {
+		if (totalCount % pageSize == 0)
+			totalPage = totalCount / pageSize;
+		else
+			totalPage = totalCount/pageSize+1;
+
 		return totalPage;
 	}
+	/*
+	 * public void setTotalPage(int totalPage) {
+	 * 
+	 * this.totalPage = totalPage; }
+	 */
 
-	public void setTotalPage(int totalPage) {
-		this.totalPage = totalPage;
+	public boolean isHasNext() {
+		return hasNext;
 	}
 
-	public int getStartNum() {
-		return (page-1)*countList +1;
+	public void setHasNext(boolean hasNext) {
+		this.hasNext = hasNext;
 	}
 
-	public void setStartNum(int startNum) {
-		this.startNum = startNum;
+	public int getPageSize() {
+		return pageSize;
 	}
 
-	public int getEndNum() {
-		 endNum = startNum + countList -1;
-		 if(endNum>totalCount)
-			 endNum = totalCount;
-		return endNum;
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
 	}
 
-	public void setEndNum(int endNum) {
-		this.endNum = endNum;
+	public List<AticleVo> getList() {
+		return list;
 	}
-	
-	
+
+	public void setList(List<AticleVo> list) {
+		this.list = list;
+	}
 
 }

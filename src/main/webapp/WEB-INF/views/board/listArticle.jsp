@@ -104,14 +104,14 @@ function getArticleList(){
 }
 */
 
-function getArticleList1(num){
+function getArticleList2(num){
 	var endNum = num+10;
 	
 	$.ajax({
 		type: 'GET',
 		url: '${contextPath}/board/listArticle.do',
 		dataType: 'json',
-		/* data: $('#listForm').serialize(), */
+		
 		contentType: "application/json; charset=UTF-8",
 		success: function(data){
 			var list ="";
@@ -154,6 +154,7 @@ function getArticleList1(num){
     });
 }
 
+/*
 function fn_moreConent(){
 	$.ajax({
 		type: 'GET',
@@ -166,9 +167,11 @@ function fn_moreConent(){
 		
 	})
 }
+*/
 
 $(document).ready(function(){
-	getArticleList1(0);
+	alert('수정');
+	//getArticleList1(0);
 }) 
 </script>
 </html>

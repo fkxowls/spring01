@@ -64,7 +64,13 @@ public class ArticleDAO {
 
 
 	public List<ArticleReplyVo> listComment(int articleNo) {
-		return session.selectList("mapper.comment.listComment", articleNo);
+		List<ArticleReplyVo> list;
+		// TODO DTO캐싱 로직 구현 - 읽기 get
+		{
+			list = session.selectList("mapper.comment.listComment", articleNo);
+			// TODO DTO캐싱 로직 구현 - 쓰기 set
+		}
+		return list;
 	}
 
 	public int insertComment(ArticleReplyVo replyVo) {

@@ -20,10 +20,8 @@
 		value="/WEB-INF/views/{1}.jsp" /></definition> -->
 
 	<definition name="board/listArticle" extends="board.tiles">
-
 		<put-attribute name="body"
 			value="/WEB-INF/views/board/listArticle.jsp" />
-
 	</definition>
 	<definition name="board/viewArticle" extends="board.tiles">
 
