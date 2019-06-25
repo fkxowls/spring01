@@ -14,7 +14,7 @@
 <title>header</title>
 </head>
 <body>
-	<h1>상단화면</h1>
+	<h1>sdfgsdfg</h1>
 	<table border=0 width="100%">
 		<tr>
 			<td>
@@ -23,7 +23,7 @@
 				</a>
 			</td>
 			<td>
-				<h1><font size=30>상단화면</font></h1>
+				<h1><font size=30>sdfgsdfg</font></h1>
 			</td>
 			<%-- <td>
 				<!-- <a href="#"><h3>로그인</h3></a> -->

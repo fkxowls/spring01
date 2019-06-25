@@ -38,7 +38,7 @@ public class AticleController {
 	@Autowired
 	ArticleService articleService;
 
-	@RequestMapping(value = "listArticleForm22", method = RequestMethod.GET)
+	@RequestMapping(value = "listArticleForm", method = RequestMethod.GET)
 	public String listArticleForm(Model model, @RequestParam(value = "startNum", required = false) String num) {
 		logger.info("===========		listArticleForm() start	==============");
 		
@@ -46,9 +46,11 @@ public class AticleController {
 		
 		
 		
-		model.addAttribute("totalArticles", vo.getTotalCount());
-		model.addAttribute("totalPage", vo.getTotalPage());
-		model.addAttribute("articleList", vo.getList());
+		/*
+		 * model.addAttribute("totalArticles", vo.getTotalCount());
+		 * model.addAttribute("totalPage", vo.getTotalPage());
+		 * model.addAttribute("articleList", vo.getList());
+		 */
 		
 		return "board/listArticle2";
 	
