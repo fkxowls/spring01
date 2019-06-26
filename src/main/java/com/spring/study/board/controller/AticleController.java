@@ -75,6 +75,7 @@ public class AticleController {
 		model.addAttribute("startNum", vo.getStartNum());
 		model.addAttribute("endNum", vo.getEndNum());
 		
+		
 		return "board/contentsList";
 
 	}
@@ -89,6 +90,8 @@ public class AticleController {
 		HasNextPaging vo = new HasNextPaging();
 		vo = articleService.hasNextPaging(_page);
 		model.addAttribute("articleList", vo.getList());
+		model.addAttribute("hasNext", vo.isHasNext());	
+		logger.info("=========== 		hasNext(): {}",vo.isHasNext());	
 		
 		return "board/listArticle2";
 

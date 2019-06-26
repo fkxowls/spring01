@@ -5,8 +5,9 @@
 
 
 
-	<ul>startNum ${startNum }</ul>
-	<ul>endNum${endNum}</ul>
-	<ul>3</ul>
-
+	<ul>
+		<li>글번호</li>
+		<li>제목</li>
+		<li>작성자</li>
+	</ul>
 

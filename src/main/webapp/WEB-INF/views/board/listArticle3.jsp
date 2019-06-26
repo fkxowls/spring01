@@ -5,90 +5,15 @@
 <c:set var="contextPath"  value="${pageContext.request.contextPath}"  />
 <!DOCTYPE html>
 <html>
- <head>
-<style type="text/css">
-    body{
-        line-height:2em;        
-        font-family:"맑은 고딕";
-}
-    ul, li{ 
-        list-style:none;
-        text-align:center;
-        padding:0;
-        margin:0;
-}
-
-    #mainWrapper{
-        width: 800px;
-        margin: 0 auto; /*가운데 정렬*/
-    }
-
-    #mainWrapper > ul > li:first-child {
-        text-align: center;
-        font-size:14pt;
-        height:40px;
-        vertical-align:middle;
-        line-height:30px;
-}
-
-    #ulTable {margin-top:10px;}
-    
-
-    #ulTable > li:first-child > ul > li {
-        background-color:#c9c9c9;
-        font-weight:bold;
-        text-align:center;
-}
-
-    #ulTable > li > ul {
-        clear:both;
-        padding:0px auto;
-        position:relative;
-        min-width:40px;
-}
-    #ulTable > li > ul > li { 
-        float:left;
-        font-size:10pt;
-        border-bottom:1px solid silver;
-        vertical-align:baseline;
-}    
-
-    #ulTable > li > ul > li:first-child               {width:10%;} /*No 열 크기*/
-    #ulTable > li > ul > li:first-child +li           {width:45%;} /*제목 열 크기*/
-    #ulTable > li > ul > li:first-child +li+li        {width:20%;} /*작성일 열 크기*/
-    #ulTable > li > ul > li:first-child +li+li+li     {width:15%;} /*작성자 열 크기*/
-    #ulTable > li > ul > li:first-child +li+li+li+li{width:10%;} /*조회수 열 크기*/
-
-    #divPaging {
-          clear:both; 
-        margin:0 auto; 
-        width:220px; 
-        height:50px;
-}
-
-    #divPaging > div {
-        float:left;
-        width: 30px;
-        margin:0 auto;
-        text-align:center;
-}
-
-    #liSearchOption {clear:both;}
-    #liSearchOption > div {
-        margin:0 auto; 
-        margin-top: 30px; 
-        width:auto; 
-        height:100px; 
-
-}
-
-    .left {
-        text-align : left;
-}
-
-
-</style>
-</head> 
+<!-- <head>
+<meta charset="UTF-8">
+<title>글목록</title>
+ <style>
+   .cls1 {text-decoration:none;}
+   .cls2{text-align:center; font-size:30px;}
+ 	.s1 {float: right}
+  </style>
+</head> -->
 <script  src="http://code.jquery.com/jquery-latest.min.js"></script> 
 <body>
 	<c:if test="${memberSession.memberId != null }">
@@ -98,55 +23,54 @@
 	<span class="s1"><a href="${contextPath }/member/loginForm">로그인</a></span>
 	</c:if>
 	<br><br>
+	>
 	
-<div id="mainWrapper">
-<ul>
-    <li>
-        <ul id ="ulTable">
-            <li>
-                <ul>
-                    <li>No</li>
-                    <li>제목</li>
-                    <li>작성일</li>
-                    <li>작성자</li>
-                    <li>조회수</li>
-                </ul>
-             </li>
-             <c:choose>
-             <c:when test="${articleList == null } ">
-             <li>
-                 <ul>
-                   	<li>등록된 글이 없습니다</li>
-                 </ul>
-             </li>
-             </c:when>
-                    
-             <c:when test="${articleList !=null }" >
-             <li id="addList">
-             <c:forEach  var="articleVO" items="${articleList }">
-                 <ul  align="center" id="contents">
-                     <li>${articleVO.articleNo }</li>
-                     <li class="left"><a class='cls1' href="${contextPath}/board/viewArticle.do?articleNo=${articleVO.articleNo}">${articleVO.title}</a></li>
-                     <li>${articleVO.writeMemberId }</li>
-                     <li data-has-next="${hasNext }">${hasNext }</li>
-                 </ul>
-             </c:forEach>
-             </li>
-             </c:when>
-    		 </c:choose>
-		 </ul>
- 	</li>
- 	
- 	<li>
- 		<div id="divPaging">
- 			  <!-- <input type="button" onClick="getArticleList()" value="더보기"> -->
+	<table align="center" id="articleList" border="1" width="80%">
+		<tr height="10" align="center" bgcolor="lightgreen">
+			<td>글번호</td>
+			<td>작성자</td>
+			<td>제목</td>
+			<td>작성일</td>
+		</tr>
+	</table>
+		<c:choose>
+		<c:when test="${articleList == null } ">
+		<table align="center"  border="1" width="80%">
+			<tr height="10">
+				<td colspan="4">
+					등록된글이 없습니다
+				</td>
+			</tr>
+		</table>
+		</c:when>		
+	<c:when test="${articleList !=null }" >
+	<table align="center" id="contents" border="1" width="80%">
+    <c:forEach  var="articleVO" items="${articleList }">
+     <tr align="center">
+     <td width="10%"> ${articleVO.articleNo } </td>
+	<td width="10%"><span>${articleVO.writeMemberId }</span></td>
+	<td align='left'  width="35%">
+	<a class='cls1' href="${contextPath}/board/viewArticle.do?articleNo=${articleVO.articleNo}">${articleVO.title}</a>
+	</td>
+	<td  width="10%"><fmt:formatDate value="${articleVO.writeDate}" /></td> 
+	</tr>
+    </c:forEach>
+    </table>
+     </c:when>
+    </c:choose>
+    <table align="center" id="addList" border="1" width="80%">
+    </table>
+	
+
+	          	<!-- <input type="button" onClick="getArticleList()" value="더보기"> -->
 	        <!-- <a id="moreContent" id="moreContent"  data-list-page="2" href="javascript:getMore`()">더보기</a> -->
- 			<!-- <a id="moreContent"  data-list-page="2" href="javascript:getMoreContents2()">endNum</a> -->
- 			<button type="button" id="moreContent"  data-list-page="2" onClick="getMoreContents(this);">hasNext</button>
- 			<a class="cls1" href="${contextPath}/board/doWriteForm.do"><p class=cls2>글쓰기</p></a>
- 		</div>
- 	</li>
-</ul>
+<div class="cls2" id="btn"> 	      	
+	        <a id="moreContent"  data-list-page="2" href="javascript:getMoreContents2()">endNum</a>
+	        <button type="button" id="moreContent"  data-list-page="2" onClick="getMoreContents(this);">hasNext</button>
+</div>
+	<a class="cls1" href="${contextPath}/board/doWriteForm.do"><p class=cls2>글쓰기</p></a>
+
+
 </body>
 <script type="text/javascript">
 /*
@@ -190,14 +114,9 @@ function getMoreContents(btnEl){
 		$('#addList').append(data);
 		$(btnEl).data("listPage",page+1).attr("data-list-page",page+1);
 		
-		if(false == $('#divPaging').data("hasNext")){
-			alert('false');
-		}else{
-			$('#divPaging').data("hasNext",${hasNext}).attr("data-has-next",${hasNext});
-			alert("true");
-		}
 		
-	});
+		
+	})
 	
 }
 

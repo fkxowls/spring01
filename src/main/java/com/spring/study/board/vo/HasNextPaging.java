@@ -7,13 +7,19 @@ public class HasNextPaging {
 	private int endNum;
 	private int pagePerCount;
 	private int pageSize;
-	private boolean isNext;
+	private boolean hasNext;
 	
 	private List<AticleVo> list;
 	
 	
 	
 	
+	public boolean isHasNext() {
+		return hasNext;
+	}
+	public void setHasNext(boolean hasNext) {
+		this.hasNext = hasNext;
+	}
 	public int getPageSize() {
 		return pageSize;
 	}
@@ -24,18 +30,16 @@ public class HasNextPaging {
 		return list;
 	}
 	public void setList(List<AticleVo> list, int listSize) {
-		System.out.println("listSize() 		");
-		System.out.print(listSize);
-		this.list = list.subList(0, listSize);
-	}
-	public boolean isNext() {
-		return isNext;
-	}
-	public boolean setNext(int listSize) {
-		if(listSize < 11)
-			return false;
-		else
-			return true;
+		System.out.println("pageSize() 		");
+		System.out.print(this.pageSize);
+		System.out.println();
+		if(listSize > this.pageSize) {
+			System.out.println("같다");
+			this.list = list.subList(0, listSize-1);
+		}else {
+			System.out.println("작다");
+			this.list = list.subList(0, listSize);
+		}
 	}
 	
 	public int getPagePerCount() {
@@ -59,7 +63,7 @@ public class HasNextPaging {
 	}
 	//
 	public void setEndNum(int page) {
-		this.endNum = page*10;
+		this.endNum = page*10+1;
 	}
 	
 }

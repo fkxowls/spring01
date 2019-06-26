@@ -130,9 +130,13 @@ public class ArticleService {
 		vo.setStartNum(page);
 		vo.setEndNum(page);
 		vo.setPageSize(10);
-		vo.setList(articleDAO.ArticleList(vo),vo.getPageSize());
-		vo.setNext(vo.getList().size());
-		//logger.info("=========== 		listSize(): {}",vo.getList().size());
+		List<AticleVo> list = articleDAO.ArticleList(vo);
+		vo.setList(list,list.size());
+		if(list.size() <= vo.getPageSize())
+			vo.setHasNext(false);
+		else
+			vo.setHasNext(true);
+		logger.info("=========== 		hasNext(): {}",vo.isHasNext());	
 
 		return vo;
 	}
