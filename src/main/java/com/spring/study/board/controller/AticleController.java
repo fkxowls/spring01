@@ -47,17 +47,19 @@ public class AticleController {
 
 		int _page = page == null ? 1 : Integer.parseInt(page);
 
-		//EndPagePaging vo = articleService.EndPaging();
+		//endPage
+		EndPagePaging vo = articleService.EndPaging(_page);
+		model.addAttribute("page", vo.getPage());
+		model.addAttribute("totalArticles", vo.getTotalCount());
+		model.addAttribute("totalPage", vo.getTotalPage());
+		model.addAttribute("articleList", vo.getList());
 		
-		//model.addAttribute("totalArticles", vo.getTotalCount());
-		//model.addAttribute("totalPage", vo.getTotalPage());
-		//model.addAttribute("articleList", vo.getList());
 		
-		
-		HasNextPaging vo2 = articleService.hasNextPaging(_page);
+		//hasNext
+		//HasNextPaging vo2 = articleService.hasNextPaging(_page);
+		//model.addAttribute("page", _page);
+		//model.addAttribute("articleList", vo2.getList());
 
-		model.addAttribute("page", _page);
-		model.addAttribute("articleList", vo2.getList());
 
 		return "board/listArticle2";
 
@@ -67,16 +69,14 @@ public class AticleController {
 
 	// endPage
 	@RequestMapping(value = "/board/listArticle")
-	//@ResponseBody										//"/board/endNum"
 	public String listArticle(Model model,@RequestParam(value = "page", required = false) int page) {
 		logger.info("===========		listArticle() start	==============");
 	
-		EndPagePaging vo = articleService.setStartNum(page);
-		model.addAttribute("startNum", vo.getStartNum());
-		model.addAttribute("endNum", vo.getEndNum());
+		EndPagePaging vo = articleService.EndPaging(page);
+		model.addAttribute("articleList", vo.getList());
+		model.addAttribute("page", vo.getPage());
 		
-		
-		return "board/contentsList";
+		return "board/listArticle2";
 
 	}
 

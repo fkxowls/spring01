@@ -98,7 +98,6 @@
 	<span class="s1"><a href="${contextPath }/member/loginForm">로그인</a></span>
 	</c:if>
 	<br><br>
-	
 <div id="mainWrapper">
 <ul>
     <li>
@@ -122,13 +121,13 @@
              </c:when>
                     
              <c:when test="${articleList !=null }" >
-             <li id="addList">
-             <c:forEach  var="articleVO" items="${articleList }">
+             <li id="addList" data-total-page="">
+             <c:forEach  var="articleVO" items="${articleList }" >
                  <ul  align="center" id="contents">
                      <li>${articleVO.articleNo }</li>
                      <li class="left"><a class='cls1' href="${contextPath}/board/viewArticle.do?articleNo=${articleVO.articleNo}">${articleVO.title}</a></li>
                      <li>${articleVO.writeMemberId }</li>
-                     <li data-has-next="${hasNext }">${hasNext }</li>
+                     <%-- <li data-has-next="${hasNext }">${hasNext }</li> --%>
                  </ul>
              </c:forEach>
              </li>
@@ -139,34 +138,17 @@
  	
  	<li>
  		<div id="divPaging">
- 			  <!-- <input type="button" onClick="getArticleList()" value="더보기"> -->
-	        <!-- <a id="moreContent" id="moreContent"  data-list-page="2" href="javascript:getMore`()">더보기</a> -->
- 			<!-- <a id="moreContent"  data-list-page="2" href="javascript:getMoreContents2()">endNum</a> -->
- 			<button type="button" id="moreContent"  data-list-page="2" onClick="getMoreContents(this);">hasNext</button>
+ 			<!-- <button type="button" id="moreContent"  data-list-page="2" onClick="getMoreContents(this);">hasNext</button> -->
+ 			<c:if test="${totalPage != page }">
+ 			</c:if>
+ 			<button type="button" id="moreContent"  data-list-page="2" onClick="getMoreContents2(this)">endNum</button>
  			<a class="cls1" href="${contextPath}/board/doWriteForm.do"><p class=cls2>글쓰기</p></a>
  		</div>
  	</li>
 </ul>
 </body>
 <script type="text/javascript">
-/*
- 
-function getArticleList(){
-	
-	
-	 이렇게 보내면 왜 안되는가 증가된 startNum이 안넘어오는가
-	var num = ${startNum };
-	alert(num) ;
-	$.ajax({
-		type: "post",
-		url: "/board/listArticle.do?startNum="+num,
-		success:function(){
-			
-		}
-	})
-	
-}
-*/
+
 
 function getMoreContents(btnEl){
 	var page = $(btnEl).data('listPage');
@@ -189,21 +171,21 @@ function getMoreContents(btnEl){
 		alert(html);
 		$('#addList').append(data);
 		$(btnEl).data("listPage",page+1).attr("data-list-page",page+1);
-		
+	/*	
 		if(false == $('#divPaging').data("hasNext")){
 			alert('false');
 		}else{
 			$('#divPaging').data("hasNext",${hasNext}).attr("data-has-next",${hasNext});
 			alert("true");
 		}
-		
+	*/
 	});
 	
 }
 
-function getMoreContents2(){
+function getMoreContents2(btnEl){
 	
-	var page = $('#moreContent').data('listPage');
+	var page = $(btnEl).data('listPage');
 	var param ='';
 	if(location.search){
 		param = location.search+'&page='+page;
@@ -211,16 +193,15 @@ function getMoreContents2(){
 		param = '?page='+page;
 	}
 	
-	$('#btn').children().remove();//더보기 버튼 지우고 새로 만들면서 page값 입력
-	
 	$.ajax({
-		url: '/board/listArticle.do?page=2',
+		url: '/board/listArticle.do'+param,
 		method:'GET',
 		dataType: 'html'
-	}).done(function(data){    
-		var html =$($.parseHTML(data)).filter('.contents');
-		$('.contents').append(html);
-		alert("성공");
+	}).done(function(data){ 
+		var html = $($.parseHTML(data)).filter('#contents');
+		alert(html);
+		$('#addList').append(data);
+		$(btnEl).data("listPage",page+1).attr("data-list-page",page+1);
 	});
 	
 	

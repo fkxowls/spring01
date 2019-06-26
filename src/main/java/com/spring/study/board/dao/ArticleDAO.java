@@ -14,6 +14,7 @@ import com.spring.study.ListPagingVo;
 import com.spring.study.board.controller.AticleController;
 import com.spring.study.board.vo.ArticleReplyVo;
 import com.spring.study.board.vo.AticleVo;
+import com.spring.study.board.vo.EndPagePaging;
 import com.spring.study.board.vo.HasNextPaging;
 
 @Repository("articleDAO")
@@ -81,9 +82,9 @@ public class ArticleDAO {
 	}
 	
 	//endPage ArticlesList
-	public List<AticleVo> ListArticle() {
-
-		return session.selectList("mapper.article.listArticle");
+	public List<AticleVo> ListArticle(EndPagePaging vo) {
+		logger.info("=========            startNum:{}",vo.getStartNum());
+		return session.selectList("mapper.article.listArticle2",vo);
 	}
 	
 	//hasNext ArticleList

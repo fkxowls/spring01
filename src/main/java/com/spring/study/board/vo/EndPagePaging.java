@@ -9,28 +9,17 @@ public class EndPagePaging {
 	private int pageSize;
 	private int startNum;
 	private int endNum;
-	
+
 	private boolean hasNext;
 
-	private List<EndPagePaging> epp;
 	private List<AticleVo> list;
-	
-	
-
-	public List<EndPagePaging> getEpp() {
-		return epp;
-	}
-
-	public void setEpp(List<EndPagePaging> epp) {
-		this.epp = epp;
-	}
 
 	public int getPage() {
 		return page;
 	}
 
 	public void setPage(int page) {
-		this.page = page;
+		this.page = page+1;
 	}
 
 	public int getTotalCount() {
@@ -45,10 +34,11 @@ public class EndPagePaging {
 		if (totalCount % pageSize == 0)
 			totalPage = totalCount / pageSize;
 		else
-			totalPage = totalCount/pageSize+1;
+			totalPage = totalCount / pageSize + 1;
 
 		return totalPage;
 	}
+
 	/*
 	 * public void setTotalPage(int totalPage) {
 	 * 
@@ -84,7 +74,7 @@ public class EndPagePaging {
 	}
 
 	public void setStartNum(int page) {
-		this.startNum = (page-1)*10+1;
+		this.startNum = (page - 1) * 10 + 1;
 	}
 
 	public int getEndNum() {
@@ -92,8 +82,7 @@ public class EndPagePaging {
 	}
 
 	public void setEndNum(int page) {
-		this.endNum = page*10;
+		this.endNum = page * 10;
 	}
 
-	
 }

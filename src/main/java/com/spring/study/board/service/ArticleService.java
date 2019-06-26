@@ -93,13 +93,20 @@ public class ArticleService {
 	}
 	
 	//endPage 페이지나누는 부분
-	public EndPagePaging EndPaging() {
+	public EndPagePaging EndPaging(int page) {
 		EndPagePaging vo = new EndPagePaging();
 		
-		int totalCount = articleDAO.getTotalArticles();
+		if(page == 1) {
+			int totalCount = articleDAO.getTotalArticles();
+			logger.info("======					여기 오냐 안오냐");
+			vo.setTotalCount(totalCount);
+		}
+		vo.setStartNum(page);
+		vo.setEndNum(page);
 		vo.setPageSize(10);
-		vo.setTotalCount(totalCount);
-		List<AticleVo> list = articleDAO.ListArticle();
+		vo.setPage(page);
+		List<AticleVo> list = articleDAO.ListArticle(vo);
+		logger.info("===========		{}",vo.getTotalPage());
 		vo.setList(list);
 		
 		return vo;
@@ -112,17 +119,6 @@ public class ArticleService {
 		vo.setEndNum(page);
 		return vo;
 	}
-
-	
-	
-	//endPage
-	/*
-	 * public ListPagingVo paging(String num) { ListPagingVo Vo = new
-	 * ListPagingVo(); Vo.setPagePerCount(10);
-	 * Vo.setTotalCount(articleDAO.getTotalArticles());
-	 * 
-	 * return Vo; }
-	 */
 	
 	public HasNextPaging hasNextPaging(int page) {
 		HasNextPaging vo = new  HasNextPaging();
@@ -144,26 +140,6 @@ public class ArticleService {
 	public List<AticleVo> listArticle2(HasNextPaging vo){
 		return articleDAO.ArticleList(vo);
 	}
-
-/*
-	public List<AticleVo> listArticle(ListPagingVo paging) {
-
-		return articleDAO.ListArticle(paging);
-	}
-*/
-	/*
-	public List<AticleVo> listArticle() {
-		//ListPagingVo paging = paging(num);
-		return articleDAO.ListArticle();
-	}
-	*/
-	/*
-	public List<AticleVo> listArticle2(HasNextPaging paging) {
-		List<AticleVo> list = articleDAO.listArticle2(paging);
-
-		return list;
-	}
-	*/
 
 	public boolean isNext(List<AticleVo> list) {
 		if (list.size() != 11) {
