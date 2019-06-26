@@ -5,7 +5,7 @@
 <c:set var="contextPath"  value="${pageContext.request.contextPath}"  />
 <!DOCTYPE html>
 <html>
-<head>
+<!-- <head>
 <meta charset="UTF-8">
 <title>글목록</title>
  <style>
@@ -13,8 +13,8 @@
    .cls2{text-align:center; font-size:30px;}
  	.s1 {float: right}
   </style>
+</head> -->
 <script  src="http://code.jquery.com/jquery-latest.min.js"></script> 
-</head>
 <body>
 	<c:if test="${memberSession.memberId != null }">
 	<span class="s1">${memberSession.memberId }님 Level:${memberSession.memberLevel } <a href="${contextPath }/member/logout">로그아웃</a></span>
@@ -24,11 +24,9 @@
 	</c:if>
 	<br><br>
 
-<h1>233</h1>
- </h1>
 	<table align="center" id="articleList" border="1" width="80%">
 		<tr height="10" align="center" bgcolor="lightgreen">
-			<td>글번호호 </td>
+			<td>글번호</td>
 			<td>작성자</td>
 			<td>제목</td>
 			<td>작성일</td>
@@ -42,40 +40,29 @@
 			</tr>
 		</c:when>		
 		 <c:when test="${articleList !=null }" >
-    <c:forEach  var="articleVO" items="${articleList }" varStatus="articleNum" >
-     <tr align="center" data-article-no="${articleVO.articleNo}">//?????
-	<td width="5%">${articleNum.count},</td>
+	<ul class="contents">
+    <c:forEach  var="articleVO" items="${articleList }">
+     <tr align="center">
+     <td width="10%"> ${articleVO.articleNo } </td>
 	<td width="10%"><span>${articleVO.writeMemberId }</span></td>
 	<td align='left'  width="35%">
-	    <span style="padding-right:30px"></span>    
-	   <c:choose>
-	      <c:when test='${articleVO.lvl > 1 }'>  
-	         <c:forEach begin="1" end="${articleVO.lvl }" step="1">
-	             <span style="padding-left:10px"></span> 
-	         </c:forEach>
-	         <span style="font-size:12px;">[답변]</span>
-                   <a class='cls1' href="${contextPath}/board/viewArticle.do?articleNo=${articleVO.articleNo}">${articleVO.title}</a>
-	          </c:when>
-	          <c:otherwise>
-	            <a class='cls1' href="${contextPath}/board/viewArticle.do?articleNo=${articleVO.articleNo}">${articleVO.title}</a>
-	          </c:otherwise>
-	        </c:choose>
-	       
-	  </td>
-	  <td  width="10%"><fmt:formatDate value="${articleVO.writeDate}" /></td> 
+	<a class='cls1' href="${contextPath}/board/viewArticle.do?articleNo=${articleVO.articleNo}">${articleVO.title}</a>
+	</td>
+	<td  width="10%"><fmt:formatDate value="${articleVO.writeDate}" /></td> 
 	</tr>
-	
     </c:forEach>
+	</ul>
+	<ul class="contents2"></ul>
      </c:when>
     </c:choose>
 	
 	</table>
 
-<div class="cls2" id="btn"> 	      	
 	          	<!-- <input type="button" onClick="getArticleList()" value="더보기"> -->
-	          	<a href="/board/listArticle2.do?endNum=${endNum }&isNext=${isNext}">더보기(hasNext)</a>
-	          	<%-- <a href="/board/listArticle.do?startNum=${startNum }">더보기(endPage)</a> --%>
-	         <%--  <a id="moreContent" name="moreContent" href="javascript:getArticleList1(${startNum })">더보기</a> --%> 
+	        <!-- <a id="moreContent" id="moreContent"  data-list-page="2" href="javascript:getMoreContents()">더보기</a> -->
+<div class="cls2" id="btn"> 	      	
+	        <a id="moreContent"  data-list-page="2" href="javascript:getMoreContents2()">endNum</a>
+	        <button type="button" id="moreContent"  data-list-page="2" onClick="getMoreContents(this);">hasNext</button>
 </div>
 	<a class="cls1" href="${contextPath}/board/doWriteForm.do"><p class=cls2>글쓰기</p></a>
 
@@ -99,6 +86,62 @@ function getArticleList(){
 	})
 	
 }
+*/
+
+function getMoreContents(btnEl){
+	var page = $(btnEl).data('listPage');
+	alert(page);
+	var param ='';
+	
+	if(location.search){
+		param = location.search+'&page='+page;
+	}else{
+		param = '?page='+page;
+	}
+	alert(param);
+	
+	$.ajax({
+		url: '/board/listArticle2.do'+param,
+		method: 'GET',
+		dataType: 'html'
+	}).done(function(data){
+		var html = $.parseHTML(data);
+		alert(html);
+		$('.contents2').append(data);
+		$(btnEl).data("listPage",page+1).attr("data-list-page",page+1);
+		
+		
+		
+	})
+	
+}
+
+function getMoreContents2(){
+	
+	var page = $('#moreContent').data('listPage');
+	var param ='';
+	if(location.search){
+		param = location.search+'&page='+page;
+	}else{
+		param = '?page='+page;
+	}
+	
+	$('#btn').children().remove();//더보기 버튼 지우고 새로 만들면서 page값 입력
+	
+	$.ajax({
+		url: '/board/listArticle.do?page=2',
+		method:'GET',
+		dataType: 'html'
+	}).done(function(data){    
+		var html =$($.parseHTML(data)).filter('.contents');
+		$('.contents').append(html);
+		alert("성공");
+	});
+	
+	
+}
+
+
 
 function getArticleList2(num){
 	var endNum = num+10;
@@ -150,6 +193,8 @@ function getArticleList2(num){
     });
 }
 
+
+/*
 function fn_moreConent(){
 	$.ajax({
 		type: 'GET',
@@ -165,8 +210,7 @@ function fn_moreConent(){
 */
 
 $(document).ready(function(){
-	alert('수정');
 	//getArticleList1(0);
 }) 
 </script>
-</html>
+<!-- </html> -->

@@ -8,7 +8,7 @@
 <%
   request.setCharacterEncoding("UTF-8");
 %> 
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -16,7 +16,7 @@
 <style>   
 </style>
 <script  src="http://code.jquery.com/jquery-latest.min.js"></script>
-</head>
+</head> -->
 <body>
  <form name="frmArticle" method="post" action="${contextPath}/board/modifyForm.do?articleNo=${articleVo.articleNo}" >
   <table  border=0  align="center">
@@ -82,6 +82,7 @@
   </tr>
    </table>
  </form>
+ </body>
 <script type="text/javascript">
 
 function fn_delete(){
@@ -147,10 +148,10 @@ function getCommentList(articleNo,writerId){
 		url: '${contextPath}/board/commentList.do?articleNo='+articleNo,
 		dataType: 'json',
 		data: $('#commentForm').serialize(),
-		contentType: "application/x-www-form-urlencoded; charset=UTF-8", 
+		contentType: "application/json; charset=UTF-8", 
 		success: function(data){
 			var html = "";
-			
+			alert("성공");
 			for(var i=0; i<data.length; i++){
 				html +="<tr><td align=left width=110>";
 				html +=data[i].writeMemberId+":&nbsp;</td>";
@@ -236,6 +237,7 @@ $(window).load(function(){
 /* $(document).ready(function(){
 		getCommentList(data1,data2);
 }) */
+
 </script>
-</body>
-</html>
+<!-- </body>
+</html> -->

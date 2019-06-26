@@ -2,7 +2,10 @@ package com.spring.study.board.controller;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -31,66 +34,67 @@ import com.spring.study.board.vo.HasNextPaging;
 
 @Controller
 @SessionAttributes("nowArticleNo")
-@RequestMapping("/board")
+// @RequestMapping("/board") // 이거 사용 지양
 public class AticleController {
 	private static final Logger logger = LoggerFactory.getLogger(AticleController.class);
 
 	@Autowired
 	ArticleService articleService;
 
-	@RequestMapping(value = "listArticleForm", method = RequestMethod.GET)
-	public String listArticleForm(Model model, @RequestParam(value = "startNum", required = false) String num) {
+	@RequestMapping(value = "/board/listArticleForm", method = RequestMethod.GET)
+	public String listArticleForm(Model model, @RequestParam(value = "page", required = false) String page) {
 		logger.info("===========		listArticleForm() start	==============");
+
+		int _page = page == null ? 1 : Integer.parseInt(page);
+
+		//EndPagePaging vo = articleService.EndPaging();
 		
-		EndPagePaging vo = new EndPagePaging();
+		//model.addAttribute("totalArticles", vo.getTotalCount());
+		//model.addAttribute("totalPage", vo.getTotalPage());
+		//model.addAttribute("articleList", vo.getList());
 		
 		
+		HasNextPaging vo2 = articleService.hasNextPaging(_page);
+
+		model.addAttribute("page", _page);
+		model.addAttribute("articleList", vo2.getList());
+
+		return "board/listArticle2";
+
+	
+
+	}
+
+	// endPage
+	@RequestMapping(value = "/board/listArticle")
+	//@ResponseBody										//"/board/endNum"
+	public String listArticle(Model model,@RequestParam(value = "page", required = false) int page) {
+		logger.info("===========		listArticle() start	==============");
+	
+		EndPagePaging vo = articleService.setStartNum(page);
+		model.addAttribute("startNum", vo.getStartNum());
+		model.addAttribute("endNum", vo.getEndNum());
 		
-		/*
-		 * model.addAttribute("totalArticles", vo.getTotalCount());
-		 * model.addAttribute("totalPage", vo.getTotalPage());
-		 * model.addAttribute("articleList", vo.getList());
-		 */
+		return "board/contentsList";
+
+	}
+
+	// hasNext
+	@RequestMapping(value = "/board/listArticle2", method = RequestMethod.GET)
+	public String listArticle2(Model model, @RequestParam(value = "page", required = false) String page) {
+		logger.info("===========		listArticle() start	==============");
+		
+		int _page = page == null ? 1 : Integer.parseInt(page);
+		
+		HasNextPaging vo = new HasNextPaging();
+		vo = articleService.hasNextPaging(_page);
+		model.addAttribute("articleList", vo.getList());
 		
 		return "board/listArticle2";
-	
-	}
-						
-	// endPage
-	@RequestMapping(value = "/listArticle", produces = "application/json; charset=utf8")
-	@ResponseBody
-	public List<AticleVo> listArticle(@RequestParam(value = "endNum", required = false) String num) {
-		logger.info("===========		listArticle() start	==============");
-
-		//List<AticleVo> articleList = articleService.listArticle();
-
-		return null;
-
-	}
-	// hasNext
-	@RequestMapping(value = "/listArticle2", method = RequestMethod.GET)
-	public String listArticle2(Model model, @RequestParam(value = "endNum", required = false) String endNum,
-			@RequestParam(value = "isNext", required = false) String isNext) {
-		logger.info("===========		listArticle() start	==============");
-		System.out.println("endNum: " + endNum);
-		System.out.println("isNext: " + isNext);
-		HasNextPaging paging = articleService.paging2(endNum, isNext);
-		List<AticleVo> list = articleService.listArticle2(paging);
-
-		boolean _isNext = articleService.isNext(list);
-		System.out.println("endNum: " + endNum);
-
-		model.addAttribute("startNum", paging.getStartNum());
-		model.addAttribute("endNum", paging.getEndNum());
-		model.addAttribute("endPage", 100);
-		model.addAttribute("isNext", _isNext);
-		model.addAttribute("articleList", list);
-
-		return "board/listArticle";
 
 	}
 
-	@RequestMapping(value = "/viewArticle", method = RequestMethod.GET)
+	@RequestMapping(value = "/board/viewArticle", method = RequestMethod.GET)
 	public String viewArticle(Model model, @RequestParam("articleNo") String articleNum) {
 		AticleVo articleVo = new AticleVo();
 		logger.info("===========		viewArticle() start	==============");
@@ -102,15 +106,15 @@ public class AticleController {
 	}
 
 	// @RequestBody
-	@RequestMapping(value = "/modifyArticle", method = RequestMethod.POST)
+	@RequestMapping(value = "/board/modifyArticle", method = RequestMethod.POST)
 	@ResponseBody
-	public void modifArticle(@RequestBody AticleVo articleVo,HttpServletResponse resp) {
+	public void modifArticle(@RequestBody AticleVo articleVo, HttpServletResponse resp) {
 		logger.info("============		modifArticle() start		============");
 
 		articleService.modifyArticle(articleVo);
 	}
 
-	@RequestMapping(value = "/inserComment", method = RequestMethod.POST)
+	@RequestMapping(value = "/board/inserComment", method = RequestMethod.POST)
 	@ResponseBody
 	public int insertComment(@RequestBody ArticleReplyVo replyVo) {
 		logger.info("============		insertComment() start		============");
@@ -120,12 +124,12 @@ public class AticleController {
 		return articleService.insertComment(replyVo);
 	}
 
-	@RequestMapping(value = "/testView", method = RequestMethod.GET)
+	@RequestMapping(value = "/board/testView", method = RequestMethod.GET)
 	public String testView() {
 		return "redirect:/board/viewArticle?articleNo=10";
 	}
 
-	@RequestMapping(value = "/commentList", produces = "application/json; charset=utf8")
+	@RequestMapping(value = "/board/commentList", produces = "application/json; charset=utf8")
 	@ResponseBody // ?
 	public List<ArticleReplyVo> listComment(@RequestParam("articleNo") String articleNo) {
 		logger.info("============		listComment() start");
@@ -138,9 +142,9 @@ public class AticleController {
 		return vo;
 	}
 
-	@RequestMapping(value = "/deleteArticleForm", method = RequestMethod.POST)
+	@RequestMapping(value = "/board/deleteArticleForm", method = RequestMethod.POST)
 	@ResponseBody
-	public void deleteArticleForm(@RequestBody() AticleVo articleVo,HttpServletResponse resp) {
+	public void deleteArticleForm(@RequestBody() AticleVo articleVo, HttpServletResponse resp) {
 		logger.info("===========		deleteArticleForm() start		=================");
 		try {
 			resp.sendRedirect("/board/deleteArticle2.do?articleNo=" + articleVo.getArticleNo());
@@ -150,21 +154,21 @@ public class AticleController {
 		}
 	}
 
-	@RequestMapping(value = "/deleteArticle2", method = RequestMethod.POST)
+	@RequestMapping(value = "/board/deleteArticle2", method = RequestMethod.POST)
 	public String deleteArticle(@RequestParam("articleNo") int articleNo) {
 		logger.info("===========		deleteArticle() start		=================");
 		articleService.deleteArticle(articleNo);
 		return "redirect:/board/listArticle.do";
 	}
 
-	@RequestMapping(value = "/modifyForm", method = RequestMethod.POST)
+	@RequestMapping(value = "/board/modifyForm", method = RequestMethod.POST)
 	public String modifyForm(@ModelAttribute("articleVo") AticleVo articleVo, Model model) {
 		logger.info("===========		modifyForm() start		==============");
 		model.addAttribute("articleVo", articleVo);
 		return "board/modifyForm";
 	}
 
-	@RequestMapping(value = "/inserReComment", method = RequestMethod.POST)
+	@RequestMapping(value = "/board/inserReComment", method = RequestMethod.POST)
 	@ResponseBody
 	public void insertReComment(@RequestBody ArticleReplyVo replyVo) {
 		logger.info("============		insertReComment() start		============");
@@ -173,14 +177,14 @@ public class AticleController {
 		articleService.insertReComment(replyVo);
 	}
 
-	@RequestMapping(value = "/doWriteForm", method = RequestMethod.GET)
+	@RequestMapping(value = "/board/doWriteForm", method = RequestMethod.GET)
 	public String form() {
 		logger.info("=============		form() start		==============");
 		String viewName = "board/addArticleForm";
 		return viewName;
 	}
 
-	@RequestMapping(value = "/replyArticleForm", method = RequestMethod.POST)
+	@RequestMapping(value = "/board/replyArticleForm", method = RequestMethod.POST)
 	public String replyArticleForm(@ModelAttribute("articleNo") AticleVo articleVo, Model model) {
 		logger.info("=============		replyArticleForm() start		==============");
 		model.addAttribute("title", articleVo.getTitle());
@@ -188,7 +192,7 @@ public class AticleController {
 		//
 	}
 
-	@RequestMapping(value = "/WrtiteArticle", method = RequestMethod.POST)
+	@RequestMapping(value = "/board/WrtiteArticle", method = RequestMethod.POST)
 	public String writeArticle(@ModelAttribute("articleVo") AticleVo articleVo, HttpServletRequest req) {
 		logger.info("=============		writeArticle() start		==============");
 		try {
@@ -203,7 +207,7 @@ public class AticleController {
 		return "redirect:/board/viewArticle.do?articleNo=" + articleNo;
 	}
 
-	@RequestMapping(value = "/replyArticle", method = RequestMethod.POST)
+	@RequestMapping(value = "/board/replyArticle", method = RequestMethod.POST)
 	@ResponseBody
 	public String replyArticle(@RequestBody AticleVo articleVo, RedirectAttributes redirectAttr,
 			HttpServletRequest req) {

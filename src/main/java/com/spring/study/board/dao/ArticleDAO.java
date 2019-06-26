@@ -79,10 +79,17 @@ public class ArticleDAO {
 		return session.insert("mapper.comment.insertComment", replyVo);
 
 	}
-
+	
+	//endPage ArticlesList
 	public List<AticleVo> ListArticle() {
 
 		return session.selectList("mapper.article.listArticle");
+	}
+	
+	//hasNext ArticleList
+	public List<AticleVo> ArticleList(HasNextPaging vo){
+		
+		return session.selectList("mapper.article.listArticle2",vo);
 	}
 	
 	/*

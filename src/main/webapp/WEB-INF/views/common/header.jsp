@@ -7,23 +7,13 @@
   request.setCharacterEncoding("UTF-8");
 %> 
 <c:set var="contextPath"  value="${pageContext.request.contextPath}"  />
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>header</title>
-</head>
 <body>
-	<h1>sdfgsdfg</h1>
+	
 	<table border=0 width="100%">
 		<tr>
+			
 			<td>
-				<a >
-				이미지
-				</a>
-			</td>
-			<td>
-				<h1><font size=30>sdfgsdfg</font></h1>
+				<h1><font size=30>상단화면</font></h1>
 			</td>
 			<%-- <td>
 				<!-- <a href="#"><h3>로그인</h3></a> -->
@@ -40,4 +30,3 @@
 			</tr>
 	</table>
 </body>
-</html>

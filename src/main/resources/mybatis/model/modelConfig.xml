@@ -9,7 +9,7 @@
 	 </settings> 
 
 	<typeAliases>		
-		<typeAlias type="com.spring.study.member.vo.MemVo" alias="memberVo" /> 
+		<!-- <typeAlias type="com.spring.study.member.vo.MemVo" alias="memberVo" />  -->
 		<typeAlias type="com.spring.study.board.vo.AticleVo" alias="articleVo" />
 		<typeAlias type="com.spring.study.board.vo.ArticleReplyVo" alias="articleReplyVo" />
 	</typeAliases>

@@ -4,14 +4,14 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.haven</groupId>
-	<artifactId>study-java-oop</artifactId>
-	<name>study-java-oop</name>
+	<artifactId>spring01</artifactId>
+	<name>spring01</name>
 	<packaging>war</packaging>
 	<version>1.0.0</version>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>utf-8</project.reporting.outputEncoding>
-		<java-version>1.6</java-version>
+		<java-version>1.8</java-version>
 		<org.springframework-version>4.3.21.RELEASE</org.springframework-version>
 		<org.aspectj-version>1.7.2</org.aspectj-version>
 		<org.slf4j-version>1.7.3</org.slf4j-version>
@@ -110,10 +110,25 @@
 		</dependency>
 
 		<!-- Tiles -->
+		<!-- <dependency> <groupId>org.apache.tiles</groupId> <artifactId>tiles-extras</artifactId> 
+			<version>${org.apache.tiles-version}</version> </dependency> -->
 		<dependency>
 			<groupId>org.apache.tiles</groupId>
 			<artifactId>tiles-extras</artifactId>
-			<version>${org.apache.tiles-version}</version>
+			<version>3.0.8</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.tiles</groupId>
+			<artifactId>tiles-jsp</artifactId>
+			<version>3.0.8</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.apache.tiles</groupId>
+			<artifactId>tiles-servlet</artifactId>
+			<version>3.0.8</version>
 		</dependency>
 
 		<!-- PostgreSQL 9.4 -->
@@ -214,8 +229,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.3.2</version>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.8</source>
+					<target>1.8</target>
 					<compilerArgument>-Xlint:all</compilerArgument>
 					<showWarnings>true</showWarnings>
 					<showDeprecation>true</showDeprecation>

@@ -7,9 +7,23 @@ public class EndPagePaging {
 	private int totalCount;
 	private int totalPage;
 	private int pageSize;
+	private int startNum;
+	private int endNum;
+	
 	private boolean hasNext;
 
+	private List<EndPagePaging> epp;
 	private List<AticleVo> list;
+	
+	
+
+	public List<EndPagePaging> getEpp() {
+		return epp;
+	}
+
+	public void setEpp(List<EndPagePaging> epp) {
+		this.epp = epp;
+	}
 
 	public int getPage() {
 		return page;
@@ -65,4 +79,21 @@ public class EndPagePaging {
 		this.list = list;
 	}
 
+	public int getStartNum() {
+		return startNum;
+	}
+
+	public void setStartNum(int page) {
+		this.startNum = (page-1)*10+1;
+	}
+
+	public int getEndNum() {
+		return endNum;
+	}
+
+	public void setEndNum(int page) {
+		this.endNum = page*10;
+	}
+
+	
 }

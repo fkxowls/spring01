@@ -14,11 +14,25 @@
 		<!-- <put-attribute name="footer" value="/WEB-INF/views/common/footer.jsp" 
 			/> -->
 	</definition>
+	
+	<definition name="*" extends="board.tiles">
+		<put-attribute name="body" value="/WEB-INF/views/{1}.jsp" />
+	</definition>
+	<definition name="*/*" extends="board.tiles">
+		<put-attribute name="body" value="/WEB-INF/views/{1}/{2}.jsp" />
+	</definition>
+    <definition name="*/*/*" extends="board.tiles">
+		<put-attribute name="body" value="/WEB-INF/views/{1}/{2}/{3}.jsp" />
+	</definition>
 
 
 	<!-- <definition name="*" extends="tilse.test"><put-attribute name="body" 
 		value="/WEB-INF/views/{1}.jsp" /></definition> -->
-
+<!-- 
+	<definition name="board/listArticle" extends="board.tiles">
+		<put-attribute name="body"
+			value="/WEB-INF/views/board/listArticle2.jsp" />
+	</definition>
 	<definition name="board/listArticle2" extends="board.tiles">
 		<put-attribute name="body"
 			value="/WEB-INF/views/board/listArticle2.jsp" />
@@ -51,7 +65,7 @@
 		<put-attribute name="body"
 			value="/WEB-INF/views/member/loginForm.jsp" />
 	</definition>
-	
+	 -->
 
 	<!-- <definition name ="board/viewArticle" extends="board.tiles"> <put-attribute 
 		name="body" value="/WEB-INF/views/board/viewArticle.jsp" /> <put-attribute 

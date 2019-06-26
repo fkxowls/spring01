@@ -9,10 +9,6 @@
 <c:set var="contextPath"  value="${pageContext.request.contextPath}"  />
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8">
-<title>header</title>
-</head>
 <body>
 
 	<table border=0 width="100%">
