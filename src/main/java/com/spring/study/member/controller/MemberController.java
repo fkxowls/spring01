@@ -25,48 +25,37 @@ import com.spring.study.member.vo.MemVo;
 @SessionAttributes("memberSession")
 public class MemberController {
 	private static final Logger logger = LoggerFactory.getLogger(AticleController.class);
-	
+
 	@Autowired
 	MemberService memberService;
-	
-	
-	@RequestMapping(value="/member/loginForm", method= {RequestMethod.GET,RequestMethod.POST})
+
+	@RequestMapping(value = "/member/loginForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String loginForm() {
 		logger.info("============		loginForm() start		==============");
 		return "member/loginForm";
 	}
-	
-	@RequestMapping(value="/member/login", method=RequestMethod.POST)
-	public String login(@ModelAttribute("memberVo") MemVo memberVo
-			,HttpSession session,HttpServletRequest req
-			,Model model) {
+
+	@RequestMapping(value = "/member/login", method = RequestMethod.POST)
+	public String login(@ModelAttribute("memberVo") MemVo memberVo, HttpSession session, HttpServletRequest req,
+			Model model) {
 		logger.info("============		login() start		==============");
 
 		MemVo member = memberService.login(memberVo);
-		
+
 		// TODO 세션에 로그인 정보 담는다 -> 지금은 이름, ID 정도만 담으면 될 것 같음
 		MemberDTO memberDTO = memberService.setMemberSession(member);
-	
-		model.addAttribute("memberSession", memberDTO);
-		/*
-		 * session = req.getSession(true); session.setAttribute("USER", memSession);
-		 */
-		
-		
-		/*
-		 * Cookie rememberCookie = new Cookie("memberCookie",member.getMemberId());
-		 * resp.addCookie(rememberCookie);
-		 */
-	
+		session.setAttribute("memberSession", memberDTO);
+
+
 		return "redirect:/board/listArticleForm.do";
 	}
-	
-	@RequestMapping(value="/member/logout",method=RequestMethod.GET)
+
+	@RequestMapping(value = "/member/logout", method = RequestMethod.GET)
 	public String logout(SessionStatus sessionStatus, HttpServletRequest req, HttpSession session) {
-		
-		//session.removeAttribute("id");
+
+		// session.removeAttribute("id");
 		sessionStatus.setComplete();
 		return "redirect:/board/listArticleForm.do";
 	}
-	
+
 }

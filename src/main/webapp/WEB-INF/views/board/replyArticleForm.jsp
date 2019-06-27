@@ -16,7 +16,7 @@
 </head>
 
 <body>
-<h1>Session: ${nowArticleNo}</h1>
+
 <h1 style="text-align:center">답글쓰기</h1>
   <form name="articleForm" method="post" action="${contextPath }/board/replyArticle.do">
     <table border="0" align="center">
@@ -62,6 +62,7 @@ $.arrayToJsonObject = function(array) {
 $(document).ready(function(){
 	$('#btn1').click(function(){
 		var jsonStr = JSON.stringify(($.arrayToJsonObject($('form').serializeArray())));
+		
 		$.ajax({
 			type: 'POST',
 			url:  '${contextPath}/board/replyArticle.do',

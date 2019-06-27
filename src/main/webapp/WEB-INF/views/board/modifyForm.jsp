@@ -78,41 +78,30 @@
  </table>
  </form>
  <script type="text/javascript">
-$.arrayToJsonObject = function(array) {
-    var object = {};
-    $.each(array, function() {
-        if (object[this.name]) {
-            if (!object[this.name].push) {
-                object[this.name] = [ object[this.name] ];
-            }
-            object[this.name].push(this.value || '');
-        } else {
-            object[this.name] = this.value || '';
-        }
-    });
-    return object;
-};
-
-
 
 	function fn_modify(num){
 		/* var jsonStr = JSON.stringify(($.arrayToJsonObject($('form').serializeArray()))); */
 	
+		
 		var title = $('input[name=title]').val();
 		var content = $('textarea[name=content]').val();
 		var articleNo = num;
-		var jsonText = '{"articleNo":'+articleNo+',"title":"'+title+'","content":"'+content+'"}';
+		var data = {};
+		
+		data.title = title
+		data.content = $('textarea[name=content]').val();
+		data.articleNo = articleNo;
 				
-		 var sendData1 = JSON.stringify(jsonText); 
-		 var sendData2 = JSON.parse(sendData1);
+		 var sendData = JSON.stringify(data); 
+		 
 		$.ajax({
 			type: 'post',
-			url:  '${contextPath}/board/modifyArticle.do',
+			url:  '${contextPath}/board/modifyArticle.do'+articleNo,
 			headers: {
 				"Content-Type" : "application/json"
 			},
 			dataType:  'json',
-			data: sendData2,
+			data: sendData,
 			success: function(){
 				alert('성공')
 				 window.location = "/board/viewArticle.do?articleNo="+articleNo;
@@ -122,10 +111,6 @@ $.arrayToJsonObject = function(array) {
 		     }
 		});	
 	}
-	
-$(document).ready(function(){
-
-})
 </script>
 </body>
 </html>

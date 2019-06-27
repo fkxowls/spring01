@@ -112,10 +112,9 @@ public class AticleController {
 		return "board/viewArticle";
 	}
 
-	// @RequestBody
 	@RequestMapping(value = "/board/modifyArticle", method = RequestMethod.POST)
 	@ResponseBody
-	public void modifArticle(@RequestBody AticleVo articleVo, HttpServletResponse resp) {
+	public void modifArticle(@RequestBody AticleVo articleVo) {
 		logger.info("============		modifArticle() start		============");
 
 		articleService.modifyArticle(articleVo);
@@ -197,9 +196,11 @@ public class AticleController {
 	}
 
 	@RequestMapping(value = "/board/replyArticleForm", method = RequestMethod.POST)
-	public String replyArticleForm(@ModelAttribute("articleNo") AticleVo articleVo, Model model) {
+	public String replyArticleForm(@RequestParam("articleNo") int articleNo, @RequestParam("title") String title, Model model) {
 		logger.info("=============		replyArticleForm() start		==============");
-		model.addAttribute("title", articleVo.getTitle());
+		System.out.println(title);
+		model.addAttribute("articleNo", articleNo);
+		model.addAttribute("title", title);
 		return "board/replyArticleForm";
 		//
 	}

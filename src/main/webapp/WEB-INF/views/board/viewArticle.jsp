@@ -45,7 +45,7 @@
 				<td colspan="2" align="center"><input type=submit value="수정하기">
 					<input type="button" value="삭제하기" onClick="fn_delete()"> 
 					<input type=button value="리스트로 돌아가기">
-					<input type=button value="답글쓰기" onClick="fn_reply('${nowArticleNo}')">
+					<input type=button value="답글쓰기" onClick="fn_reply('${articleVo.articleNo}')">
 				</td>
 			</tr>
 		</table>
@@ -82,23 +82,12 @@
 	}
 
 	function fn_reply(num) {
-		frmArticle.action = "${contextPath}/board/replyArticleForm.do?articleNo="+num;
+		var title = $('#title').val();
+		alert(title);
+		frmArticle.action = "${contextPath}/board/replyArticleForm.do?articleNo="+num+"&title="+title;
 		frmArticle.submit();
 	}
 
-	function queryStringToJSON(queryString) {
-		if (queryString.indexOf('?') > -1) {
-			queryString = queryString.split('?')[1];
-		}
-		var pairs = queryString.split('&');
-		var result = {};
-		pairs.forEach(function(pair) {
-			pair = pair.split('=');
-			result[pair[0]] = decodeURIComponent(pair[1] || '');
-		});
-		return result;
-	}
-	
 	function getCommentList() {
 		// todo JSON.parse('{"' + decodeURI(location.search.substring(1)).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}').articleNo
 		//var articleNo = JSON.parse('{"' + decodeURI(location.search.substring(1)).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}').articleNo;
