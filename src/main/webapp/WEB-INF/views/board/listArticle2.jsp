@@ -208,7 +208,7 @@ function getMoreContents2(btnEl){
 }
 
 
-
+/*
 function getArticleList2(num){
 	var endNum = num+10;
 	
@@ -258,7 +258,7 @@ function getArticleList2(num){
         ssgPreOrder.mpoderComingsoonList.masonry('reloadItems').masonry(); // global
     });
 }
-
+*/
 
 /*
 function fn_moreConent(){
@@ -275,8 +275,5 @@ function fn_moreConent(){
 }
 */
 
-$(document).ready(function(){
-	//getArticleList1(0);
-}) 
 </script>
 <!-- </html> -->

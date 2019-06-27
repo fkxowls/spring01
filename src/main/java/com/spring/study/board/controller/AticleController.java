@@ -31,6 +31,7 @@ import com.spring.study.board.vo.ArticleReplyVo;
 import com.spring.study.board.vo.AticleVo;
 import com.spring.study.board.vo.EndPagePaging;
 import com.spring.study.board.vo.HasNextPaging;
+import com.spring.study.member.vo.MemberDTO;
 
 @Controller
 @SessionAttributes("nowArticleNo")
@@ -103,6 +104,9 @@ public class AticleController {
 		logger.info("===========		viewArticle() start	==============");
 		int _articleNum = Integer.parseInt(articleNum);
 		articleVo = articleService.viewArticle(_articleNum);
+		
+		//session.setAttribute("nowArticleNo", _articleNum);
+		
 		model.addAttribute("articleVo", articleVo);
 
 		return "board/viewArticle";
@@ -119,10 +123,12 @@ public class AticleController {
 
 	@RequestMapping(value = "/board/inserComment", method = RequestMethod.POST)
 	@ResponseBody
-	public int insertComment(@RequestBody ArticleReplyVo replyVo) {
+	public int insertComment(@RequestBody ArticleReplyVo replyVo,HttpSession session) {
 		logger.info("============		insertComment() start		============");
 		logger.info("============		replyVo:{}", replyVo.getContent());
-
+		
+		MemberDTO member = (MemberDTO) session.getAttribute("memberSession");
+		replyVo.setWriteMemberId(member.getMemberId());
 		// TODO 뷰단에서 사용자명 계속 전달하는 것 다 걷어내고, 이 위치에서 세션에서 멤버ID 가져온다
 		return articleService.insertComment(replyVo);
 	}
@@ -134,11 +140,12 @@ public class AticleController {
 
 	@RequestMapping(value = "/board/commentList", produces = "application/json; charset=utf8")
 	@ResponseBody // ?
-	public List<ArticleReplyVo> listComment(@RequestParam("articleNo") String articleNo) {
+	public List<ArticleReplyVo> listComment(@RequestParam("articleNo") int articleNo) {
 		logger.info("============		listComment() start");
-		logger.info("=========== No: {} ", articleNo);
-		int _articleNo = Integer.parseInt(articleNo);
-		List<ArticleReplyVo> vo = articleService.listComment(_articleNo);
+		
+		//int articleNo = (int) session.getAttribute("nowArticleNo");
+		List<ArticleReplyVo> vo = articleService.listComment(articleNo);
+		
 		logger.info("============		listComment불러오는중");
 		for (int i = 0; i < vo.size(); i++)
 			logger.info("=============		vo:{}", vo.get(i));
@@ -173,10 +180,12 @@ public class AticleController {
 
 	@RequestMapping(value = "/board/inserReComment", method = RequestMethod.POST)
 	@ResponseBody
-	public void insertReComment(@RequestBody ArticleReplyVo replyVo) {
+	public void insertReComment(@RequestBody ArticleReplyVo replyVo, HttpSession session) {
 		logger.info("============		insertReComment() start		============");
 		logger.info("============		replyVo{}:", replyVo.getParentNo());
-
+		
+		MemberDTO member = (MemberDTO) session.getAttribute("memberSession");
+		replyVo.setWriteMemberId(member.getMemberId());
 		articleService.insertReComment(replyVo);
 	}
 

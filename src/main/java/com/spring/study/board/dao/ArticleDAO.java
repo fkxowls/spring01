@@ -149,6 +149,7 @@ public class ArticleDAO {
 			list = sqlSession.selectList("mapper.article.listArticle2", vo);
 			session.setAttribute("sessionArticleList", list);
 		} else {
+			//TODO 여기로 오는 경우가 하나 더있는가?? 서버 재실행 후 여기로 오는데 session값을 못가져온다
 			System.out.println("쿠키가 만료안됐을때");
 			list = (List<AticleVo>) session.getAttribute("sessionArticleList");
 		}
