@@ -39,8 +39,7 @@ public class idCheckAspect {
 		boolean isEquals = false;
 		String redirect = "";
 		/* HttpServletResponse resp = null; */
-		HttpSession session = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest()
-				.getSession();
+		HttpSession session = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest().getSession();
 		
 		HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getResponse();
 		

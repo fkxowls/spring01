@@ -109,13 +109,9 @@ public class ArticleDAO {
 		System.out.println("쿠키목록확인");
 		// TODO DTO캐싱 로직 구현 - 읽기 get
 		if (cookieArr != null) {
-			System.out.println("if문");
 			for (int i = 0; i < cookieArr.length; i++) {
-				System.out.println("for문");
 				if (cookieArr[i].getName().equals("issueDate")) {
-					System.out.println("if문2");
 					cookie = cookieArr[i];
-					System.out.println("쿠키 value 비교");
 					String cookieDate = cookie.getValue();
 					long pastDate = Long.parseLong(cookieDate);
 					long curDate = Long.parseLong(curDateTime);
@@ -137,20 +133,15 @@ public class ArticleDAO {
 		
 		// TODO DTO캐싱 로직 구현 - 쓰기 set
 		if (timeSpent > 10) {
-			System.out.println("쿠키만료됐으면");
 			list = sqlSession.selectList("mapper.article.listArticle2", vo);
 			session.setAttribute("sessionArticleList", list);
 			cookie = new Cookie("issueDate", curDateTime);
-			cookie.setComment("DTO쿠키 저장 시간");
 			cookie.setMaxAge(60 * 10);
 			resp.addCookie(cookie);
 		} else if (timeSpent == -1) {
-			System.out.println("첫진입시");
 			list = sqlSession.selectList("mapper.article.listArticle2", vo);
 			session.setAttribute("sessionArticleList", list);
 		} else {
-			//TODO 여기로 오는 경우가 하나 더있는가?? 서버 재실행 후 여기로 오는데 session값을 못가져온다
-			System.out.println("쿠키가 만료안됐을때");
 			list = (List<AticleVo>) session.getAttribute("sessionArticleList");
 		}
 		return list;
