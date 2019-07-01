@@ -16,21 +16,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
-import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.spring.study.ListPagingVo;
 import com.spring.study.board.service.ArticleService;
 import com.spring.study.board.vo.ArticleReplyVo;
 import com.spring.study.board.vo.AticleVo;
-import com.spring.study.board.vo.EndPagePaging;
-import com.spring.study.board.vo.HasNextPaging;
+import com.spring.study.board.vo.PageDto;
 import com.spring.study.member.vo.MemberDTO;
 
 @Controller
@@ -38,29 +36,21 @@ import com.spring.study.member.vo.MemberDTO;
 // @RequestMapping("/board") // 이거 사용 지양
 public class AticleController {
 	private static final Logger logger = LoggerFactory.getLogger(AticleController.class);
+	private static final int pageSize = 10;
 
 	@Autowired
 	ArticleService articleService;
 
+	// endPage
 	@RequestMapping(value = "/board/listArticleForm", method = RequestMethod.GET)
-	public String listArticleForm(Model model, @RequestParam(value = "page", required = false) String page) {
+	public String listArticleForm(Model model) {
 		logger.info("===========		listArticleForm() start	==============");
 
-		int _page = page == null ? 1 : Integer.parseInt(page);
-
-		//endPage
-		EndPagePaging vo = articleService.EndPaging(_page);
-		model.addAttribute("page", vo.getPage());
-		model.addAttribute("totalArticles", vo.getTotalCount());
-		model.addAttribute("totalPage", vo.getTotalPage());
-		model.addAttribute("articleList", vo.getList());
-		
-		
-		//hasNext
-		//HasNextPaging vo2 = articleService.hasNextPaging(_page);
-		//model.addAttribute("page", _page);
-		//model.addAttribute("articleList", vo2.getList());
-
+		// endPage
+		PageDto<AticleVo> articlePageDto = articleService.EndPaging(1, 10);
+		model.addAttribute("nextPage", articlePageDto.getNextPage());
+		model.addAttribute("totalPage", articlePageDto.getTotalPage());
+		model.addAttribute("articleList", articlePageDto.getList());
 
 		return "board/listArticle2";
 
@@ -69,33 +59,75 @@ public class AticleController {
 	}
 
 	// endPage
-	@RequestMapping(value = "/board/listArticle")
-	public String listArticle(Model model,@RequestParam(value = "page", required = false) int page) {
+	@RequestMapping(value = "/board/ajaxArticle")
+	public String ajaxArticle(Model model, @RequestParam int page) {
 		logger.info("===========		listArticle() start	==============");
 	
-		EndPagePaging vo = articleService.EndPaging(page);
-		model.addAttribute("articleList", vo.getList());
-		model.addAttribute("page", vo.getPage());
+		List<AticleVo> articleList = articleService.EndPagingMore(page, 10);
+		model.addAttribute("articleList", articleList);
 		
-		return "board/listArticle2";
+		return "/WEB-INF/views/board/ajaxArticle";
 
+	}
+	
+	@RequestMapping(value = "/board/article/{page}/datas")
+	public @ResponseBody Map<String, Object> getArticleDatas(Model model, @PathVariable int page) {
+		Map<String, Object> result = new HashMap<>();
+		
+		if(1 == page) {
+			PageDto<AticleVo> articlePageDto = articleService.EndPaging(1, pageSize);
+			
+			result.put("nextPage", String.valueOf(articlePageDto.getNextPage()));
+			result.put("totalPage", String.valueOf(articlePageDto.getTotalPage()));
+			result.put("articleList", articlePageDto.getList());
+		} else {
+			List<AticleVo> articleList = articleService.EndPagingMore(1, pageSize);
+
+			result.put("nextPage", "0");
+			result.put("totalPage", "0");
+			result.put("articleList", articleList);
+		}
+		
+		return result;
 	}
 
 	// hasNext
 	@RequestMapping(value = "/board/listArticle2", method = RequestMethod.GET)
-	public String listArticle2(Model model, @RequestParam(value = "page", required = false) String page) {
+	public String listArticle2(Model model) {
 		logger.info("===========		listArticle() start	==============");
 		
-		int _page = page == null ? 1 : Integer.parseInt(page);
-		
-		HasNextPaging vo = new HasNextPaging();
-		vo = articleService.hasNextPaging(_page);
-		model.addAttribute("articleList", vo.getList());
-		model.addAttribute("hasNext", vo.isHasNext());	
-		logger.info("=========== 		hasNext(): {}",vo.isHasNext());	
+		// hasNext
+		PageDto<AticleVo> articlePageDto = articleService.hasNextPaging(1, 10);
+		model.addAttribute("hasNext", articlePageDto.getHasNext());
+		model.addAttribute("nextPage", articlePageDto.getNextPage());
+		model.addAttribute("articleList", articlePageDto.getList());
 		
 		return "board/listArticle2";
+	}
 
+	// hasNext
+	@RequestMapping(value = "/board/ajaxArticle2")
+	public String ajaxArticle2(Model model, @RequestParam int page) {
+		logger.info("===========		listArticle() start	==============");
+	
+		PageDto<AticleVo> articlePageDto = articleService.hasNextPagingMore(page, 10);
+		model.addAttribute("articleList", articlePageDto.getList());
+		model.addAttribute("hasNext", articlePageDto.getHasNext());
+		
+		return "/WEB-INF/views/board/ajaxArticle";
+
+	}
+
+	// hasNext
+	@RequestMapping(value = "/board/article/{page}/datas2")
+	public @ResponseBody Map<String, Object> getArticleDatas2(Model model, @PathVariable int page) {
+		PageDto<AticleVo> articlePageDto = articleService.hasNextPagingMore(page, pageSize);
+		
+		Map<String, Object> result = new HashMap<>();
+		result.put("articleList", articlePageDto.getList());
+		result.put("hasNext", String.valueOf(articlePageDto.getHasNext()));
+		
+		return result;
 	}
 
 	@RequestMapping(value = "/board/viewArticle", method = RequestMethod.GET)

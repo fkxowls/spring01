@@ -88,8 +88,8 @@
 
 
 </style>
+<script  src="http://code.jquery.com/jquery-latest.min.js"></script>
 </head> 
-<script  src="http://code.jquery.com/jquery-latest.min.js"></script> 
 <body>
 	<c:if test="${memberSession.memberId != null }">
 	<span class="s1">${memberSession.memberId }님 Level:${memberSession.memberLevel } <a href="${contextPath }/member/logout">로그아웃</a></span>
@@ -121,15 +121,8 @@
              </c:when>
                     
              <c:when test="${articleList !=null }" >
-             <li id="addList" data-total-page="">
-             <c:forEach  var="articleVO" items="${articleList }" >
-                 <ul  align="center" id="contents">
-                     <li>${articleVO.articleNo }</li>
-                     <li class="left"><a class='cls1' href="${contextPath}/board/viewArticle.do?articleNo=${articleVO.articleNo}">${articleVO.title}</a></li>
-                     <li>${articleVO.writeMemberId }</li>
-                     <%-- <li data-has-next="${hasNext }">${hasNext }</li> --%>
-                 </ul>
-             </c:forEach>
+             <li id="addList" data-total-page="${totalPage }">
+             	<%@ include file="/WEB-INF/views/board/ajaxArticle.jsp" %>
              </li>
              </c:when>
     		 </c:choose>
@@ -138,73 +131,60 @@
  	
  	<li>
  		<div id="divPaging">
- 			<!-- <button type="button" id="moreContent"  data-list-page="2" onClick="getMoreContents(this);">hasNext</button> -->
- 			<c:if test="${totalPage != page }">
+ 			<c:if test="${0 != totalPage and totalPage != page }">
+ 				<button type="button" id="moreContent"  data-next-page="${nextPage}" onClick="getMoreContents2(this);">More ~ EndPage</button>
  			</c:if>
- 			<button type="button" id="moreContent"  data-list-page="2" onClick="getMoreContents2(this)">endNum</button>
+ 			<c:if test="${hasNext}">
+ 				<button type="button" id="moreContent"  data-next-page="${nextPage}" onClick="getMoreContents(this);">More ~ HasNext</button>
+ 			</c:if>
  			<a class="cls1" href="${contextPath}/board/doWriteForm.do"><p class=cls2>글쓰기</p></a>
  		</div>
  	</li>
 </ul>
-</body>
+<script  src="/resources/js/simpleStore.js"></script>
 <script type="text/javascript">
 
-
 function getMoreContents(btnEl){
-	var page = $(btnEl).data('listPage');
-	alert(page);
-	var param ='';
-	
-	if(location.search){
-		param = location.search+'&page='+page;
-	}else{
-		param = '?page='+page;
-	}
-	alert(param);
+	var nextPage = $(btnEl).data('nextPage');
+	var hasNext = $(".contents").last().data('hasNext');
+	if(!hasNext) { return; }
 	
 	$.ajax({
-		url: '/board/listArticle2.do'+param,
-		method: 'GET',
-		dataType: 'html'
-	}).done(function(data){
-		var html = $($.parseHTML(data)).filter('#contents');
-		alert(html);
-		$('#addList').append(data);
-		$(btnEl).data("listPage",page+1).attr("data-list-page",page+1);
-	/*	
-		if(false == $('#divPaging').data("hasNext")){
-			alert('false');
-		}else{
-			$('#divPaging').data("hasNext",${hasNext}).attr("data-has-next",${hasNext});
-			alert("true");
-		}
-	*/
-	});
-	
-}
-
-function getMoreContents2(btnEl){
-	
-	var page = $(btnEl).data('listPage');
-	var param ='';
-	if(location.search){
-		param = location.search+'&page='+page;
-	}else{
-		param = '?page='+page;
-	}
-	
-	$.ajax({
-		url: '/board/listArticle.do'+param,
+		url: '/board/ajaxArticle2.do?page=' + nextPage,
 		method:'GET',
 		dataType: 'html'
 	}).done(function(data){ 
-		var html = $($.parseHTML(data)).filter('#contents');
-		alert(html);
-		$('#addList').append(data);
-		$(btnEl).data("listPage",page+1).attr("data-list-page",page+1);
+		var html = $($.parseHTML(data)).filter('.contents');
+		$('#addList').append(html);
+		$(btnEl).data("nextPage", nextPage + 1).attr("data-list-page", nextPage + 1);
+		hasNext = html.last().data('hasNext');
+		
+		if(!hasNext) { $(btnEl).hide(); }
+		
+		SimpleStore.commit('addList', $('#addList').html());
+		SimpleStore.commit('divPaging', $('#divPaging').html());
 	});
+}
+
+function getMoreContents2(btnEl){
+	var nextPage = $(btnEl).data('nextPage');
+	var totalPage = $('#addList').data('totalPage');
+	if(nextPage > totalPage) { return; }
 	
-	
+	$.ajax({
+		url: '/board/ajaxArticle.do?page=' + nextPage,
+		method:'GET',
+		dataType: 'html'
+	}).done(function(data){ 
+		var html = $($.parseHTML(data)).filter('.contents');
+		$('#addList').append(html);
+		$(btnEl).data("nextPage", nextPage + 1).attr("data-list-page", nextPage + 1);
+		
+		if(nextPage === totalPage) { $(btnEl).hide(); }
+		
+		SimpleStore.commit('addList', $('#addList').html());
+		SimpleStore.commit('divPaging', $('#divPaging').html());
+	});
 }
 
 
@@ -276,4 +256,5 @@ function fn_moreConent(){
 */
 
 </script>
+</body>
 <!-- </html> -->

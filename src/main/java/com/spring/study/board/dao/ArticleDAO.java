@@ -5,25 +5,17 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.spring.study.ListPagingVo;
 import com.spring.study.board.controller.AticleController;
 import com.spring.study.board.vo.ArticleReplyVo;
 import com.spring.study.board.vo.AticleVo;
-import com.spring.study.board.vo.EndPagePaging;
 import com.spring.study.board.vo.HasNextPaging;
+import com.spring.study.board.vo.PageDto;
 
 @Repository("articleDAO")
 public class ArticleDAO {
@@ -31,6 +23,11 @@ public class ArticleDAO {
 
 	@Autowired
 	SqlSession sqlSession;
+	
+	private <E> PageDto<E> selectPageDto(String statement, Object parameter) {
+		List<E> list = sqlSession.selectList(statement, parameter);
+		return new PageDto<E>(0, 0, 0, null, true);
+	}
 
 	public AticleVo viewArticle(int aritcleNo) {
 		return sqlSession.selectOne("mapper.article.viewArticle", aritcleNo);
@@ -88,63 +85,65 @@ public class ArticleDAO {
 
 	}
 
-	// endPage ArticlesList
-	public List<AticleVo> ListArticle(EndPagePaging vo) {
+	public List<AticleVo> ListArticle(PageDto vo) {
 		logger.info("=========            startNum:{}", vo.getStartNum());
 
-		HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-		HttpServletResponse resp = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
-				.getResponse();
-		HttpSession session = req.getSession();
-
-		List<AticleVo> list = null;
-		Cookie cookie = null;
-		Cookie[] cookieArr = req.getCookies();
-
-		Date date = new Date();
-		String curDateTime = dateFormat(date);
-
-		long timeSpent = -1;
-
-		System.out.println("쿠키목록확인");
-		// TODO DTO캐싱 로직 구현 - 읽기 get
-		if (cookieArr != null) {
-			for (int i = 0; i < cookieArr.length; i++) {
-				if (cookieArr[i].getName().equals("issueDate")) {
-					cookie = cookieArr[i];
-					String cookieDate = cookie.getValue();
-					long pastDate = Long.parseLong(cookieDate);
-					long curDate = Long.parseLong(curDateTime);
-					timeSpent = (curDate - pastDate) / 60000;
-					break;
-				} else {
-					cookie = new Cookie("issueDate", curDateTime);
-					cookie.setComment("DTO쿠키 저장 시간");
-					cookie.setMaxAge(60 * 10);
-					resp.addCookie(cookie);
-				}
-			}
-		} else {
-			cookie = new Cookie("issueDate", curDateTime);
-			cookie.setComment("DTO쿠키 저장 시간");
-			cookie.setMaxAge(60 * 10);
-			resp.addCookie(cookie);
-		}
+//		HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+//		HttpServletResponse resp = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+//				.getResponse();
+//		HttpSession session = req.getSession();
+//
+		List<AticleVo> list;
+//		Cookie cookie = null;
+//		Cookie[] cookieArr = req.getCookies();
+//
+//		Date date = new Date();
+//		String curDateTime = dateFormat(date);
+//
+//		long timeSpent = -1;
+//
+//		System.out.println("쿠키목록확인");
+//		// TODO DTO캐싱 로직 구현 - 읽기 get
+//		if (cookieArr != null) {
+//			for (int i = 0; i < cookieArr.length; i++) {
+//				if (cookieArr[i].getName().equals("issueDate")) {
+//					cookie = cookieArr[i];
+//					String cookieDate = cookie.getValue();
+//					long pastDate = Long.parseLong(cookieDate);
+//					long curDate = Long.parseLong(curDateTime);
+//					timeSpent = (curDate - pastDate) / 60000;
+//					break;
+//				} else {
+//					cookie = new Cookie("issueDate", curDateTime);
+//					cookie.setComment("DTO쿠키 저장 시간");
+//					cookie.setMaxAge(60 * 10);
+//					resp.addCookie(cookie);
+//				}
+//			}
+//		} else {
+//			cookie = new Cookie("issueDate", curDateTime);
+//			cookie.setComment("DTO쿠키 저장 시간");
+//			cookie.setMaxAge(60 * 10);
+//			resp.addCookie(cookie);
+//		}
 		
 		// TODO DTO캐싱 로직 구현 - 쓰기 set
-		if (timeSpent > 10) {
+//		if (timeSpent > 10) {
+//			list = sqlSession.selectList("mapper.article.listArticle2", vo);
+//			session.setAttribute("sessionArticleList", list);
+//			cookie = new Cookie("issueDate", curDateTime);
+//			cookie.setMaxAge(60 * 10);
+//			resp.addCookie(cookie);
+//		} else if (timeSpent == -1) {
 			list = sqlSession.selectList("mapper.article.listArticle2", vo);
-			session.setAttribute("sessionArticleList", list);
-			cookie = new Cookie("issueDate", curDateTime);
-			cookie.setMaxAge(60 * 10);
-			resp.addCookie(cookie);
-		} else if (timeSpent == -1) {
-			list = sqlSession.selectList("mapper.article.listArticle2", vo);
-			session.setAttribute("sessionArticleList", list);
-		} else {
-			list = (List<AticleVo>) session.getAttribute("sessionArticleList");
-		}
+//			session.setAttribute("sessionArticleList", list);
+//		} else {
+//			list = (List<AticleVo>) session.getAttribute("sessionArticleList");
+//		}
 		return list;
+	}
+	public PageDto<AticleVo> ListArticle2(PageDto vo) {
+		return this.selectPageDto("mapper.article.listArticle2", vo);
 	}
 
 	// hasNext ArticleList

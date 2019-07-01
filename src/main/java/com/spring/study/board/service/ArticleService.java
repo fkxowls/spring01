@@ -1,22 +1,18 @@
 package com.spring.study.board.service;
 
-import java.util.Arrays;
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.spring.study.ListPagingVo;
 import com.spring.study.board.controller.AticleController;
 import com.spring.study.board.dao.ArticleDAO;
 import com.spring.study.board.vo.ArticleReplyVo;
 import com.spring.study.board.vo.AticleVo;
-import com.spring.study.board.vo.EndPagePaging;
 import com.spring.study.board.vo.HasNextPaging;
+import com.spring.study.board.vo.PageDto;
 
 @Service("ArticleService")
 public class ArticleService {
@@ -92,50 +88,45 @@ public class ArticleService {
 
 	}
 	
-	//endPage 페이지나누는 부분
-	public EndPagePaging EndPaging(int page) {
-		EndPagePaging vo = new EndPagePaging();
+	public PageDto<AticleVo> EndPaging(int page, int pageSize) {
+		PageDto.Builder builder = new PageDto.Builder(page, pageSize);
+		builder.test2(true).test3(true).build();
+		builder.test5(true).build();
+		builder.build();
+		builder.test1(true).test2(true).test3(true).build();
+		builder.test1(true).test2(true).test3(true).test4(true).test5(true).build();
 		
-		if(page == 1) {
-			int totalCount = articleDAO.getTotalArticles();
-			logger.info("======					여기 오냐 안오냐");
-			vo.setTotalCount(totalCount);
-		}
-		vo.setStartNum(page);
-		vo.setEndNum(page);
-		vo.setPageSize(10);
-		vo.setPage(page);
-		List<AticleVo> list = articleDAO.ListArticle(vo);
-		logger.info("===========		{}",vo.getTotalPage());
-		vo.setList(list);
-		
-		return vo;
+		PageDto<AticleVo> req = new PageDto.Builder(page, pageSize).build();
+		List<AticleVo> list = articleDAO.ListArticle(req);
+		int totalCount = articleDAO.getTotalArticles();
+		return new PageDto<AticleVo>(page, pageSize, totalCount, list, false);
 	}
 	
-	//페이지 첫글과 마지막글
-	public EndPagePaging setStartNum(int page) {
-		EndPagePaging vo = new EndPagePaging();
-		vo.setStartNum(page);
-		vo.setEndNum(page);
-		return vo;
+	public List<AticleVo> EndPagingMore(int page, int pageSize) {
+		PageDto<AticleVo> req = new PageDto.Builder(page, pageSize).build();
+		return articleDAO.ListArticle(req);
 	}
 	
-	public HasNextPaging hasNextPaging(int page) {
-		HasNextPaging vo = new  HasNextPaging();
+	public PageDto<AticleVo> hasNextPaging(int page, int pageSize) {
 		
-		vo.setStartNum(page);
-		vo.setEndNum(page);
-		vo.setPageSize(10);
-		List<AticleVo> list = articleDAO.ArticleList(vo);
-		vo.setList(list,list.size());
-		if(list.size() <= vo.getPageSize())
-			vo.setHasNext(false);
-		else
-			vo.setHasNext(true);
-		logger.info("=========== 		hasNext(): {}",vo.isHasNext());	
-
-		return vo;
+		PageDto<AticleVo> req = new PageDto.Builder(page, pageSize + 1).useMoreView(true).build();
+		List<AticleVo> list = articleDAO.ListArticle(req);
+		
+		int totalCount = 0;
+		
+		return new PageDto<AticleVo>(page, pageSize, totalCount, list, true);
 	}
+	
+	public PageDto<AticleVo> hasNextPagingMore(int page, int pageSize) {
+		
+		PageDto<AticleVo> req = new PageDto.Builder(page, pageSize + 1).useMoreView(true).build();
+		List<AticleVo> list = articleDAO.ListArticle(req);
+		
+		int totalCount = 0;
+		
+		return new PageDto<AticleVo>(page, pageSize, totalCount, list, true);
+	}
+	
 	
 	public List<AticleVo> listArticle2(HasNextPaging vo){
 		return articleDAO.ArticleList(vo);

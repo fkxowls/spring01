@@ -85,7 +85,7 @@
 	
 	<select id="totalArticle" resultType="int">
 		SELECT
-				COUNT(ARTICLE_NO)
+				COUNT(1)
 		FROM	ARTICLE
 				
 	</select>
