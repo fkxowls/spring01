@@ -37,7 +37,7 @@
 	    <tr>
 	      <td align="right"> </td>
 	      <td colspan="2">
-	       <input type="button" id="btn1" value="답글쓰기" />
+	       <input type="button" data-article-no="${articleNo }" class="btn1" value="답글쓰기" />
 	       <input type=button value="목록보기"/>
 	      </td>
      </tr>
@@ -60,15 +60,26 @@ $.arrayToJsonObject = function(array) {
 };
 
 $(document).ready(function(){
-	$('#btn1').click(function(){
-		var jsonStr = JSON.stringify(($.arrayToJsonObject($('form').serializeArray())));
+	$('.btn1').click(function(){
+		var title = $('input[name=title]').val();
+		var content = $('textarea[name=content]').val();
+		var articleNo = $('.btn1').data('articleNo');
+		var writeMemberId = $('input[name=writeMemberId]').val();
+		var data = {};
+		
+		data.title = title;
+		data.content = content;
+		data.articleNo = articleNo;
+		data.writeMemberId = writeMemberId;
+		
+		var sendData = JSON.stringify(data); 
 		
 		$.ajax({
 			type: 'POST',
 			url:  '${contextPath}/board/replyArticle.do',
 			contentType: 'application/json',
 			dataType:  'json',
-			data: jsonStr,
+			data: sendData,
 			success: function(){
 				alert(jsonStr)
 			},

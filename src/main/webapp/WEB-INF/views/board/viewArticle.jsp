@@ -43,7 +43,7 @@
 
 			<tr id="tr_btn">
 				<td colspan="2" align="center"><input type=submit value="수정하기">
-					<input type="button" value="삭제하기" onClick="fn_delete()"> 
+					<input type="button" value="삭제하기" onClick="fn_delete('${articleVo.articleNo}')"> 
 					<input type=button value="리스트로 돌아가기">
 					<input type=button value="답글쓰기" onClick="fn_reply('${articleVo.articleNo}')">
 				</td>
@@ -52,6 +52,24 @@
 	</form>
 </body>
 <script type="text/javascript">
+	function fn_delete(articleNo) {
+		var data = {};
+		data.articleNo = articleNo;
+		var sendData = JSON.stringify(data);
+		
+		$.ajax({
+			type: 'post',
+			url : "${contextPath}/board/deleteArticle.do",
+			headers : {
+				"Content-Type" : "application/json"
+			},
+			dataType : 'json',
+			data : data
+		}).done(function(){
+			alert('성공');
+		});
+	}
+	
 	function fn_delete() {
 		/* frmArticle.action="${contextPath}/board/deleteArticleForm.do";
 		frmArticle.submit(); */
@@ -62,7 +80,7 @@
 		if (confirm("삭제하겠습니까?")) {
 			$.ajax({
 				type : "post",
-				url : "${contextPath}/board/deleteArticleForm.do",
+				url : "${contextPath}/board/deleteArticle.do",
 				headers : {
 					"Content-Type" : "application/json"
 				},

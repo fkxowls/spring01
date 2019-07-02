@@ -180,7 +180,7 @@ public class AticleController {
 			logger.info("=============		vo:{}", vo.get(i));
 		return vo;
 	}
-
+/*
 	@RequestMapping(value = "/board/deleteArticleForm", method = RequestMethod.POST)
 	@ResponseBody
 	public void deleteArticleForm(@RequestBody() AticleVo articleVo, HttpServletResponse resp) {
@@ -192,11 +192,11 @@ public class AticleController {
 			e.printStackTrace();
 		}
 	}
-
-	@RequestMapping(value = "/board/deleteArticle2", method = RequestMethod.POST)
-	public String deleteArticle(@RequestParam("articleNo") int articleNo) {
+*/
+	@RequestMapping(value = "/board/deleteArticle", method = RequestMethod.POST)
+	public @ResponseBody String deleteArticle(@RequestBody AticleVo articleVo) {
 		logger.info("===========		deleteArticle() start		=================");
-		articleService.deleteArticle(articleNo);
+		articleService.deleteArticle(articleVo.getArticleNo());
 		return "redirect:/board/listArticle.do";
 	}
 
@@ -249,19 +249,23 @@ public class AticleController {
 
 		return "redirect:/board/viewArticle.do?articleNo=" + articleNo;
 	}
-
+	
+	//transaction 적용
 	@RequestMapping(value = "/board/replyArticle", method = RequestMethod.POST)
 	@ResponseBody
-	public String replyArticle(@RequestBody AticleVo articleVo, RedirectAttributes redirectAttr,
-			HttpServletRequest req) {
+	public String replyArticle(@RequestBody AticleVo articleVo) {
 		logger.info("=============		replyArticle() start		==============");
-		HttpSession session = req.getSession();
-		articleVo.setArticleNo((Integer) session.getAttribute("nowArticleNo"));
-		logger.info("=============		articleVo:{}", articleVo.getArticleNo());
-		int num = articleService.replyArticle(articleVo);
-		logger.info("=============		num:{}", num);
-		redirectAttr.addAttribute("articleNo", num);
-		return "board/viewArticle.do";
+		
+		int num = 0;
+		
+		try {
+			num = articleService.replyArticle(articleVo);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "redirect:/board/listArticleForm.do";
+		}
+		
+		return "board/viewArticle.do?article="+num;
 	}
 
 }

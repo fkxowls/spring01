@@ -62,13 +62,22 @@ public class ArticleService {
 	}
 
 	public void deleteArticle(Integer num) {
+		//articleDAO.selectArticle(num);
 		articleDAO.deleteArticle(num);
 
 	}
 
-	public int replyArticle(AticleVo articleVo) {
-		articleVo.setParentNo(articleVo.getArticleNo());
-		logger.info("=================== parentNo:{}", articleVo.getParentNo());
+	public int replyArticle(AticleVo articleVo) throws Exception {
+		//transaction
+		
+		
+		int parentNo = articleDAO.selectArticle(articleVo.getArticleNo());
+		
+		articleVo.setParentNo(parentNo);
+		
+		parentNo = 0;
+		if(parentNo == 0) { throw new Exception(); }
+		
 		return articleDAO.replyArticle(articleVo);
 
 	}
@@ -87,66 +96,59 @@ public class ArticleService {
 		articleDAO.insertComment(replyVo);
 
 	}
-	
+
 	/***************************************************************************/
-	
-	public PageDto<AticleVo> EndPagination(int page, int pageSize){
+
+	public PageDto<AticleVo> EndPagination(int page, int pageSize) {
 		PageDto<AticleVo> req = new PageDto.Builder(page, pageSize).build();
-		
-		
-		return articleDAO.ListArticle2(req);	
+
+		return articleDAO.ListArticle2(req);
 	}
-	
+
 	public List<AticleVo> EndPagingMore(int page, int pageSize) {
 		PageDto<AticleVo> req = new PageDto.Builder(page, pageSize).build();
 		return articleDAO.ListArticle(req);
 	}
-	
+
 	/*******************************************************************************/
-	
+
 	public PageDto<AticleVo> EndPaging(int page, int pageSize) {
 		PageDto.Builder builder = new PageDto.Builder(page, pageSize);
-		
-	/*	
-		builder.test2(true).test3(true).build();
-		builder.test5(true).build();
-		builder.build();
-		builder.test1(true).test2(true).test3(true).build();
-		builder.test1(true).test2(true).test3(true).test4(true).test5(true).build();
-	*/	
+
+		/*
+		 * builder.test2(true).test3(true).build(); builder.test5(true).build();
+		 * builder.build(); builder.test1(true).test2(true).test3(true).build();
+		 * builder.test1(true).test2(true).test3(true).test4(true).test5(true).build();
+		 */
 		PageDto<AticleVo> req = new PageDto.Builder(page, pageSize).build();
 		List<AticleVo> list = articleDAO.ListArticle(req);
 		int totalCount = articleDAO.getTotalArticles();
 		return new PageDto<AticleVo>(page, pageSize, totalCount, list, false);
 	}
-	
-	
-	
-	
+
 	public PageDto<AticleVo> hasNextPaging(int page, int pageSize) {
-		
+
 		PageDto<AticleVo> req = new PageDto.Builder(page, pageSize + 1).useMoreView(true).build();
 		List<AticleVo> list = articleDAO.ListArticle(req);
-		
+
 		int totalCount = 0;
-		
+
 		return new PageDto<AticleVo>(page, pageSize, totalCount, list, true);
 	}
-	
+
 	public PageDto<AticleVo> hasNextPagingMore(int page, int pageSize) {
-		
+
 		PageDto<AticleVo> req = new PageDto.Builder(page, pageSize + 1).useMoreView(true).build();
 		List<AticleVo> list = articleDAO.ListArticle(req);
-		
+
 		int totalCount = 0;
-		
+
 		return new PageDto<AticleVo>(page, pageSize, totalCount, list, true);
 	}
-	
+
 	////////////////////////////////////////////////////////////////////////////
-	
-	
-	public List<AticleVo> listArticle2(HasNextPaging vo){
+
+	public List<AticleVo> listArticle2(HasNextPaging vo) {
 		return articleDAO.ArticleList(vo);
 	}
 
@@ -157,7 +159,5 @@ public class ArticleService {
 			return true;
 
 	}
-
-	
 
 }

@@ -38,6 +38,12 @@ public class ArticleDAO {
 		return this.selectPageDto("mapper.article.listArticle2", vo);
 	}
 	
+	public int selectArticle(Integer num) {
+		int result = sqlSession.selectOne("mapper.article.isArticleNo",num);
+		return result;
+		
+	}
+	
 	public List<AticleVo> ListArticle(PageDto vo) {
 		logger.info("=========            startNum:{}", vo.getStartNum());
 		
@@ -79,7 +85,7 @@ public class ArticleDAO {
 
 	public int replyArticle(AticleVo articleVo) {
 		int num = sqlSession.insert("mapper.article.insertReply", articleVo);
-		logger.info("===============넘어온 num:{}", num);
+		
 		return num;
 
 	}
@@ -181,4 +187,6 @@ public class ArticleDAO {
 
 		return curDateStr;
 	}
+
+	
 }

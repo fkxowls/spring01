@@ -3,6 +3,16 @@ DELETE FROM ARTICLE
 ALTER TABLE ARTICLE DROP CONSTRAINT FK_ID01
 select * from article
 
+SELECT 
+				COUNT(ARTICLE_NO)
+		FROM	ARTICLE
+		WHERE	
+				ARTICLE_NO = 155
+	
+
+delete from article
+where article_No = (select article_No from ARTICLE_REPLY where article_No = '120' )
+
 
 SELECT INDEX_NAME FROM USER_INDEXES WHERE TABLE_NAME = 'ARTICLE';
 
@@ -73,11 +83,11 @@ insert into ARTICLE
 values
 (
 	NO_SEQ.NEXTVAL
-	,2
-	,'ARTICLE03'
-	,'ARTICLE03.'
+	,0
+	,'ffffff'
+	,'ffffff.'
 	,sysdate
-	,'mem2'
+	,'mem1'
 )
 
 

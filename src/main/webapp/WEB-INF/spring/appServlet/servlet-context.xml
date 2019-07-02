@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+<beans:beans
+	xmlns="http://www.springframework.org/schema/mvc"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:beans="http://www.springframework.org/schema/beans"
 	xmlns:mvc="http://www.springframework.org/schema/mvc"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd
 		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd
-		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd">
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
 
 	<!-- DispatcherServlet Context: defines this servlet's request-processing 
 		infrastructure -->
@@ -20,14 +23,37 @@
 		up static resources in the ${webappRoot}/resources directory -->
 	<resources mapping="/resources/**" location="/resources/" />
 
-	<!-- AOP -->
-	<aop:aspectj-autoproxy /> 
-	 <beans:bean id="ArticleIdCheck" class="com.spring.study.common.aop.idCheckAspect"/>
+	<!-- Transaction Manager -->
+	<beans:bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<beans:property name="dataSource" ref="dataSource" />
+	</beans:bean>
+
+	<aop:config proxy-target-class="true">
+		<aop:pointcut id="deletePoint" expression="execution(* com.spring.study.board.service.ArticleService.*(..))"/>
+		<aop:advisor advice-ref="deleteAdvice" pointcut-ref="deletePoint"/>
+	</aop:config>
 	
+	<tx:advice id="deleteAdvice"
+		transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="delete*" propagation="REQUIRED" rollback-for="Exception" />
+			<!-- <tx:method name="replyArticle" propagation="REQUIRED" rollback-for="Exception" /> -->
+		</tx:attributes>
+	</tx:advice>
+	
+
+	<!-- AOP -->
+	<aop:aspectj-autoproxy />
+	<beans:bean id="ArticleIdCheck"
+		class="com.spring.study.common.aop.idCheckAspect" />
+
 	<aop:config>
 		<aop:aspect ref="ArticleIdCheck">
-			<aop:around method="idCheck" pointcut="execution(* modifyForm(*,*))"/>
-			<aop:around method="idCheck" pointcut="execution(* deleteArticleForm(*,*))"/>
+			<aop:around method="idCheck"
+				pointcut="execution(* modifyForm(*,*))" />
+			<aop:around method="idCheck"
+				pointcut="execution(* deleteArticleForm(*,*))" />
 		</aop:aspect>
 	</aop:config>
 
@@ -48,12 +74,11 @@
 	<beans:bean
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<beans:property name="order" value="2" />
-		<beans:property name="prefix"
-			value="/" />
+		<beans:property name="prefix" value="/" />
 		<beans:property name="suffix" value=".jsp" />
 	</beans:bean>
 
-	
+
 	<beans:bean id="jsonMessageConverter"
 		class="org.springframework.http.converter.json.GsonHttpMessageConverter">
 
