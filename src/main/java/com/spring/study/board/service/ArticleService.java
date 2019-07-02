@@ -88,24 +88,40 @@ public class ArticleService {
 
 	}
 	
-	public PageDto<AticleVo> EndPaging(int page, int pageSize) {
-		PageDto.Builder builder = new PageDto.Builder(page, pageSize);
-		builder.test2(true).test3(true).build();
-		builder.test5(true).build();
-		builder.build();
-		builder.test1(true).test2(true).test3(true).build();
-		builder.test1(true).test2(true).test3(true).test4(true).test5(true).build();
-		
+	/***************************************************************************/
+	
+	public PageDto<AticleVo> EndPagination(int page, int pageSize){
 		PageDto<AticleVo> req = new PageDto.Builder(page, pageSize).build();
-		List<AticleVo> list = articleDAO.ListArticle(req);
-		int totalCount = articleDAO.getTotalArticles();
-		return new PageDto<AticleVo>(page, pageSize, totalCount, list, false);
+		
+		
+		return articleDAO.ListArticle2(req);	
 	}
 	
 	public List<AticleVo> EndPagingMore(int page, int pageSize) {
 		PageDto<AticleVo> req = new PageDto.Builder(page, pageSize).build();
 		return articleDAO.ListArticle(req);
 	}
+	
+	/*******************************************************************************/
+	
+	public PageDto<AticleVo> EndPaging(int page, int pageSize) {
+		PageDto.Builder builder = new PageDto.Builder(page, pageSize);
+		
+	/*	
+		builder.test2(true).test3(true).build();
+		builder.test5(true).build();
+		builder.build();
+		builder.test1(true).test2(true).test3(true).build();
+		builder.test1(true).test2(true).test3(true).test4(true).test5(true).build();
+	*/	
+		PageDto<AticleVo> req = new PageDto.Builder(page, pageSize).build();
+		List<AticleVo> list = articleDAO.ListArticle(req);
+		int totalCount = articleDAO.getTotalArticles();
+		return new PageDto<AticleVo>(page, pageSize, totalCount, list, false);
+	}
+	
+	
+	
 	
 	public PageDto<AticleVo> hasNextPaging(int page, int pageSize) {
 		
@@ -126,6 +142,8 @@ public class ArticleService {
 		
 		return new PageDto<AticleVo>(page, pageSize, totalCount, list, true);
 	}
+	
+	////////////////////////////////////////////////////////////////////////////
 	
 	
 	public List<AticleVo> listArticle2(HasNextPaging vo){

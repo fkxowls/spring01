@@ -19,6 +19,8 @@ public class PageDto<E> {
     	private int page;
     	private int pageSize;
     	private boolean moreView;
+    	
+    	
     	private Boolean test1;
     	private Boolean test2;
     	private Boolean test3;
@@ -29,7 +31,7 @@ public class PageDto<E> {
             this.page = page;
             this.pageSize = pageSize;
         }
-
+        
         public Builder useMoreView(boolean moreView) {
             this.moreView = moreView;
             return this;
@@ -75,12 +77,12 @@ public class PageDto<E> {
     // 이 밑으로는 리스폰스
 
 	public PageDto(int page, int pageSize, int totalCount, List<E> list, boolean moreView/*, Boolean test1, Boolean test2, Boolean test3, Boolean test4, Boolean test5*/) { // 리스폰스 객체
-		if(0 == totalCount && moreView) {
+		if(0 == totalCount && moreView && list.size() > 0) {
 			this.hasNext = list.size() > pageSize ? true : false;
 		}
 		
 		if(this.hasNext) {
-			list = list.subList(0, list.size());
+			list.subList(0, pageSize);
 		}
 		
 		this.page = page;
@@ -174,5 +176,10 @@ public class PageDto<E> {
 	public int getEndNum() {
 		return page * pageSize;
 	}
+
+	public int getPage() {
+		return page;
+	}
+	
 
 }

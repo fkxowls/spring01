@@ -47,15 +47,13 @@ public class AticleController {
 		logger.info("===========		listArticleForm() start	==============");
 
 		// endPage
-		PageDto<AticleVo> articlePageDto = articleService.EndPaging(1, 10);
+		PageDto<AticleVo> articlePageDto = articleService.EndPagination(1, 10);
+		//PageDto<AticleVo> articlePageDto = articleService.EndPaging(1, 10);
 		model.addAttribute("nextPage", articlePageDto.getNextPage());
 		model.addAttribute("totalPage", articlePageDto.getTotalPage());
 		model.addAttribute("articleList", articlePageDto.getList());
 
 		return "board/listArticle2";
-
-	
-
 	}
 
 	// endPage

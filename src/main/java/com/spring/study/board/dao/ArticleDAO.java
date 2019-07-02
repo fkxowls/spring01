@@ -23,10 +23,26 @@ public class ArticleDAO {
 
 	@Autowired
 	SqlSession sqlSession;
-	
+
 	private <E> PageDto<E> selectPageDto(String statement, Object parameter) {
-		List<E> list = sqlSession.selectList(statement, parameter);
-		return new PageDto<E>(0, 0, 0, null, true);
+		List<E> list = sqlSession.selectList(statement, parameter);		
+		PageDto<AticleVo> vo = (PageDto<AticleVo>)parameter;
+		int totalCount = getTotalArticles();
+		int page = vo.getPage();
+		int pageSize = vo.getPageSize();
+		
+		return new PageDto<E>(page, pageSize, totalCount, list, true);
+	}
+	
+	public PageDto<AticleVo> ListArticle2(PageDto vo) {
+		return this.selectPageDto("mapper.article.listArticle2", vo);
+	}
+	
+	public List<AticleVo> ListArticle(PageDto vo) {
+		logger.info("=========            startNum:{}", vo.getStartNum());
+		
+		return sqlSession.selectList("mapper.article.listArticle2", vo);
+		
 	}
 
 	public AticleVo viewArticle(int aritcleNo) {
@@ -70,11 +86,9 @@ public class ArticleDAO {
 
 	public List<ArticleReplyVo> listComment(int articleNo) {
 		List<ArticleReplyVo> list;
-		// TODO DTO캐싱 로직 구현 - 읽기 get
-		{
-			list = sqlSession.selectList("mapper.comment.listComment", articleNo);
-			// TODO DTO캐싱 로직 구현 - 쓰기 set
-		}
+
+		list = sqlSession.selectList("mapper.comment.listComment", articleNo);
+
 		return list;
 	}
 
@@ -85,15 +99,15 @@ public class ArticleDAO {
 
 	}
 
-	public List<AticleVo> ListArticle(PageDto vo) {
-		logger.info("=========            startNum:{}", vo.getStartNum());
+//	public List<AticleVo> ListArticle(PageDto vo) {
+//		logger.info("=========            startNum:{}", vo.getStartNum());
 
 //		HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 //		HttpServletResponse resp = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
 //				.getResponse();
 //		HttpSession session = req.getSession();
 //
-		List<AticleVo> list;
+//		List<AticleVo> list;
 //		Cookie cookie = null;
 //		Cookie[] cookieArr = req.getCookies();
 //
@@ -126,7 +140,7 @@ public class ArticleDAO {
 //			cookie.setMaxAge(60 * 10);
 //			resp.addCookie(cookie);
 //		}
-		
+
 		// TODO DTO캐싱 로직 구현 - 쓰기 set
 //		if (timeSpent > 10) {
 //			list = sqlSession.selectList("mapper.article.listArticle2", vo);
@@ -135,16 +149,13 @@ public class ArticleDAO {
 //			cookie.setMaxAge(60 * 10);
 //			resp.addCookie(cookie);
 //		} else if (timeSpent == -1) {
-			list = sqlSession.selectList("mapper.article.listArticle2", vo);
+//		list = sqlSession.selectList("mapper.article.listArticle2", vo);
 //			session.setAttribute("sessionArticleList", list);
 //		} else {
 //			list = (List<AticleVo>) session.getAttribute("sessionArticleList");
 //		}
-		return list;
-	}
-	public PageDto<AticleVo> ListArticle2(PageDto vo) {
-		return this.selectPageDto("mapper.article.listArticle2", vo);
-	}
+//		return list;
+//	}
 
 	// hasNext ArticleList
 	public List<AticleVo> ArticleList(HasNextPaging vo) {
