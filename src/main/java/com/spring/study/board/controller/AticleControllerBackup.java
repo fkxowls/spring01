@@ -14,8 +14,6 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -34,11 +32,11 @@ import com.spring.study.board.vo.AticleVo;
 import com.spring.study.board.vo.PageDto;
 import com.spring.study.member.vo.MemberDTO;
 
-@Controller
-@SessionAttributes("nowArticleNo")
+//@Controller
+//@SessionAttributes("nowArticleNo")
 // @RequestMapping("/board") // 이거 사용 지양
-public class AticleController {
-	private static final Logger logger = LoggerFactory.getLogger(AticleController.class);
+public class AticleControllerBackup {
+	private static final Logger logger = LoggerFactory.getLogger(AticleControllerBackup.class);
 	private static final int pageSize = 10;
 
 	@Autowired
@@ -58,6 +56,7 @@ public class AticleController {
 
 		return "board/listArticle2";
 	}
+	
 
 	// endPage
 	@RequestMapping(value = "/board/ajaxArticle")
@@ -134,7 +133,7 @@ public class AticleController {
 	public String viewArticle(Model model, @RequestParam("articleNo") String articleNum) {
 		AticleVo articleVo = new AticleVo();
 		logger.info("===========		viewArticle() start	==============");
-
+		
 		int _articleNum = Integer.parseInt(articleNum);
 		articleVo = articleService.viewArticle(_articleNum);
 
@@ -143,42 +142,12 @@ public class AticleController {
 		return "board/viewArticle";
 	}
 
-	@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.GET)
-	public @ResponseBody AticleVo viewArticle2(Model model, @PathVariable int articleNo) {
-		AticleVo articleVo = articleService.viewArticle(articleNo);
-
-		return articleVo;
-	}
-
 	@RequestMapping(value = "/board/modifyArticle", method = RequestMethod.POST)
 	@ResponseBody
-	public void modifyArticle(@RequestBody AticleVo articleVo) {
+	public void modifArticle(@RequestBody AticleVo articleVo) {
 		logger.info("============		modifArticle() start		============");
 
-		try {
-			articleService.modifyArticle(articleVo);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.PUT)
-	public @ResponseBody Map<String, Object> modifyArticle2(@RequestBody AticleVo articleVo,
-			@PathVariable int articleNo) {
-		Map<String, Object> result = new HashMap<>();
-		//articleVo.setArticleNo(0);
-
-		try {
-			articleService.modifyArticle(articleVo);
-			result.put("code",HttpStatus.OK);
-		} catch (Exception e) {
-			result.put("msg", "해당 글이 존재하지 않습니다.");
-			result.put("code", HttpStatus.NOT_FOUND);
-			e.printStackTrace();
-		}
-
-		return result;
+		//articleService.modifyArticle(articleVo);
 	}
 
 	@RequestMapping(value = "/board/inserComment", method = RequestMethod.POST)
@@ -192,15 +161,10 @@ public class AticleController {
 		// TODO 뷰단에서 사용자명 계속 전달하는 것 다 걷어내고, 이 위치에서 세션에서 멤버ID 가져온다
 		return articleService.insertComment(replyVo);
 	}
-	
-	@RequestMapping(value = "/board/{articleNo}/comment", method = RequestMethod.POST)
-	public @ResponseBody int insertComment2(@RequestBody ArticleReplyVo replyVo, HttpSession session,
-			@PathVariable int articleNo) {
-		MemberDTO member = (MemberDTO) session.getAttribute("memberSession");
-		replyVo.setWriteMemberId(member.getMemberId());
-		// TODO 뷰단에서 사용자명 계속 전달하는 것 다 걷어내고, 이 위치에서 세션에서 멤버ID 가져온다
-		//세션을 어떻게 넘겨야하는가
-		return articleService.insertComment(replyVo);
+
+	@RequestMapping(value = "/board/testView", method = RequestMethod.GET)
+	public String testView() {
+		return "redirect:/board/viewArticle?articleNo=10";
 	}
 
 	@RequestMapping(value = "/board/commentList", produces = "application/json; charset=utf8")
@@ -209,13 +173,6 @@ public class AticleController {
 		logger.info("============		listComment() start");
 
 		// int articleNo = (int) session.getAttribute("nowArticleNo");
-		List<ArticleReplyVo> vo = articleService.listComment(articleNo);
-
-		return vo;
-	}
-	
-	@RequestMapping(value = "/board/{articleNo}/comment", method = RequestMethod.GET, produces = "application/json; charset=utf8")
-	public @ResponseBody List<ArticleReplyVo> getCommentdatas(@PathVariable("articleNo") int articleNo) {
 		List<ArticleReplyVo> vo = articleService.listComment(articleNo);
 
 		return vo;
@@ -238,27 +195,12 @@ public class AticleController {
 
 		return "redirect:/board/viewArticle.do?article=" + num;
 	}
-	
-	@RequestMapping(value = "/board/{articleNo}/reply", method = RequestMethod.POST)
-	public @ResponseBody Map<String,Object> writeReply(@RequestBody AticleVo articleVo) {
-		Map<String, Object> result = new HashMap<>();
-		
-		try {
-			articleService.replyArticle(articleVo);
-			result.put("msg",HttpStatus.OK);
-		} catch (Exception e) {
-			result.put("msg", "답변하려는 글이 존재하지 않습니다.");
-			result.put("code", HttpStatus.NOT_FOUND);
-			e.printStackTrace();
-		}
 
-		return result;
-	}
-	
+	// 
 	@RequestMapping(value = "/board/deleteArticle", method = RequestMethod.POST)
 	public @ResponseBody String deleteArticle(@RequestBody AticleVo articleVo) {
 		logger.info("===========		deleteArticle() start		=================");
-	
+
 		try {
 			articleService.deleteArticle(articleVo.getArticleNo());
 		} catch (Exception e) {
@@ -268,23 +210,16 @@ public class AticleController {
 
 		return "redirect:/board/listArticle.do";
 	}
-	
-	@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.DELETE)
-	public @ResponseBody Map<String, Object> deleteArticle2(@RequestBody AticleVo articleVo) {
-		Map<String, Object> result = new HashMap<>();
-		
-		try {
-			articleService.deleteArticle(articleVo.getArticleNo());
-			result.put("msg",HttpStatus.OK);
-		} catch (Exception e) {
-			result.put("msg", "댓글이 달린 글은 삭제할 수 없습니다.");
-			result.put("code", HttpStatus.CONFLICT);
-			e.printStackTrace();
-		}
 
-		return result;
+	@RequestMapping(value = "/board/modifyForm", method = RequestMethod.POST)
+	public String modifyForm(@ModelAttribute("articleVo") AticleVo articleVo, Model model) {
+		logger.info("===========		modifyForm() start		==============");
+		
+		model.addAttribute("articleVo", articleVo);
+		
+		return "board/modifyForm";
 	}
-	
+
 	@RequestMapping(value = "/board/inserReComment", method = RequestMethod.POST)
 	@ResponseBody
 	public void insertReComment(@RequestBody ArticleReplyVo replyVo, HttpSession session) {
@@ -293,24 +228,15 @@ public class AticleController {
 		MemberDTO member = (MemberDTO) session.getAttribute("memberSession");
 		replyVo.setWriteMemberId(member.getMemberId());
 		articleService.insertReComment(replyVo);
-
+		
 	}
 
-	@RequestMapping(value = "/board/modifyForm", method = RequestMethod.POST)
-	public String modifyForm(@ModelAttribute("articleVo") AticleVo articleVo, Model model) {
-		logger.info("===========		modifyForm() start		==============");
-
-		model.addAttribute("articleVo", articleVo);
-
-		return "board/modifyForm";
-	}
-	
 	@RequestMapping(value = "/board/doWriteForm", method = RequestMethod.GET)
 	public String form() {
 		logger.info("=============		form() start		==============");
-
+		
 		String viewName = "board/addArticleForm";
-
+		
 		return viewName;
 	}
 
@@ -318,17 +244,17 @@ public class AticleController {
 	public String replyArticleForm(@RequestParam("articleNo") int articleNo, @RequestParam("title") String title,
 			Model model) {
 		logger.info("=============		replyArticleForm() start		==============");
-
+	
 		model.addAttribute("articleNo", articleNo);
 		model.addAttribute("title", title);
 		return "board/replyArticleForm";
-
+		
 	}
 
 	@RequestMapping(value = "/board/WrtiteArticle", method = RequestMethod.POST)
 	public String writeArticle(@ModelAttribute("articleVo") AticleVo articleVo, HttpServletRequest req) {
 		logger.info("=============		writeArticle() start		==============");
-
+		
 		try {
 			req.setCharacterEncoding("utf-8");
 		} catch (UnsupportedEncodingException e) {

@@ -95,8 +95,8 @@
 		 var sendData = JSON.stringify(data); 
 		 
 		$.ajax({
-			type: 'post',
-			url:  '${contextPath}/board/modifyArticle.do'+articleNo,
+			type: 'put',
+			url:  '${contextPath}/board/article/'+articleNo,
 			headers: {
 				"Content-Type" : "application/json"
 			},

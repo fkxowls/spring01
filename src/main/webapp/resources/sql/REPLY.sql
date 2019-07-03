@@ -21,6 +21,27 @@ CREATE SEQUENCE COMMENT_SEQ
        MINVALUE 0
        NOCYCLE;
 
+SELECT
+  	    		  A.*
+			FROM    (
+  	          SELECT	ROWNUM as rNum
+    	                ,LEVEL AS LVL
+        	            , ARTICLE_NO
+            	        , REPLY_NO
+                	    , PARENT_NO
+                    	, CONTENT
+	                    , WRITE_MEMBER_ID
+    	               
+        	    FROM    ARTICLE_REPLY
+            	START WITH
+                	    PARENT_NO           = 0 
+            	CONNECT BY
+            	        PRIOR ARTICLE_NO    = PARENT_NO 
+	            ORDER SIBLINGS BY
+    	                ARTICLE_NO DESC
+       			 ) A
+       			 WHERE ARTICLE_NO = 119
+       
 DROP SEQUENCE COMMENT_SEQ
 
 INSERT INTO ARTICLE_REPLY

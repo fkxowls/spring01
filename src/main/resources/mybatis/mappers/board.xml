@@ -104,11 +104,11 @@
 	</delete>
 	
 	<insert id="insertReply" parameterType="articleVo">
-		<selectKey keyProperty="articleNo" resultType="int" order="BEFORE">
+		<!-- <selectKey keyProperty="articleNo" resultType="int" order="BEFORE">
 			SELECT
 					NO_SEQ.NEXTVAL
 			FROM	DUAL
-		</selectKey>
+		</selectKey> -->
 			INSERT INTO ARTICLE
 			(
 				ARTICLE_NO
@@ -129,11 +129,17 @@
 	
 	<select id="isArticleNo" parameterType="int" resultType="int">
 		SELECT 
-				COUNT(ARTICLE_NO)
+				ARTICLE_NO
 		FROM	ARTICLE
 		WHERE	
 				ARTICLE_NO = #{articleNo}
 	
+	</select>
+	
+	<select id="articleNo" resultType="int">
+		SELECT
+					NO_SEQ.NEXTVAL
+			FROM	DUAL
 	</select>
 	
 </mapper>

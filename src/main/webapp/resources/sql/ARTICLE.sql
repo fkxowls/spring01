@@ -3,12 +3,12 @@ DELETE FROM ARTICLE
 ALTER TABLE ARTICLE DROP CONSTRAINT FK_ID01
 select * from article
 
-SELECT 
-				COUNT(ARTICLE_NO)
-		FROM	ARTICLE
-		WHERE	
-				ARTICLE_NO = 155
-	
+UPDATE ARTICLE
+		SET
+			TITLE		= '1111'
+			,CONTENT	= '1111'
+		WHERE
+			ARTICLE_NO	= 0
 
 delete from article
 where article_No = (select article_No from ARTICLE_REPLY where article_No = '120' )

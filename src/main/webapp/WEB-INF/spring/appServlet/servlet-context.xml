@@ -37,8 +37,7 @@
 	<tx:advice id="deleteAdvice"
 		transaction-manager="transactionManager">
 		<tx:attributes>
-			<tx:method name="delete*" propagation="REQUIRED" rollback-for="Exception" />
-			<!-- <tx:method name="replyArticle" propagation="REQUIRED" rollback-for="Exception" /> -->
+			<tx:method name="replyArticle" propagation="REQUIRED" rollback-for="Exception" />
 		</tx:attributes>
 	</tx:advice>
 	

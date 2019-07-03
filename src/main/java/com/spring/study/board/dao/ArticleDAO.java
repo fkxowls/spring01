@@ -83,10 +83,10 @@ public class ArticleDAO {
 
 	}
 
-	public int replyArticle(AticleVo articleVo) {
+	public void replyArticle(AticleVo articleVo) {
 		int num = sqlSession.insert("mapper.article.insertReply", articleVo);
 		
-		return num;
+		//return num;
 
 	}
 
@@ -186,6 +186,11 @@ public class ArticleDAO {
 		String curDateStr = String.valueOf(curDateTime);
 
 		return curDateStr;
+	}
+
+	public int setArticleNo() {
+		
+		return sqlSession.selectOne("mapper.article.articleNo");
 	}
 
 	
