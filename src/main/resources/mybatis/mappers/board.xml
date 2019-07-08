@@ -81,6 +81,7 @@
 			,CONTENT	= #{content}
 		WHERE
 			ARTICLE_NO	= #{articleNo}
+		AND	WRITE_MEMBER_ID = 
 	</update>
 	
 	<select id="totalArticle" resultType="int">
@@ -100,6 +101,7 @@
 		DELETE 	
 		FROM	ARTICLE
 		WHERE	ARTICLE_NO = #{articleNo}
+		AND		WRITE_MEMBER_ID = 
 	
 	</delete>
 	
@@ -128,12 +130,32 @@
 	</insert>
 	
 	<select id="isArticleNo" parameterType="int" resultType="int">
-		SELECT 
-				ARTICLE_NO
-		FROM	ARTICLE
-		WHERE	
-				ARTICLE_NO = #{articleNo}
+		SELECT	1
+		FROM 	DUAL
+		WHERE	1			= 1
+		AND		EXISTS
+				(
+					SELECT 
+							ARTICLE_NO
+					FROM	ARTICLE
+					WHERE	
+							ARTICLE_NO = #{articleNo}
+				)
+	</select>
 	
+	<select id="isArticleNo" parameterType="int" resultType="int">
+		SELECT	1
+		FROM 	DUAL
+		WHERE	1			= 1
+		AND		EXISTS
+				(
+					SELECT 
+							ARTICLE_NO
+					FROM	ARTICLE
+					WHERE	
+							ARTICLE_NO = #{articleNo}
+					AND		WRITE_MEMBER_ID = 
+				)
 	</select>
 	
 	<select id="articleNo" resultType="int">

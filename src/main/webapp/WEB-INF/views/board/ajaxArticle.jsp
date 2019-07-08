@@ -7,5 +7,6 @@
         <li>${articleVO.articleNo }</li>
         <li class="left"><a class='cls1' href="${contextPath}/board/viewArticle.do?articleNo=${articleVO.articleNo}">${articleVO.title}</a></li>
         <li>${articleVO.writeMemberId }</li>
+        <li>${articleVO.writeDate }</li>
     </ul>
 </c:forEach>

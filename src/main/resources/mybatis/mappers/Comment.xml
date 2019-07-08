@@ -24,7 +24,11 @@
 	            ORDER SIBLINGS BY
     	                ARTICLE_NO DESC
        			 ) A
-       			 WHERE ARTICLE_NO = #{article_no}
+       			 WHERE ARTICLE_NO in (
+	       			 SELECT regexp_substr(#{article_no}, '[^,]+', 1, LEVEL)
+					FROM DUAL
+					CONNECT BY LEVEL &lt;= length(regexp_replace(#{article_no}, '[^,]+', '')) + 1
+       			 )
 		<!-- WHERE   rNum BETWEEN (#{pageNum}-1)*10+1   AND (#{pageNum}-1)*10+10  -->
 	
 	

@@ -18,29 +18,29 @@ import com.spring.study.board.vo.HasNextPaging;
 import com.spring.study.board.vo.PageDto;
 
 @Repository("articleDAO")
-public class ArticleDAO {
+public class ArticleDAO extends BaseDAO {
 	private static final Logger logger = LoggerFactory.getLogger(AticleController.class);
 
 	@Autowired
 	SqlSession sqlSession;
-
-	private <E> PageDto<E> selectPageDto(String statement, Object parameter) {
-		List<E> list = sqlSession.selectList(statement, parameter);		
-		PageDto<AticleVo> vo = (PageDto<AticleVo>)parameter;
-		int totalCount = getTotalArticles();
-		int page = vo.getPage();
-		int pageSize = vo.getPageSize();
-		
-		return new PageDto<E>(page, pageSize, totalCount, list, true);
-	}
 	
 	public PageDto<AticleVo> ListArticle2(PageDto vo) {
-		return this.selectPageDto("mapper.article.listArticle2", vo);
+		return super.selectPageDto("mapper.article.listArticle2", "mapper.article.totalArticle", vo);
 	}
 	
-	public int selectArticle(Integer num) {
-		int result = sqlSession.selectOne("mapper.article.isArticleNo",num);
-		return result;
+//	@AddReply // TODO PageDto인지 List인지 단일VO인지 체크해서 -> 각 VO에 reply 필드에 reply 넣어주도록 AOP 작업
+	public PageDto<AticleVo> getArticleByTotalCount(PageDto vo) {
+		return super.selectPageDto("mapper.article.listArticle2", "mapper.article.totalArticle", vo);
+	}
+	
+	public PageDto<AticleVo> getArticleByHasNext(PageDto vo) {
+		return super.selectPageDto("mapper.article.listArticle2", vo);
+	}
+	
+	public boolean isExistsArticle(Integer num) {
+		Integer result = sqlSession.selectOne("mapper.article.isArticleNo",num);
+		if(1 == result) { return true; }
+		return false;
 		
 	}
 	
@@ -83,11 +83,8 @@ public class ArticleDAO {
 
 	}
 
-	public void replyArticle(AticleVo articleVo) {
-		int num = sqlSession.insert("mapper.article.insertReply", articleVo);
-		
-		//return num;
-
+	public int replyArticle(AticleVo articleVo) {
+		return sqlSession.insert("mapper.article.insertReply", articleVo);
 	}
 
 	public List<ArticleReplyVo> listComment(int articleNo) {
@@ -188,7 +185,7 @@ public class ArticleDAO {
 		return curDateStr;
 	}
 
-	public int setArticleNo() {
+	public int getArticleNo() {
 		
 		return sqlSession.selectOne("mapper.article.articleNo");
 	}

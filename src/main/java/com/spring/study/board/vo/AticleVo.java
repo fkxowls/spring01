@@ -3,8 +3,6 @@ package com.spring.study.board.vo;
 import java.sql.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class AticleVo {
 	
@@ -15,8 +13,8 @@ public class AticleVo {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
 	private Date writeDate;
 	private String writeMemberId;
-	private String lvl;
 	private int rnum;
+	private PageDto<ArticleReplyVo> articleReplyVo;
 	
 	public int getRnum() {
 		return rnum;
@@ -24,12 +22,7 @@ public class AticleVo {
 	public void setRnum(int rnum) {
 		this.rnum = rnum;
 	}
-	public String getLvl() {
-		return lvl;
-	}
-	public void setLvl(String lvl) {
-		this.lvl = lvl;
-	}
+	
 	public int getArticleNo() {
 		return articleNo;
 	}

@@ -106,9 +106,8 @@
                 <ul>
                     <li>No</li>
                     <li>제목</li>
-                    <li>작성일</li>
                     <li>작성자</li>
-                    <li>조회수</li>
+                    <li>작성일</li>
                 </ul>
              </li>
              <c:choose>
@@ -137,7 +136,7 @@
  			<c:if test="${hasNext}">
  				<button type="button" id="moreContent"  data-next-page="${nextPage}" onClick="getMoreContents(this);">More ~ HasNext</button>
  			</c:if>
- 			<a class="cls1" href="${contextPath}/board/doWriteForm.do"><p class=cls2>글쓰기</p></a>
+ 			<a class="cls1" href="${contextPath}/board/writeArticleForm.do"><p class=cls2>글쓰기</p></a>
  		</div>
  	</li>
 </ul>

@@ -3,19 +3,6 @@ DELETE FROM ARTICLE
 ALTER TABLE ARTICLE DROP CONSTRAINT FK_ID01
 select * from article
 
-UPDATE ARTICLE
-		SET
-			TITLE		= '1111'
-			,CONTENT	= '1111'
-		WHERE
-			ARTICLE_NO	= 0
-
-delete from article
-where article_No = (select article_No from ARTICLE_REPLY where article_No = '120' )
-
-
-SELECT INDEX_NAME FROM USER_INDEXES WHERE TABLE_NAME = 'ARTICLE';
-
 
 SELECT RN,ARTICLE_NO 
 FROM
@@ -45,10 +32,10 @@ ALTER TABLE ARTICLE ADD FOREIGN KEY(WRITE_MEMBER_ID) REFERENCES MEMBER(MEMBER_ID
 
 
 CREATE SEQUENCE NO_SEQ
- 	   START WITH 1
+ 	   START WITH 10001
    	   INCREMENT BY 1
-	   MAXVALUE 10000
-       MINVALUE 0
+	   MAXVALUE 99999
+       MINVALUE 10001
        NOCYCLE;
 
 DROP SEQUENCE NO_SEQ
@@ -147,22 +134,23 @@ values
 	SELECT 	 X.*
              
  	FROM (
- 			SELECT  
+ 			SELECT  /*+ INDEX_DESC(ARTICLE ARTICLE_NO)*/
  					ROWNUM AS RNUM
+ 					,LEVEL AS LVL
  				    , A.*      
          	 FROM (
-         	 		SELECT    /*+ INDEX_DESC(ARTICLE ARTICLE_NO)*/
-         	 				   ARTICLE_NO
+         	 		SELECT    ARTICLE_NO
             				 , PARENT_NO
             				 , TITLE
            					 , CONTENT
            					 , WRITE_MEMBER_ID
             		 		 
             		FROM ARTICLE
+            		ORDER BY ARTICLE_NO DESC
          	 	  ) A
- 	 		 WHERE ROWNUM <= #{endNum}
+ 	 		 WHERE ROWNUM <= 10
  	 	  ) X
- 	 WHERE   X.RNUM >= #{startNum}
+ 	 WHERE   X.RNUM >= 1
 		
  	  SELECT	ROWNUM as rNum
                     ,LEVEL AS LVL
@@ -180,6 +168,5 @@ values
                     PRIOR ARTICLE_NO    = PARENT_NO 
             ORDER SIBLINGS BY
                     ARTICLE_NO DESC
-DELETE 	
-		FROM	ARTICLE
-		WHERE	ARTICLE_NO = 10
+
+                    

@@ -63,23 +63,21 @@ $(document).ready(function(){
 	$('.btn1').click(function(){
 		var title = $('input[name=title]').val();
 		var content = $('textarea[name=content]').val();
-		var articleNo = $('.btn1').data('articleNo');
+		var parentNo = $('.btn1').data('articleNo'); // TODO parentNo로 전부 이름변경
 		var writeMemberId = $('input[name=writeMemberId]').val();
-		var data = {};
 		
+		var data = {};
 		data.title = title;
 		data.content = content;
-		data.articleNo = articleNo;
+		//data.parentNo = parentNo;
 		data.writeMemberId = writeMemberId;
-		
-		var sendData = JSON.stringify(data); 
 		
 		$.ajax({
 			type: 'POST',
-			url:  '${contextPath}/board/replyArticle.do',
+			url:  '${contextPath}/board/' + parentNo + '/reply',
 			contentType: 'application/json',
 			dataType:  'json',
-			data: sendData,
+			data: JSON.stringify(data),
 			success: function(){
 				alert(jsonStr)
 			},

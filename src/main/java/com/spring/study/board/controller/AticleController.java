@@ -1,20 +1,16 @@
 package com.spring.study.board.controller;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,13 +22,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.spring.study.board.service.ArticleService;
 import com.spring.study.board.vo.ArticleReplyVo;
 import com.spring.study.board.vo.AticleVo;
 import com.spring.study.board.vo.PageDto;
 import com.spring.study.member.vo.MemberDTO;
+
+import javassist.NotFoundException;
+import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 
 @Controller
 @SessionAttributes("nowArticleNo")
@@ -42,7 +40,7 @@ public class AticleController {
 	private static final int pageSize = 10;
 
 	@Autowired
-	ArticleService articleService;
+	private ArticleService articleService;
 
 	// endPage
 	@RequestMapping(value = "/board/listArticleForm", method = RequestMethod.GET)
@@ -194,8 +192,7 @@ public class AticleController {
 	}
 	
 	@RequestMapping(value = "/board/{articleNo}/comment", method = RequestMethod.POST)
-	public @ResponseBody int insertComment2(@RequestBody ArticleReplyVo replyVo, HttpSession session,
-			@PathVariable int articleNo) {
+	public @ResponseBody int insertComment2(@RequestBody ArticleReplyVo replyVo, HttpSession session) {
 		MemberDTO member = (MemberDTO) session.getAttribute("memberSession");
 		replyVo.setWriteMemberId(member.getMemberId());
 		// TODO 뷰단에서 사용자명 계속 전달하는 것 다 걷어내고, 이 위치에서 세션에서 멤버ID 가져온다
@@ -239,26 +236,42 @@ public class AticleController {
 		return "redirect:/board/viewArticle.do?article=" + num;
 	}
 	
-	@RequestMapping(value = "/board/{articleNo}/reply", method = RequestMethod.POST)
-	public @ResponseBody Map<String,Object> writeReply(@RequestBody AticleVo articleVo) {
+	@RequestMapping(value = "/board/{parentNo}/reply", method = RequestMethod.POST)
+	public @ResponseBody Map<String,Object> writeReply(@RequestBody AticleVo articleVo, @PathVariable String parentNo) {
 		Map<String, Object> result = new HashMap<>();
+
+		if(5 != parentNo.length()) { // TODO 시퀀스는 5자리가 보장되도록 작업 해줄 것
+			result.put("code", HttpStatus.BAD_REQUEST);
+			result.put("msg", "입력 값이 올바르지 않습니다. 다시 확인 해주세요.");
+			return result;
+		}
+		articleVo.setParentNo(new Integer(parentNo));
 		
 		try {
-			articleService.replyArticle(articleVo);
-			result.put("msg",HttpStatus.OK);
-		} catch (Exception e) {
-			result.put("msg", "답변하려는 글이 존재하지 않습니다.");
+			String msg = articleService.replyArticle(articleVo);
+			result.put("code",HttpStatus.OK);
+			result.put("msg", msg);
+		} catch (NotFoundException e) {
 			result.put("code", HttpStatus.NOT_FOUND);
+			result.put("msg", e.getMessage());
+			e.printStackTrace();
+		} catch (InternalException e) {
+			result.put("code", HttpStatus.INTERNAL_SERVER_ERROR);
+			result.put("msg", e.getMessage());
+			e.printStackTrace();
+		} catch (Exception e) {
+			result.put("code", HttpStatus.INTERNAL_SERVER_ERROR);
+			result.put("msg", "알 수 없는 오류가 발생 했습니다. 다시 시도 해주세요");
 			e.printStackTrace();
 		}
-
+		
 		return result;
 	}
 	
 	@RequestMapping(value = "/board/deleteArticle", method = RequestMethod.POST)
 	public @ResponseBody String deleteArticle(@RequestBody AticleVo articleVo) {
 		logger.info("===========		deleteArticle() start		=================");
-	
+		System.out.println(articleVo.getArticleNo());
 		try {
 			articleService.deleteArticle(articleVo.getArticleNo());
 		} catch (Exception e) {
@@ -270,11 +283,11 @@ public class AticleController {
 	}
 	
 	@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.DELETE)
-	public @ResponseBody Map<String, Object> deleteArticle2(@RequestBody AticleVo articleVo) {
+	public @ResponseBody Map<String, Object> deleteArticle2(@PathVariable int articleNo) {
 		Map<String, Object> result = new HashMap<>();
 		
 		try {
-			articleService.deleteArticle(articleVo.getArticleNo());
+			articleService.deleteArticle(articleNo);
 			result.put("msg",HttpStatus.OK);
 		} catch (Exception e) {
 			result.put("msg", "댓글이 달린 글은 삭제할 수 없습니다.");
@@ -305,7 +318,7 @@ public class AticleController {
 		return "board/modifyForm";
 	}
 	
-	@RequestMapping(value = "/board/doWriteForm", method = RequestMethod.GET)
+	@RequestMapping(value = "/board/writeArticleForm", method = RequestMethod.GET)
 	public String form() {
 		logger.info("=============		form() start		==============");
 
@@ -314,7 +327,7 @@ public class AticleController {
 		return viewName;
 	}
 
-	@RequestMapping(value = "/board/replyArticleForm", method = RequestMethod.POST)
+	@RequestMapping(value = "/board/writeReplyForm", method = RequestMethod.POST)
 	public String replyArticleForm(@RequestParam("articleNo") int articleNo, @RequestParam("title") String title,
 			Model model) {
 		logger.info("=============		replyArticleForm() start		==============");

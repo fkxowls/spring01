@@ -8,17 +8,17 @@ public class PageDto<E> {
 	private int page;
 	private int pageSize;
 	private int totalCount;
-	private boolean moreView;
 	private Boolean test1;
 	private Boolean test2;
 	private Boolean test3;
 	private Boolean test4;
 	private Boolean test5;
+	private int startNum;
+	private int endNum;
 
     public static class Builder {
     	private int page;
     	private int pageSize;
-    	private boolean moreView;
     	
     	
     	private Boolean test1;
@@ -32,11 +32,6 @@ public class PageDto<E> {
             this.pageSize = pageSize;
         }
         
-        public Builder useMoreView(boolean moreView) {
-            this.moreView = moreView;
-            return this;
-        }
-
         public Builder test1(boolean test1) {
             this.test1 = test1;
             return this;
@@ -65,7 +60,6 @@ public class PageDto<E> {
     private PageDto(Builder builder) { // 리퀘스트 객체
         this.page  = builder.page;
         this.pageSize     = builder.pageSize;
-        this.moreView     = builder.moreView;
 		this.test1 = builder.test1;
 		this.test2 = builder.test2;
 		this.test3 = builder.test3;
@@ -76,15 +70,7 @@ public class PageDto<E> {
     // 이 위로는 리퀘스트
     // 이 밑으로는 리스폰스
 
-	public PageDto(int page, int pageSize, int totalCount, List<E> list, boolean moreView/*, Boolean test1, Boolean test2, Boolean test3, Boolean test4, Boolean test5*/) { // 리스폰스 객체
-		if(0 == totalCount && moreView && list.size() > 0) {
-			this.hasNext = list.size() > pageSize ? true : false;
-		}
-		
-		if(this.hasNext) {
-			list.subList(0, pageSize);
-		}
-		
+	public PageDto(int page, int pageSize, int totalCount, List<E> list/*, Boolean test1, Boolean test2, Boolean test3, Boolean test4, Boolean test5*/) { // 리스폰스 객체
 		this.page = page;
 		this.pageSize = pageSize;
 		this.totalCount = totalCount;
@@ -169,17 +155,24 @@ public class PageDto<E> {
 		return list;
 	}
 
-	public int getStartNum() {
-		return (page - 1) * pageSize + 1;
-	}
-
-	public int getEndNum() {
-		return page * pageSize;
-	}
-
 	public int getPage() {
 		return page;
 	}
-	
 
+	public int getStartNum() {
+		return startNum;
+	}
+
+	public void setStartNum(int startNum) {
+		this.startNum = startNum;
+	}
+
+	public int getEndNum() {
+		return endNum;
+	}
+
+	public void setEndNum(int endNum) {
+		this.endNum = endNum;
+	}
+	
 }

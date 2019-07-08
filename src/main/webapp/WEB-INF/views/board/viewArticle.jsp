@@ -43,7 +43,7 @@
 
 			<tr id="tr_btn">
 				<td colspan="2" align="center"><input type=submit value="수정하기">
-					<input type="button" value="삭제하기" onClick="fn_delete('${articleVo.articleNo}')"> 
+					<input type="button" value="삭제하기" onClick="fn_delete('${articleVo.articleNo}','${articleVo.writeMemberId }')"> 
 					<input type=button value="리스트로 돌아가기">
 					<input type=button value="답글쓰기" onClick="fn_reply('${articleVo.articleNo}')">
 				</td>
@@ -52,9 +52,10 @@
 	</form>
 </body>
 <script type="text/javascript">
-	function fn_delete(articleNo) {
+	function fn_delete(articleNo,writerId) {
 		var data = {};
 		data.articleNo = articleNo;
+		data.writeMemberId = writerId;
 		var sendData = JSON.stringify(data);
 		
 		$.ajax({
@@ -64,16 +65,13 @@
 				"Content-Type" : "application/json"
 			},
 			dataType : 'json',
-			data : data
+			data : sendData
 		}).done(function(){
 			alert('성공');
 		});
 	}
-	
+/*	
 	function fn_delete() {
-		/* frmArticle.action="${contextPath}/board/deleteArticleForm.do";
-		frmArticle.submit(); */
-
 		var jsonText = '{"articleNo":${articleVo.articleNo},"writeMemberId":"${memberSession.memberId }"}';
 		var sendData1 = JSON.stringify(jsonText);
 		var sendData2 = JSON.parse(sendData1);
@@ -98,11 +96,11 @@
 		}
 
 	}
-
+*/
 	function fn_reply(num) {
 		var title = $('#title').val();
 		alert(title);
-		frmArticle.action = "${contextPath}/board/replyArticleForm.do?articleNo="+num+"&title="+title;
+		frmArticle.action = "${contextPath}/board/writeReplyForm.do?articleNo="+num+"&title="+title;
 		frmArticle.submit();
 	}
 

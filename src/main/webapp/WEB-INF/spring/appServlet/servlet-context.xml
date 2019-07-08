@@ -30,29 +30,30 @@
 	</beans:bean>
 
 	<aop:config proxy-target-class="true">
-		<aop:pointcut id="deletePoint" expression="execution(* com.spring.study.board.service.ArticleService.*(..))"/>
-		<aop:advisor advice-ref="deleteAdvice" pointcut-ref="deletePoint"/>
+		<aop:pointcut id="deletePoint"
+			expression="execution(* com.spring.study.board.service.ArticleService.*(..))" />
+		<aop:advisor advice-ref="deleteAdvice"
+			pointcut-ref="deletePoint" />
 	</aop:config>
-	
+
 	<tx:advice id="deleteAdvice"
 		transaction-manager="transactionManager">
 		<tx:attributes>
-			<tx:method name="replyArticle" propagation="REQUIRED" rollback-for="Exception" />
+			<tx:method name="replyArticle" propagation="REQUIRED"
+				rollback-for="Exception" />
 		</tx:attributes>
 	</tx:advice>
-	
+
 
 	<!-- AOP -->
 	<aop:aspectj-autoproxy />
 	<beans:bean id="ArticleIdCheck"
-		class="com.spring.study.common.aop.idCheckAspect" />
+		class="com.spring.study.common.aop.IdCheckAspect" />
 
 	<aop:config>
 		<aop:aspect ref="ArticleIdCheck">
-			<aop:around method="idCheck"
-				pointcut="execution(* modifyForm(*,*))" />
-			<aop:around method="idCheck"
-				pointcut="execution(* deleteArticleForm(*,*))" />
+			<aop:around method="idCheck" pointcut="execution(* modifyForm(*,*))" />
+			<!-- <aop:around method="idCheck2" pointcut="execution(* deleteArticle(..))" /> -->
 		</aop:aspect>
 	</aop:config>
 
@@ -88,9 +89,9 @@
 	<mvc:interceptors>
 		<mvc:interceptor>
 			<!-- <mvc:mapping path="/*/write*.do" /> -->
-			<mvc:mapping path="/board/do*.do" />
+			<mvc:mapping path="/board/write*.do" />
 			<beans:bean
-				class="com.spring.study.common.interceptor.Interceptor" />
+				class="com.spring.study.common.interceptor.LoginSessionInterceptor" />
 		</mvc:interceptor>
 	</mvc:interceptors>
 
