@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class AticleVo {
 	
-	private int articleNo;
-	private int parentNo;
+	private String articleNo;
+	private String parentNo;
 	private String title;
 	private String content;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
@@ -23,16 +23,16 @@ public class AticleVo {
 		this.rnum = rnum;
 	}
 	
-	public int getArticleNo() {
+	public String getArticleNo() {
 		return articleNo;
 	}
-	public void setArticleNo(int articleNo) {
+	public void setArticleNo(String articleNo) {
 		this.articleNo = articleNo;
 	}
-	public int getParentNo() {
+	public String getParentNo() {
 		return parentNo;
 	}
-	public void setParentNo(int parentNo) {
+	public void setParentNo(String parentNo) {
 		this.parentNo = parentNo;
 	}
 	public String getTitle() {
