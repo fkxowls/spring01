@@ -16,6 +16,7 @@ import com.spring.study.board.vo.ArticleReplyVo;
 import com.spring.study.board.vo.AticleVo;
 import com.spring.study.board.vo.HasNextPaging;
 import com.spring.study.board.vo.PageDto;
+import com.spring.study.board.vo.PagingResponseDTO;
 
 @Repository("articleDAO")
 public class ArticleDAO extends BaseDAO {
@@ -23,35 +24,38 @@ public class ArticleDAO extends BaseDAO {
 
 	@Autowired
 	SqlSession sqlSession;
-	
-	public PageDto<AticleVo> ListArticle2(PageDto vo) {
+	/********************************************************************
+	기존의 코드
+	public PagingResponseDTO<AticleVo> ListArticle2(PageDto vo) {
 		return super.selectPageDto("mapper.article.listArticle2", "mapper.article.totalArticle", vo);
 	}
+	endPage와 hsaNext 페이징을 BaseDAO로 분리 후 totalCount여부로 분기하기때문에 
+	totalCount를 제외하고 코드가 공통됨
+	=> endPage용 DAO와 hasNext용 다오의 차이점은 totalCount를 가져오나 안오냐의 차이 
+	***********************************************************************/
 	
 //	@AddReply // TODO PageDto인지 List인지 단일VO인지 체크해서 -> 각 VO에 reply 필드에 reply 넣어주도록 AOP 작업
-	public PageDto<AticleVo> getArticleByTotalCount(PageDto vo) {
+	public PagingResponseDTO<AticleVo> getArticleByTotalCount(PageDto vo) {
 		return super.selectPageDto("mapper.article.listArticle2", "mapper.article.totalArticle", vo);
 	}
 	
-	public PageDto<AticleVo> getArticleByHasNext(PageDto vo) {
+	public PagingResponseDTO<AticleVo> getArticleByHasNext(PageDto vo) {
 		return super.selectPageDto("mapper.article.listArticle2", vo);
 	}
 	
-	public boolean isExistsArticle(Integer num) {
-		Integer result = sqlSession.selectOne("mapper.article.isArticleNo",num);
+	public boolean isExistsArticle(String articleNo) {
+		int result = sqlSession.selectOne("mapper.article.isArticleNo",articleNo);
 		if(1 == result) { return true; }
 		return false;
 		
 	}
-	
+	//순수 게시글 리스트만 가져오는 DAO 페이징정보 DAO는 getArticleByTotalCount/getArticleByHasNext
 	public List<AticleVo> ListArticle(PageDto vo) {
-		logger.info("=========            startNum:{}", vo.getStartNum());
 		
 		return sqlSession.selectList("mapper.article.listArticle2", vo);
-		
 	}
 
-	public AticleVo viewArticle(int aritcleNo) {
+	public AticleVo viewArticle(String aritcleNo) {
 		return sqlSession.selectOne("mapper.article.viewArticle", aritcleNo);
 
 	}
@@ -78,7 +82,7 @@ public class ArticleDAO extends BaseDAO {
 		return sqlSession.selectOne("mapper.article.getSequence");
 	}
 
-	public void deleteArticle(Integer num) {
+	public void deleteArticle(String num) {
 		sqlSession.delete("mapper.article.deleteArticle", num);
 
 	}
@@ -87,7 +91,7 @@ public class ArticleDAO extends BaseDAO {
 		return sqlSession.insert("mapper.article.insertReply", articleVo);
 	}
 
-	public List<ArticleReplyVo> listComment(int articleNo) {
+	public List<ArticleReplyVo> listComment(String articleNo) {
 		List<ArticleReplyVo> list;
 
 		list = sqlSession.selectList("mapper.comment.listComment", articleNo);
@@ -185,7 +189,7 @@ public class ArticleDAO extends BaseDAO {
 		return curDateStr;
 	}
 
-	public int getArticleNo() {
+	public String getArticleNo() {
 		
 		return sqlSession.selectOne("mapper.article.articleNo");
 	}

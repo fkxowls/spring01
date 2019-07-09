@@ -27,6 +27,7 @@ import com.spring.study.board.service.ArticleService;
 import com.spring.study.board.vo.ArticleReplyVo;
 import com.spring.study.board.vo.AticleVo;
 import com.spring.study.board.vo.PageDto;
+import com.spring.study.board.vo.PagingResponseDTO;
 import com.spring.study.member.vo.MemberDTO;
 
 import javassist.NotFoundException;
@@ -42,22 +43,22 @@ public class AticleController {
 	@Autowired
 	private ArticleService articleService;
 
-	// endPage
+	// endPage 페이징정보가져오기
 	@RequestMapping(value = "/board/listArticleForm", method = RequestMethod.GET)
 	public String listArticleForm(Model model) {
 		logger.info("===========		listArticleForm() start	==============");
 
 		// endPage
-		PageDto<AticleVo> articlePageDto = articleService.EndPagination(1, 10);
-		// PageDto<AticleVo> articlePageDto = articleService.EndPaging(1, 10);
-		model.addAttribute("nextPage", articlePageDto.getNextPage());
-		model.addAttribute("totalPage", articlePageDto.getTotalPage());
-		model.addAttribute("articleList", articlePageDto.getList());
+		PagingResponseDTO<AticleVo> PagingResponseDTO = articleService.EndPagination(1, 10);
+	
+		model.addAttribute("nextPage", PagingResponseDTO.getNextPage());
+		model.addAttribute("totalPage", PagingResponseDTO.getTotalPage());
+		model.addAttribute("articleList", PagingResponseDTO.getList());
 
 		return "board/listArticle2";
 	}
 
-	// endPage
+	// endPage 더보기버튼
 	@RequestMapping(value = "/board/ajaxArticle")
 	public String ajaxArticle(Model model, @RequestParam int page) {
 		logger.info("===========		listArticle() start	==============");
@@ -68,13 +69,13 @@ public class AticleController {
 		return "/WEB-INF/views/board/ajaxArticle";
 
 	}
-
+	// endPage restAPI
 	@RequestMapping(value = "/board/article/{page}/datas")
-	public @ResponseBody Map<String, Object> getArticleDatas(Model model, @PathVariable int page) {
+	public @ResponseBody Map<String, Object> getArticleDatas(@PathVariable int page) {
 		Map<String, Object> result = new HashMap<>();
 
 		if (1 == page) {
-			PageDto<AticleVo> articlePageDto = articleService.EndPaging(1, pageSize);
+			PagingResponseDTO<AticleVo> articlePageDto = articleService.EndPaging(1, pageSize);
 
 			result.put("nextPage", String.valueOf(articlePageDto.getNextPage()));
 			result.put("totalPage", String.valueOf(articlePageDto.getTotalPage()));
@@ -90,13 +91,13 @@ public class AticleController {
 		return result;
 	}
 
-	// hasNext
+	// hasNext 페이징정보가져오기
 	@RequestMapping(value = "/board/listArticle2", method = RequestMethod.GET)
 	public String listArticle2(Model model) {
 		logger.info("===========		listArticle() start	==============");
 
 		// hasNext
-		PageDto<AticleVo> articlePageDto = articleService.hasNextPaging(1, 10);
+		PagingResponseDTO<AticleVo> articlePageDto = articleService.hasNextPaging(1, 10);
 		model.addAttribute("hasNext", articlePageDto.getHasNext());
 		model.addAttribute("nextPage", articlePageDto.getNextPage());
 		model.addAttribute("articleList", articlePageDto.getList());
@@ -109,7 +110,7 @@ public class AticleController {
 	public String ajaxArticle2(Model model, @RequestParam int page) {
 		logger.info("===========		listArticle() start	==============");
 
-		PageDto<AticleVo> articlePageDto = articleService.hasNextPagingMore(page, 10);
+		PagingResponseDTO<AticleVo> articlePageDto = articleService.hasNextPagingMore(page, 10);
 		model.addAttribute("articleList", articlePageDto.getList());
 		model.addAttribute("hasNext", articlePageDto.getHasNext());
 
@@ -119,7 +120,7 @@ public class AticleController {
 	// hasNext
 	@RequestMapping(value = "/board/article/{page}/datas2")
 	public @ResponseBody Map<String, Object> getArticleDatas2(Model model, @PathVariable int page) {
-		PageDto<AticleVo> articlePageDto = articleService.hasNextPagingMore(page, pageSize);
+		PagingResponseDTO<AticleVo> articlePageDto = articleService.hasNextPagingMore(page, pageSize);
 
 		Map<String, Object> result = new HashMap<>();
 		result.put("articleList", articlePageDto.getList());
@@ -134,7 +135,7 @@ public class AticleController {
 		logger.info("===========		viewArticle() start	==============");
 
 		int _articleNum = Integer.parseInt(articleNum);
-		articleVo = articleService.viewArticle(_articleNum);
+		articleVo = articleService.viewArticle(articleNum);
 
 		model.addAttribute("articleVo", articleVo);
 
@@ -142,7 +143,7 @@ public class AticleController {
 	}
 
 	@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.GET)
-	public @ResponseBody AticleVo viewArticle2(Model model, @PathVariable int articleNo) {
+	public @ResponseBody AticleVo viewArticle2(Model model, @PathVariable String articleNo) {
 		AticleVo articleVo = articleService.viewArticle(articleNo);
 
 		return articleVo;
@@ -163,7 +164,7 @@ public class AticleController {
 
 	@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.PUT)
 	public @ResponseBody Map<String, Object> modifyArticle2(@RequestBody AticleVo articleVo,
-			@PathVariable int articleNo) {
+			@PathVariable String articleNo) {
 		Map<String, Object> result = new HashMap<>();
 		//articleVo.setArticleNo(0);
 
@@ -202,17 +203,16 @@ public class AticleController {
 
 	@RequestMapping(value = "/board/commentList", produces = "application/json; charset=utf8")
 	@ResponseBody // ?
-	public List<ArticleReplyVo> listComment(@RequestParam("articleNo") int articleNo) {
+	public List<ArticleReplyVo> listComment(@RequestParam("articleNo") String articleNo) {
 		logger.info("============		listComment() start");
 
-		// int articleNo = (int) session.getAttribute("nowArticleNo");
 		List<ArticleReplyVo> vo = articleService.listComment(articleNo);
 
 		return vo;
 	}
 	
 	@RequestMapping(value = "/board/{articleNo}/comment", method = RequestMethod.GET, produces = "application/json; charset=utf8")
-	public @ResponseBody List<ArticleReplyVo> getCommentdatas(@PathVariable("articleNo") int articleNo) {
+	public @ResponseBody List<ArticleReplyVo> getCommentdatas(@PathVariable("articleNo") String articleNo) {
 		List<ArticleReplyVo> vo = articleService.listComment(articleNo);
 
 		return vo;
@@ -239,13 +239,14 @@ public class AticleController {
 	@RequestMapping(value = "/board/{parentNo}/reply", method = RequestMethod.POST)
 	public @ResponseBody Map<String,Object> writeReply(@RequestBody AticleVo articleVo, @PathVariable String parentNo) {
 		Map<String, Object> result = new HashMap<>();
-
+/*
 		if(5 != parentNo.length()) { // TODO 시퀀스는 5자리가 보장되도록 작업 해줄 것
 			result.put("code", HttpStatus.BAD_REQUEST);
 			result.put("msg", "입력 값이 올바르지 않습니다. 다시 확인 해주세요.");
 			return result;
 		}
-		articleVo.setParentNo(new Integer(parentNo));
+*/		
+		articleVo.setParentNo(parentNo);
 		
 		try {
 			String msg = articleService.replyArticle(articleVo);
@@ -283,7 +284,7 @@ public class AticleController {
 	}
 	
 	@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.DELETE)
-	public @ResponseBody Map<String, Object> deleteArticle2(@PathVariable int articleNo) {
+	public @ResponseBody Map<String, Object> deleteArticle2(@PathVariable String articleNo) {
 		Map<String, Object> result = new HashMap<>();
 		
 		try {
@@ -328,7 +329,7 @@ public class AticleController {
 	}
 
 	@RequestMapping(value = "/board/writeReplyForm", method = RequestMethod.POST)
-	public String replyArticleForm(@RequestParam("articleNo") int articleNo, @RequestParam("title") String title,
+	public String replyArticleForm(@RequestParam("articleNo") String articleNo, @RequestParam("title") String title,
 			Model model) {
 		logger.info("=============		replyArticleForm() start		==============");
 
