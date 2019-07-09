@@ -58,7 +58,7 @@ public class IdCheckAspect {
 		AticleVo articleVo = (AticleVo) extractValuObject(joinPoint);
 
 		String writerId = articleVo.getwriteMemberId();
-		int articleNo = articleVo.getArticleNo();
+		String articleNo = articleVo.getArticleNo();
 		boolean isEquals = equalsId(articleVo);
 		String redirect = "";
 		

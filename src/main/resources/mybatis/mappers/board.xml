@@ -48,7 +48,7 @@
        		
 	</select>
 	
-	<select id="viewArticle" parameterType="int" resultType="articleVo">
+	<select id="viewArticle" parameterType="String" resultType="articleVo">
 		SELECT 
 				* 
 		FROM 	ARTICLE 
@@ -97,7 +97,7 @@
 		FROM 	ARTICLE
 	</select>
 	
-	<delete id="deleteArticle" parameterType="int">
+	<delete id="deleteArticle" parameterType="String">
 		DELETE 	
 		FROM	ARTICLE
 		WHERE	ARTICLE_NO = #{articleNo}
@@ -129,7 +129,7 @@
 			)
 	</insert>
 	
-	<select id="isArticleNo" parameterType="int" resultType="int">
+	<select id="isArticleNo" parameterType="String" resultType="int">
 		SELECT	1
 		FROM 	DUAL
 		WHERE	1			= 1
@@ -142,8 +142,9 @@
 							ARTICLE_NO = #{articleNo}
 				)
 	</select>
-	
-	<select id="isArticleNo" parameterType="int" resultType="int">
+	<!-- 아이디 체크 AOP를 위한 쿼리-->	
+	<!-- 
+	<select id="isArticleNo2" parameterType="int" resultType="int">
 		SELECT	1
 		FROM 	DUAL
 		WHERE	1			= 1
@@ -157,7 +158,7 @@
 					AND		WRITE_MEMBER_ID = 
 				)
 	</select>
-	
+	 -->
 	<select id="articleNo" resultType="int">
 		SELECT
 					NO_SEQ.NEXTVAL
