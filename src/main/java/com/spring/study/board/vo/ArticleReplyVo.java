@@ -3,7 +3,7 @@ package com.spring.study.board.vo;
 import java.util.Date;
 
 public class ArticleReplyVo {
-	int articleNo;
+	String articleNo;
     int replyNo;
     int parentNo;
     String content;
@@ -18,10 +18,10 @@ public class ArticleReplyVo {
     			+",content:"+ content+", writeDate"+ writeDate +", writeMemberId:"+writeMemberId +"]";
     }
     
-	public int getArticleNo() {
+	public String getArticleNo() {
 		return articleNo;
 	}
-	public void setArticleNo(int articleNo) {
+	public void setArticleNo(String articleNo) {
 		this.articleNo = articleNo;
 	}
 	public int getReplyNo() {

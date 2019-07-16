@@ -85,7 +85,8 @@ public class ArticleService {
 	}
 
 	public List<ArticleReplyVo> listComment(String articleNo) {
-		return articleDAO.listComment(articleNo);
+		//return articleDAO.listComment(articleNo);
+		return null;
 	}
 
 	public int insertComment(ArticleReplyVo replyVo) {
