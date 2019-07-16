@@ -11,21 +11,13 @@ public class PagingResponseDTO<E> {
 	private int endNum;
 	private List<E> list;
 	
-	public PagingResponseDTO(int page, int pageSize, int totalCount, List<E> list) { // 리스폰스 객체
+	public PagingResponseDTO(int page, int pageSize, List<E> list, int totalCount, boolean hasNext) { // 리스폰스 객체
 		this.page = page;
 		this.pageSize = pageSize;
-		this.totalCount = totalCount;
 		this.list = list;	
-	}
-	
-	public PagingResponseDTO(int page, int pageSize, int totalCount, List<E> list, boolean hasNext) { // 리스폰스 객체
-		this.page = page;
-		this.pageSize = pageSize;
 		this.totalCount = totalCount;
-		this.list = list;	
-		this.hasNext=hasNext;
+		this.hasNext = hasNext;
 	}
-
 
 	public int getNextPage() {
 		return page + 1;

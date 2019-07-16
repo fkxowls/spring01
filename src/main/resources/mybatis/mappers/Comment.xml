@@ -4,11 +4,11 @@
    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="mapper.comment">
-	<select id="listComment" parameterType="String" resultType="articleReplyVo">
+	<select id="listComment2" parameterType="String" resultType="articleReplyVo">
 		SELECT
   	    		  A.*
 			FROM    (
-  	          SELECT	ROWNUM as rNum
+  	          SELECT	 ROW_NUMBER() OVER(PARTITION BY ARTICLE_NO) AS RANK_NUMBER as rNum
     	                ,LEVEL AS LVL
         	            , ARTICLE_NO
             	        , REPLY_NO
@@ -32,6 +32,29 @@
 		<!-- WHERE   rNum BETWEEN (#{pageNum}-1)*10+1   AND (#{pageNum}-1)*10+10  -->
 	
 	
+	</select>
+	
+	<select id="listComment" parameterType="String" resultType="articleReplyVo">
+	SELECT
+  	    		  A.*
+			FROM    (
+  	          SELECT	ROWNUM as rNum
+    	                ,LEVEL AS LVL
+        	            , ARTICLE_NO
+            	        , REPLY_NO
+                	    , PARENT_NO
+                    	, CONTENT
+	                    , WRITE_MEMBER_ID
+    	               
+        	    FROM    ARTICLE_REPLY
+            	START WITH
+                	    PARENT_NO           = 0 
+            	CONNECT BY
+            	        PRIOR ARTICLE_NO    = PARENT_NO 
+	            ORDER SIBLINGS BY
+    	                ARTICLE_NO DESC
+       			 ) A
+       			 WHERE ARTICLE_NO = #{articleNo}
 	</select>
 	
 	<insert id="insertComment" parameterType="articleReplyVo">

@@ -5,6 +5,45 @@
 
 <mapper namespace="mapper.article">
 
+<!-- <resultMap type="com.spring.study.board.vo.AticleVo" id="articleResult">
+	<result property="articleNo" column="ARTICLE_NO"/>
+	<result property="parentNo" column="PARENT_NO"/>
+	<result property="title" column="TITLE"/>
+	<result property="content" column="CONTENT"/>
+	<result property="writeDate" column="WRITE_DATE"/>
+	<result property="writeMemberId" column="WRITE_MEMBER_ID"/> 
+	<collection property="commentsList" column="ARTICLE_NO" javaType="java.util.ArrayList" ofType="articleReplyVo" select="getCommentListByArticleNo"/>
+</resultMap> -->
+<!-- 	
+ 	<select id="getCommentListByArticleNo" resultType="articleReplyVo">
+		SELECT
+  	    		  A.*
+			FROM    (
+  	          SELECT	ROWNUM as rNum
+    	                ,LEVEL AS LVL
+        	            , ARTICLE_NO
+            	        , REPLY_NO
+                	    , PARENT_NO
+                    	, CONTENT
+	                    , WRITE_MEMBER_ID
+    	               
+        	    FROM    ARTICLE_REPLY
+            	START WITH
+                	    PARENT_NO           = 0 
+            	CONNECT BY
+            	        PRIOR ARTICLE_NO    = PARENT_NO 
+	            ORDER SIBLINGS BY
+    	                ARTICLE_NO DESC
+       			 ) A
+       			 WHERE ARTICLE_NO in (
+	       			 SELECT regexp_substr(#{articleNo}, '[^,]+', 1, LEVEL)
+					FROM DUAL
+					CONNECT BY LEVEL &lt;= length(regexp_replace(#{article_no}, '[^,]+', '')) + 1
+       			 )
+	</select>
+ -->	
+	
+	<!-- <select id="listArticle2" resultMap="articleResult"> -->
 	<select id="listArticle2" resultType="articleVo">
 	<![CDATA[
 	SELECT 	 X.*
@@ -101,7 +140,7 @@
 		DELETE 	
 		FROM	ARTICLE
 		WHERE	ARTICLE_NO = #{articleNo}
-		AND		WRITE_MEMBER_ID = 
+		AND		WRITE_MEMBER_ID = #{writeMemberId}
 	
 	</delete>
 	
@@ -129,37 +168,35 @@
 			)
 	</insert>
 	
-	<select id="isArticleNo" parameterType="String" resultType="int">
-		SELECT	1
+	<select id="isArticleNo" parameterType="String" resultType="String">
+		SELECT	 NVL(MIN('Y'), 'N')
 		FROM 	DUAL
 		WHERE	1			= 1
 		AND		EXISTS
 				(
 					SELECT 
-							ARTICLE_NO
+							1
 					FROM	ARTICLE
 					WHERE	
 							ARTICLE_NO = #{articleNo}
 				)
 	</select>
 	<!-- 아이디 체크 AOP를 위한 쿼리-->	
-	<!-- 
-	<select id="isArticleNo2" parameterType="int" resultType="int">
-		SELECT	1
+	<select id="equalsWriterId" parameterType="articleVo" resultType="String">
+		SELECT	 NVL(MIN('Y'), 'N')
 		FROM 	DUAL
 		WHERE	1			= 1
 		AND		EXISTS
 				(
 					SELECT 
-							ARTICLE_NO
+							1
 					FROM	ARTICLE
 					WHERE	
 							ARTICLE_NO = #{articleNo}
-					AND		WRITE_MEMBER_ID = 
+					AND		WRITE_MEMBER_ID = #{writeMemberId} 
 				)
 	</select>
-	 -->
-	<select id="articleNo" resultType="int">
+	<select id="articleNo" resultType="String">
 		SELECT
 					NO_SEQ.NEXTVAL
 			FROM	DUAL

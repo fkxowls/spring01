@@ -43,7 +43,7 @@
 
 			<tr id="tr_btn">
 				<td colspan="2" align="center"><input type=submit value="수정하기">
-					<input type="button" value="삭제하기" onClick="fn_delete('${articleVo.articleNo}','${articleVo.writeMemberId }')"> 
+					<input type="button" value="삭제하기" onClick="fn_delete('${articleVo.articleNo}','${memberSession.memberId }')"> 
 					<input type=button value="리스트로 돌아가기">
 					<input type=button value="답글쓰기" onClick="fn_reply('${articleVo.articleNo}')">
 				</td>
@@ -52,10 +52,10 @@
 	</form>
 </body>
 <script type="text/javascript">
-	function fn_delete(articleNo,writerId) {
+	function fn_delete(articleNo,sessionId) {
 		var data = {};
 		data.articleNo = articleNo;
-		data.writeMemberId = writerId;
+		data.writeMemberId = sessionId;
 		var sendData = JSON.stringify(data);
 		
 		$.ajax({
@@ -147,7 +147,7 @@
 
 		$.ajax({
 			type : "post",
-			url : "${contextPath}/board/inserComment.do",
+			url : "${contextPath}/board/writeComment.do",
 			/* contentType: "application/json", */
 			headers : {
 				"Content-Type" : "application/json"
@@ -185,7 +185,7 @@
 	
 		$.ajax({
 			type : "post",
-			url : "${contextPath}/board/inserReComment.do",
+			url : "${contextPath}/board/writeReComment.do",
 			/* contentType: "application/json", */
 			headers : {
 				"Content-Type" : "application/json"

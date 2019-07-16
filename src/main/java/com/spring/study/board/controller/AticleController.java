@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import com.spring.study.board.service.ArticleService;
 import com.spring.study.board.vo.ArticleReplyVo;
 import com.spring.study.board.vo.AticleVo;
-import com.spring.study.board.vo.PageDto;
+import com.spring.study.board.vo.CommonRequestDto;
 import com.spring.study.board.vo.PagingResponseDTO;
 import com.spring.study.member.vo.MemberDTO;
 
@@ -180,7 +180,7 @@ public class AticleController {
 		return result;
 	}
 
-	@RequestMapping(value = "/board/inserComment", method = RequestMethod.POST)
+	@RequestMapping(value = "/board/writeComment", method = RequestMethod.POST)
 	@ResponseBody
 	public int insertComment(@RequestBody ArticleReplyVo replyVo, HttpSession session) {
 		logger.info("============		insertComment() start		============");
@@ -272,9 +272,9 @@ public class AticleController {
 	@RequestMapping(value = "/board/deleteArticle", method = RequestMethod.POST)
 	public @ResponseBody String deleteArticle(@RequestBody AticleVo articleVo) {
 		logger.info("===========		deleteArticle() start		=================");
-		System.out.println(articleVo.getArticleNo());
+		
 		try {
-			articleService.deleteArticle(articleVo.getArticleNo());
+			articleService.deleteArticle(articleVo);
 		} catch (Exception e) {
 			logger.info("댓글이 달린 글은 삭제 불가");
 			e.printStackTrace();
@@ -282,7 +282,7 @@ public class AticleController {
 
 		return "redirect:/board/listArticle.do";
 	}
-	
+/*	
 	@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.DELETE)
 	public @ResponseBody Map<String, Object> deleteArticle2(@PathVariable String articleNo) {
 		Map<String, Object> result = new HashMap<>();
@@ -298,8 +298,8 @@ public class AticleController {
 
 		return result;
 	}
-	
-	@RequestMapping(value = "/board/inserReComment", method = RequestMethod.POST)
+*/	
+	@RequestMapping(value = "/board/writeReComment", method = RequestMethod.POST)
 	@ResponseBody
 	public void insertReComment(@RequestBody ArticleReplyVo replyVo, HttpSession session) {
 		logger.info("============		insertReComment() start		============");

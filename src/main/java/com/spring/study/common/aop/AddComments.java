@@ -8,9 +8,9 @@ import java.lang.annotation.Target;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 
-@Target({ ElementType.METHOD, ElementType.TYPE, ElementType.PARAMETER, ElementType.TYPE_PARAMETER})
-@Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface CustomAnotation {
+@Target({ ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface AddComments {
 	
 }

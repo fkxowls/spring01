@@ -1,7 +1,7 @@
 ALTER TABLE ARTICLE_REPLY DROP CONSTRAINT FK_ARTICLE_NO
 DELETE FROM ARTICLE_REPLY
 ALTER TABLE ARTICLE_REPLY ADD FOREIGN KEY(ARTICLE_NO) REFERENCES ARTICLE(ARTICLE_NO)
-SELECT * FROM ARTICLE_REPLY WHERE ARTICLE_NO = 108
+SELECT * FROM ARTICLE_REPLY WHERE ARTICLE_NO = 10004
 CREATE TABLE ARTICLE_REPLY
 (
 	REPLY_NO NUMBER(10)	PRIMARY KEY
@@ -81,7 +81,30 @@ SELECT
        			 WHERE ARTICLE_NO = 22
 	
 	
-	
+SELECT
+  	    		  A.*
+			FROM    (
+  	          SELECT	ROWNUM as rNum
+    	                ,LEVEL AS LVL
+        	            , ARTICLE_NO
+            	        , REPLY_NO
+                	    , PARENT_NO
+                    	, CONTENT
+	                    , WRITE_MEMBER_ID
+    	               
+        	    FROM    ARTICLE_REPLY
+            	START WITH
+                	    PARENT_NO           = 0 
+            	CONNECT BY
+            	        PRIOR ARTICLE_NO    = PARENT_NO 
+	            ORDER SIBLINGS BY
+    	                ARTICLE_NO DESC
+       			 ) A
+       			 WHERE ARTICLE_NO in (
+	       			 SELECT regexp_substr(10004, '[^,]+', 1, LEVEL)
+					FROM DUAL
+					CONNECT BY LEVEL = length(regexp_replace(10004, '[^,]+', '')) + 1
+       			 )	
 	
 	
 	

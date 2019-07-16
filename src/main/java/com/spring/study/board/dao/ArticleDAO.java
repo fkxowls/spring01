@@ -15,8 +15,9 @@ import com.spring.study.board.controller.AticleController;
 import com.spring.study.board.vo.ArticleReplyVo;
 import com.spring.study.board.vo.AticleVo;
 import com.spring.study.board.vo.HasNextPaging;
-import com.spring.study.board.vo.PageDto;
+import com.spring.study.board.vo.CommonRequestDto;
 import com.spring.study.board.vo.PagingResponseDTO;
+import com.spring.study.common.aop.AddComments;
 
 @Repository("articleDAO")
 public class ArticleDAO extends BaseDAO {
@@ -34,23 +35,23 @@ public class ArticleDAO extends BaseDAO {
 	=> endPage용 DAO와 hasNext용 다오의 차이점은 totalCount를 가져오나 안오냐의 차이 
 	***********************************************************************/
 	
-//	@AddReply // TODO PageDto인지 List인지 단일VO인지 체크해서 -> 각 VO에 reply 필드에 reply 넣어주도록 AOP 작업
-	public PagingResponseDTO<AticleVo> getArticleByTotalCount(PageDto vo) {
+	//@AddComments // TODO PageDto인지 List인지 단일VO인지 체크해서 -> 각 VO에 reply 필드에 reply 넣어주도록 AOP 작업
+	public PagingResponseDTO<AticleVo> getArticleByTotalCount(Object vo) {
 		return super.selectPageDto("mapper.article.listArticle2", "mapper.article.totalArticle", vo);
 	}
 	
-	public PagingResponseDTO<AticleVo> getArticleByHasNext(PageDto vo) {
+	public PagingResponseDTO<AticleVo> getArticleByHasNext(CommonRequestDto vo) {
 		return super.selectPageDto("mapper.article.listArticle2", vo);
 	}
 	
 	public boolean isExistsArticle(String articleNo) {
-		int result = sqlSession.selectOne("mapper.article.isArticleNo",articleNo);
-		if(1 == result) { return true; }
+		String result = sqlSession.selectOne("mapper.article.isArticleNo",articleNo);
+		if(result.equals("Y")) { return true; }
 		return false;
 		
 	}
 	//순수 게시글 리스트만 가져오는 DAO 페이징정보 DAO는 getArticleByTotalCount/getArticleByHasNext
-	public List<AticleVo> ListArticle(PageDto vo) {
+	public List<AticleVo> ListArticle(CommonRequestDto vo) {
 		
 		return sqlSession.selectList("mapper.article.listArticle2", vo);
 	}
@@ -82,8 +83,8 @@ public class ArticleDAO extends BaseDAO {
 		return sqlSession.selectOne("mapper.article.getSequence");
 	}
 
-	public void deleteArticle(String num) {
-		sqlSession.delete("mapper.article.deleteArticle", num);
+	public void deleteArticle(AticleVo vo) {
+		sqlSession.delete("mapper.article.deleteArticle", vo);
 
 	}
 
@@ -97,6 +98,12 @@ public class ArticleDAO extends BaseDAO {
 		list = sqlSession.selectList("mapper.comment.listComment", articleNo);
 
 		return list;
+	}
+	
+	public boolean equalsWriterId(AticleVo vo) {
+		String result = sqlSession.selectOne("mapper.article.equalsWriterId", vo);
+		if(result.equals("Y")) { return true; }
+		return false;
 	}
 
 	public int insertComment(ArticleReplyVo replyVo) {

@@ -64,17 +64,20 @@ $(document).ready(function(){
 		var title = $('input[name=title]').val();
 		var content = $('textarea[name=content]').val();
 		var parentNo = $('.btn1').data('articleNo'); // TODO parentNo로 전부 이름변경
+		var articleNo = $('.btn1').data('articleNo'); //isExistsArticle메소드로 현재글이있는지 판단하려면 articleNo도 필요함
 		var writeMemberId = $('input[name=writeMemberId]').val();
 		
 		var data = {};
 		data.title = title;
 		data.content = content;
-		//data.parentNo = parentNo;
+		data.articleNo = articleNo;
+		data.parentNo = parentNo;
 		data.writeMemberId = writeMemberId;
 		
 		$.ajax({
 			type: 'POST',
-			url:  '${contextPath}/board/' + parentNo + '/reply',
+			//url:  '${contextPath}/board/' + parentNo + '/reply',
+			url:  '${contextPath}/board/replyArticle',
 			contentType: 'application/json',
 			dataType:  'json',
 			data: JSON.stringify(data),

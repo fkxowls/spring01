@@ -148,9 +148,9 @@ values
             		FROM ARTICLE
             		ORDER BY ARTICLE_NO DESC
          	 	  ) A
- 	 		 WHERE ROWNUM <= 10
+ 	 		 WHERE ROWNUM <= 1
  	 	  ) X
- 	 WHERE   X.RNUM >= 1
+ 	 WHERE   X.RNUM >= 10
 		
  	  SELECT	ROWNUM as rNum
                     ,LEVEL AS LVL
@@ -169,4 +169,38 @@ values
             ORDER SIBLINGS BY
                     ARTICLE_NO DESC
 
-                    
+SELECT 	 X.*
+             
+ 	FROM (
+ 			SELECT  /*+ INDEX_DESC(ARTICLE ARTICLE_NO)*/
+ 					ROWNUM AS RNUM
+ 				    , A.*      
+         	 FROM (
+         	 		SELECT    ARTICLE_NO
+            				 , PARENT_NO
+            				 , TITLE
+           					 , CONTENT
+           					 , WRITE_MEMBER_ID
+            		 		 
+            		FROM ARTICLE
+            		ORDER BY ARTICLE_NO DESC
+         	 	  ) A
+ 	 		 WHERE ROWNUM <= 10
+ 	 	  ) X
+ 	 WHERE   X.RNUM >= 1                 
+ 	 
+ 	 
+ 	 SELECT	 NVL(MIN('Y'), 'N')
+		FROM 	DUAL
+		WHERE EXISTS
+				(
+					SELECT 
+							1
+					FROM	ARTICLE
+					WHERE	
+							WRITE_MEMBER_ID = 'mem2'
+					AND		ARTICLE_NO = 871
+				); 
+SELECT
+					NO_SEQ.NEXTVAL
+			FROM	DUAL

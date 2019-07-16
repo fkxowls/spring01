@@ -6,10 +6,9 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.spring.study.board.vo.CommonRequestDto;
-import com.spring.study.board.vo.CommonRequestDto.Builder;
 import com.spring.study.board.vo.PagingResponseDTO;
 
-public class BaseDAO {
+public class BaseDAOBackUp {
 	@Autowired
 	SqlSession sqlSession;
 
