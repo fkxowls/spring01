@@ -66,37 +66,12 @@
 			},
 			dataType : 'json',
 			data : sendData
-		}).done(function(){
-			alert('성공');
+		}).done(function(data){
+			alert(data.msg);
+			$(location).attr('href', redirect.redirect);
 		});
 	}
-/*	
-	function fn_delete() {
-		var jsonText = '{"articleNo":${articleVo.articleNo},"writeMemberId":"${memberSession.memberId }"}';
-		var sendData1 = JSON.stringify(jsonText);
-		var sendData2 = JSON.parse(sendData1);
-		if (confirm("삭제하겠습니까?")) {
-			$.ajax({
-				type : "post",
-				url : "${contextPath}/board/deleteArticle.do",
-				headers : {
-					"Content-Type" : "application/json"
-				},
-				dataType : 'json',
-				data : sendData2,
-				success : function(result) {
-					if (result == "success") {
-						alert("삭제완료");
-					}
-				},
-				error : function(request, status, error) {
-					alert("code = " + request.status + " message = " + request.responseText + " error = " + error); // 실패 시 처리
-				}
-			});
-		}
 
-	}
-*/
 	function fn_reply(num) {
 		var title = $('#title').val();
 		alert(title);
@@ -148,20 +123,14 @@
 		$.ajax({
 			type : "post",
 			url : "${contextPath}/board/writeComment.do",
-			/* contentType: "application/json", */
 			headers : {
 				"Content-Type" : "application/json"
 			},
 			dataType : "json",
-			data : sendData,
-			success : function() {
-				alert("success");
+			data : sendData
+			}).done(function(data){
 				getCommentList();
-			},
-			error : function() {
-				alert(data);
-			}
-		})
+			})
 	}
 
 	function fn_reComment(idx) {

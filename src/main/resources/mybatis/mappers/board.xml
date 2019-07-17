@@ -120,7 +120,7 @@
 			,CONTENT	= #{content}
 		WHERE
 			ARTICLE_NO	= #{articleNo}
-		AND	WRITE_MEMBER_ID = 
+		AND	WRITE_MEMBER_ID = #{writeMemberId}
 	</update>
 	
 	<select id="totalArticle" resultType="int">

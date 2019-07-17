@@ -80,14 +80,15 @@ $(document).ready(function(){
 			url:  '${contextPath}/board/replyArticle',
 			contentType: 'application/json',
 			dataType:  'json',
-			data: JSON.stringify(data),
-			success: function(){
-				alert(jsonStr)
-			},
-			error: function(){
-				alert(jsonStr)
-			}
-		});	
+			data: JSON.stringify(data)
+		}).done(function(data){
+			alert(data.msg);
+			$(location).attr('href', data.redirect);
+		}).fail(function(data){
+			alert(data.msg);
+			$(location).attr('href', data.redirect);
+		})
+			
 	})
 	
 })

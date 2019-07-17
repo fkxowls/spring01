@@ -100,18 +100,12 @@ public class ArticleDAO extends BaseDAO {
 		return sqlSession.insert("mapper.article.insertReply", articleVo);
 	}
 
-	public Map<String, List<ArticleReplyVo>> listComment(List articleNoList) {
+	public Map<String, List<ArticleReplyVo>> commentsList(List articleNoList) {
 		List<ArticleReplyVo> list;
 		list = sqlSession.selectList("mapper.comment.listComment", articleNoList);
 
 		List<String> key = new ArrayList<String>();
-/*	
-		for (int i = 0; i < list.size(); i++) {
-			if (!key.contains(list.get(i).getArticleNo())) {
-				key.add(list.get(i).getArticleNo());
-			}
-		}
-*/
+
 		//AOP로 넘겨받은 글번호 리스트를 map에 사용할 키값으로 사용하자
 		for(int i=0; i<articleNoList.size(); i++) {
 			key.add((String) articleNoList.get(i));

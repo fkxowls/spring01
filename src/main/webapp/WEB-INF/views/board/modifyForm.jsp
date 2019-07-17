@@ -85,31 +85,29 @@
 		
 		var title = $('input[name=title]').val();
 		var content = $('textarea[name=content]').val();
-		var articleNo = num;
+		var articleNo = num
+		var writeMemberId = $('input[name=writeMemberId]').val();
 		var data = {};
 		
 		data.title = title
 		data.content = $('textarea[name=content]').val();
 		data.articleNo = articleNo;
-				
+		data.writeMemberId = writeMemberId;
+		
 		 var sendData = JSON.stringify(data); 
 		 
 		$.ajax({
 			type: 'put',
-			url:  '${contextPath}/board/article/'+articleNo,
-			headers: {
-				"Content-Type" : "application/json"
-			},
+			url:  '${contextPath}/board/modifyArticle',
+			//url:  '${contextPath}/board/article/'+articleNo,
+			contentType: 'application/json',
 			dataType:  'json',
-			data: sendData,
-			success: function(){
-				alert('성공')
-				 window.location = "/board/viewArticle.do?articleNo="+articleNo;
-			},
-			error:function(request,status,error){
-		        alert("code = "+ request.status + " message = " + request.responseText + " error = " + error); // 실패 시 처리
-		     }
-		});	
+			data: sendData
+		}).done(function(data){
+			alert(data.msg)
+			$(location).attr('href', data.redirect);
+		})
+	
 	}
 </script>
 </body>
