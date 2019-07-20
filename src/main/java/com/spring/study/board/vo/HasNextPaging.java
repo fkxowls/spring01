@@ -9,7 +9,7 @@ public class HasNextPaging {
 	private int pageSize;
 	private boolean hasNext;
 	
-	private List<AticleVo> list;
+	private List<ArticleVo> list;
 	
 	
 	
@@ -26,10 +26,10 @@ public class HasNextPaging {
 	public void setPageSize(int pageSize) {
 		this.pageSize = pageSize;
 	}
-	public List<AticleVo> getList() {
+	public List<ArticleVo> getList() {
 		return list;
 	}
-	public void setList(List<AticleVo> list, int listSize) {
+	public void setList(List<ArticleVo> list, int listSize) {
 		System.out.println("pageSize() 		");
 		System.out.print(this.pageSize);
 		System.out.println();

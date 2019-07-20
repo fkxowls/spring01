@@ -24,9 +24,9 @@
     	                ARTICLE_NO DESC
        			 ) A
        			 WHERE ARTICLE_NO in (
-	       			 SELECT regexp_substr('10001, 10003, 10004, 10007', '[^,]+', 1, LEVEL)
+	       			SELECT regexp_substr(#{articleNo}, '[^,]+', 1, LEVEL)
 					FROM DUAL
-					CONNECT BY LEVEL &lt;= length(regexp_replace('10001, 10003, 10004, 10007', '[^,]+', '')) + 1
+					CONNECT BY LEVEL &lt;= length(regexp_replace(#{articleNo}, '[^,]+', '')) + 1
        			 )
 		<!-- WHERE   rNum BETWEEN (#{pageNum}-1)*10+1   AND (#{pageNum}-1)*10+10  -->
 	

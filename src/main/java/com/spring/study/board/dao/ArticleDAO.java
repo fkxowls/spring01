@@ -2,13 +2,9 @@ package com.spring.study.board.dao;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
@@ -18,9 +14,9 @@ import org.springframework.stereotype.Repository;
 
 import com.spring.study.board.controller.AticleController;
 import com.spring.study.board.vo.ArticleReplyVo;
-import com.spring.study.board.vo.AticleVo;
-import com.spring.study.board.vo.HasNextPaging;
+import com.spring.study.board.vo.ArticleVo;
 import com.spring.study.board.vo.CommonRequestDto;
+import com.spring.study.board.vo.HasNextPaging;
 import com.spring.study.board.vo.PagingResponseDTO;
 import com.spring.study.common.aop.AddComments;
 
@@ -32,20 +28,24 @@ public class ArticleDAO extends BaseDAO {
 	SqlSession sqlSession;
 
 	/********************************************************************
-	 * 기존의 코드 public PagingResponseDTO<AticleVo> ListArticle2(PageDto vo) { return
+	 * 기존의 코드 public PagingResponseDTO<ArticleVo> ListArticle2(PageDto vo) { return
 	 * super.selectPageDto("mapper.article.listArticle2",
 	 * "mapper.article.totalArticle", vo); } endPage와 hsaNext 페이징을 BaseDAO로 분리 후
 	 * totalCount여부로 분기하기때문에 totalCount를 제외하고 코드가 공통됨 => endPage용 DAO와 hasNext용 다오의
 	 * 차이점은 totalCount를 가져오나 안오냐의 차이
 	 ***********************************************************************/
 
-	// @AddComments // TODO PageDto인지 List인지 단일VO인지 체크해서 -> 각 VO에 reply 필드에 reply
-	// 넣어주도록 AOP 작업
-	public PagingResponseDTO<AticleVo> getArticleByTotalCount(Object vo) {
+	@AddComments // TODO PageDto인지 List인지 단일VO인지 체크해서 -> 각 VO에 reply 필드에 reply
+	public PagingResponseDTO<ArticleVo> getArticleByTotalCountAddComments(Object vo) {
+		return super.selectPageDto("mapper.article.listArticle2", "mapper.article.totalArticle", vo);
+	}
+	
+//	@AddComments
+	public PagingResponseDTO<ArticleVo> getArticleByTotalCount(Object vo) {
 		return super.selectPageDto("mapper.article.listArticle2", "mapper.article.totalArticle", vo);
 	}
 
-	public PagingResponseDTO<AticleVo> getArticleByHasNext(CommonRequestDto vo) {
+	public PagingResponseDTO<ArticleVo> getArticleByHasNext(CommonRequestDto vo) {
 		return super.selectPageDto("mapper.article.listArticle2", vo);
 	}
 
@@ -59,24 +59,24 @@ public class ArticleDAO extends BaseDAO {
 	}
 
 	// 순수 게시글 리스트만 가져오는 DAO 페이징정보 DAO는 getArticleByTotalCount/getArticleByHasNext
-	public List<AticleVo> ListArticle(CommonRequestDto vo) {
+	public List<ArticleVo> ListArticle(CommonRequestDto vo) {
 
 		return sqlSession.selectList("mapper.article.listArticle2", vo);
 	}
 
-	public AticleVo viewArticle(String aritcleNo) {
+	public ArticleVo viewArticle(String aritcleNo) {
 		return sqlSession.selectOne("mapper.article.viewArticle", aritcleNo);
 
 	}
 
-	public void insertArticle(AticleVo articleVo) {
+	public void insertArticle(ArticleVo articleVo) {
 		System.out.println("=======================================				articleVo:");
 		System.out.println("=======================================			             : " + articleVo.getContent());
 		sqlSession.insert("mapper.article.insertArticle", articleVo);
 
 	}
 
-	public void updateArticle(AticleVo articleVo) {
+	public void updateArticle(ArticleVo articleVo) {
 		sqlSession.update("mapper.article.updateArticle", articleVo);
 
 	}
@@ -91,45 +91,20 @@ public class ArticleDAO extends BaseDAO {
 		return sqlSession.selectOne("mapper.article.getSequence");
 	}
 
-	public void deleteArticle(AticleVo vo) {
+	public void deleteArticle(ArticleVo vo) {
 		sqlSession.delete("mapper.article.deleteArticle", vo);
 
 	}
 
-	public int replyArticle(AticleVo articleVo) {
+	public int replyArticle(ArticleVo articleVo) {
 		return sqlSession.insert("mapper.article.insertReply", articleVo);
 	}
 
-	public Map<String, List<ArticleReplyVo>> commentsList(List articleNoList) {
-		List<ArticleReplyVo> list;
-		list = sqlSession.selectList("mapper.comment.listComment", articleNoList);
-
-		List<String> key = new ArrayList<String>();
-
-		//AOP로 넘겨받은 글번호 리스트를 map에 사용할 키값으로 사용하자
-		for(int i=0; i<articleNoList.size(); i++) {
-			key.add((String) articleNoList.get(i));
-		}
-		
-		//리턴을 위한 map 생성
-		Map<String, List<ArticleReplyVo>> result = new HashMap<String, List<ArticleReplyVo>>();
-		//글번호마다 새로운 list객체를 생성해서 댓글리스트를 받는다
-		List<ArticleReplyVo> tmpList = null;
-		for (int k = 0; k < key.size(); k++) {
-			tmpList = new ArrayList<ArticleReplyVo>();
-			//key에 저장된 글번호와 총 댓글리스트에 있는 글번호를 비교해서 key값과 일치하면 tmpList에 담는다
-			for (int i = 0; i < list.size(); i++) {
-				if (list.get(i).getArticleNo().equals(key.get(k).toString())) {
-					tmpList.add(list.get(i));
-				}
-			}
-			result.put(key.get(k), tmpList);
-		}
-		
-		return result;
+	public List<ArticleReplyVo> commentsList(String articleNos) {
+		return sqlSession.selectList("mapper.comment.listComment", articleNos);
 	}
 
-	public boolean equalsWriterId(AticleVo vo) {
+	public boolean equalsWriterId(ArticleVo vo) {
 		String result = sqlSession.selectOne("mapper.article.equalsWriterId", vo);
 		if (result.equals("Y")) {
 			return true;
@@ -145,12 +120,12 @@ public class ArticleDAO extends BaseDAO {
 	}
 
 	// hasNext ArticleList
-	public List<AticleVo> ArticleList(HasNextPaging vo) {
+	public List<ArticleVo> ArticleList(HasNextPaging vo) {
 
 		return sqlSession.selectList("mapper.article.listArticle2", vo);
 	}
 
-	public List<AticleVo> listArticle2(HasNextPaging Vo) {
+	public List<ArticleVo> listArticle2(HasNextPaging Vo) {
 
 		return sqlSession.selectList("mapper.article.listArticle2", Vo);
 	}
@@ -179,7 +154,7 @@ public class ArticleDAO extends BaseDAO {
 		return null;
 	}
 
-//	public List<AticleVo> ListArticle(PageDto vo) {
+//	public List<ArticleVo> ListArticle(PageDto vo) {
 //	logger.info("=========            startNum:{}", vo.getStartNum());
 
 //	HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
@@ -187,7 +162,7 @@ public class ArticleDAO extends BaseDAO {
 //			.getResponse();
 //	HttpSession session = req.getSession();
 //
-//	List<AticleVo> list;
+//	List<ArticleVo> list;
 //	Cookie cookie = null;
 //	Cookie[] cookieArr = req.getCookies();
 //
@@ -232,7 +207,7 @@ public class ArticleDAO extends BaseDAO {
 //	list = sqlSession.selectList("mapper.article.listArticle2", vo);
 //		session.setAttribute("sessionArticleList", list);
 //	} else {
-//		list = (List<AticleVo>) session.getAttribute("sessionArticleList");
+//		list = (List<ArticleVo>) session.getAttribute("sessionArticleList");
 //	}
 //	return list;
 //}

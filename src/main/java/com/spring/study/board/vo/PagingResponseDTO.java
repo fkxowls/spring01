@@ -19,10 +19,6 @@ public class PagingResponseDTO<E> {
 		this.hasNext = hasNext;
 	}
 
-	public int getNextPage() {
-		return page + 1;
-	}
-
 	public int getTotalCount() {
 		return totalCount;
 	}

@@ -48,14 +48,6 @@
 	<!-- AOP -->
 	<aop:aspectj-autoproxy />
 	<beans:bean id="ArticleIdCheck" class="com.spring.study.common.aop.IdCheckAspect" />
-	<beans:bean id="CustomAnnotation" class="com.spring.study.common.aop.CustomAnnotation" />
-	
-	<aop:config>
-		<aop:aspect ref="CustomAnnotation">
-			<!-- <aop:around method="idCheck" pointcut="execution(* modifyForm(*,*))" /> -->
-			<aop:around method="customAnnotationTest" pointcut="execution(* *TotalCount(*))" />
-		</aop:aspect>
-	</aop:config>
 
 	<!-- 타일즈 -->
 	<beans:bean id="tilesViewResolver"

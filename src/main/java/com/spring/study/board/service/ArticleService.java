@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import com.spring.study.board.controller.AticleController;
 import com.spring.study.board.dao.ArticleDAO;
 import com.spring.study.board.vo.ArticleReplyVo;
-import com.spring.study.board.vo.AticleVo;
+import com.spring.study.board.vo.ArticleVo;
 import com.spring.study.board.vo.HasNextPaging;
 import com.spring.study.board.vo.CommonRequestDto;
 import com.spring.study.board.vo.PagingResponseDTO;
@@ -26,18 +26,18 @@ public class ArticleService {
 	@Autowired
 	private ArticleDAO articleDAO;
 
-	public AticleVo viewArticle(String num) {
+	public ArticleVo viewArticle(String num) {
 		return articleDAO.viewArticle(num);
 
 	}
 
-	public void writeArticle(AticleVo articleVo) {
+	public void writeArticle(ArticleVo articleVo) {
 
 		articleDAO.insertArticle(articleVo);
 
 	}
 
-	public void modifyArticle(AticleVo articleVo) throws Exception {
+	public void modifyArticle(ArticleVo articleVo) throws Exception {
 		boolean isExistsArticle = articleDAO.isExistsArticle(articleVo.getArticleNo());
 		if (isExistsArticle) {	new NotFoundException("권한없는 접근입니다"); }
 		articleDAO.updateArticle(articleVo);
@@ -51,7 +51,7 @@ public class ArticleService {
 		return articleDAO.getSequence();
 	}
 
-	public void deleteArticle(AticleVo vo) throws Exception{
+	public void deleteArticle(ArticleVo vo) throws Exception{
 		
 		boolean result = articleDAO.equalsWriterId(vo);
 		if(!result) { throw new NotFoundException("권한없는 접근입니다"); }
@@ -61,7 +61,7 @@ public class ArticleService {
 	}
 
 	// transaction1
-	public String replyArticle(AticleVo articleVo) throws Exception {
+	public String replyArticle(ArticleVo articleVo) throws Exception {
 
 		// 답글쓰기전 부모글 체크
 		boolean isExistsArticle = articleDAO.isExistsArticle(articleVo.getArticleNo());
@@ -101,14 +101,14 @@ public class ArticleService {
 	}
 	
 	//endPage 관련 일반 서비스
-	public PagingResponseDTO<AticleVo> EndPagination(int page, int pageSize) {
+	public PagingResponseDTO<ArticleVo> EndPagination(int page, int pageSize) {
 		CommonRequestDto req = new CommonRequestDto.Builder(page, pageSize).build();
 		//											  메서드 이름 바꾸기(페이지정보와 글리스트를 가져온다)
-		//PagingResponseDTO<AticleVo> resp = articleDAO.ListArticle2(req);
-		PagingResponseDTO<AticleVo> resp = articleDAO.getArticleByTotalCount(req);
+		//PagingResponseDTO<ArticleVo> resp = articleDAO.ListArticle2(req);
+		PagingResponseDTO<ArticleVo> resp = articleDAO.getArticleByTotalCount(req);
 		return resp;
 	}
-	public List<AticleVo> EndPagingMore(int page, int pageSize) {
+	public List<ArticleVo> EndPagingMore(int page, int pageSize) {
 		/***************************************
 		 DTO를 request와 response로 나누고, setter를 제거하고
 		 BaseDAO에서 분기처리를 하려니 상황에따라 endNum를 조작할 수 없어
@@ -121,61 +121,59 @@ public class ArticleService {
 		int endNum = page * pageSize;
 		CommonRequestDto req = new CommonRequestDto.Builder(page, pageSize).bothStartNumEndNum(startNum, endNum).build();
 		//				메서드 이름 바꾸기(글리스트만가져온다)
-		List<AticleVo> list =  articleDAO.ListArticle(req);
+		List<ArticleVo> list =  articleDAO.ListArticle(req);
 		return list; 
 	}
 
 	
 	//endPage 관련 restAPI 서비스
-	public PagingResponseDTO<AticleVo> EndPaging(int page, int pageSize) {
-		CommonRequestDto.Builder builder = new CommonRequestDto.Builder(page, pageSize);
-
+	public PagingResponseDTO<ArticleVo> EndPaging(int page, int pageSize) {
 		CommonRequestDto req = new CommonRequestDto.Builder(page, pageSize).build();
-		PagingResponseDTO<AticleVo> resp = articleDAO.getArticleByTotalCount(req);
+		PagingResponseDTO<ArticleVo> resp = articleDAO.getArticleByTotalCount(req);
 		
-		//List<AticleVo> list = articleDAO.ListArticle(req);
+		//List<ArticleVo> list = articleDAO.ListArticle(req);
 		//int totalCount = articleDAO.getTotalArticles();
 		
 		return resp;
 	}
 
-	public PagingResponseDTO<AticleVo> hasNextPaging(int page, int pageSize) {
+	public PagingResponseDTO<ArticleVo> hasNextPaging(int page, int pageSize) {
 
 		CommonRequestDto req = new CommonRequestDto.Builder(page, pageSize).useMoreView(true).build();
-		PagingResponseDTO<AticleVo> resp =  articleDAO.getArticleByHasNext(req);
+		PagingResponseDTO<ArticleVo> resp =  articleDAO.getArticleByHasNext(req);
 
 		return resp;
 	}
 
-	public PagingResponseDTO<AticleVo> hasNextPagingMore(int page, int pageSize) {
+	public PagingResponseDTO<ArticleVo> hasNextPagingMore(int page, int pageSize) {
 		
 		CommonRequestDto req = new CommonRequestDto.Builder(page, pageSize).build();
-		PagingResponseDTO<AticleVo> resp =  articleDAO.getArticleByHasNext(req);
+		PagingResponseDTO<ArticleVo> resp =  articleDAO.getArticleByHasNext(req);
 
 		return resp;
 	}
 	/*
-	 public PagingResponseDTO<AticleVo> hasNextPagingMore(int page, int pageSize) {
+	 public PagingResponseDTO<ArticleVo> hasNextPagingMore(int page, int pageSize) {
 
 		int startNum = (page - 1) * pageSize + 1;
 		int endNum = page * pageSize + 1;
 		
 		PageDto req = new PageDto.Builder(page, pageSize).startNum(startNum).endNum(endNum).build();
-		List<AticleVo> list = articleDAO.ListArticle(req);
+		List<ArticleVo> list = articleDAO.ListArticle(req);
 
 		int totalCount = 0;
 
-		return new PagingResponseDTO<AticleVo>(page, pageSize, totalCount, list);
+		return new PagingResponseDTO<ArticleVo>(page, pageSize, totalCount, list);
 	}
 	 */
 
 
 
-	public List<AticleVo> listArticle2(HasNextPaging vo) {
+	public List<ArticleVo> listArticle2(HasNextPaging vo) {
 		return articleDAO.ArticleList(vo);
 	}
 
-	public boolean isNext(List<AticleVo> list) {
+	public boolean isNext(List<ArticleVo> list) {
 		if (list.size() != 11) {
 			return false;
 		} else

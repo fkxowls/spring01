@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.spring.study.board.service.ArticleService;
 import com.spring.study.board.vo.ArticleReplyVo;
-import com.spring.study.board.vo.AticleVo;
+import com.spring.study.board.vo.ArticleVo;
 import com.spring.study.board.vo.CommonRequestDto;
 import com.spring.study.board.vo.PagingResponseDTO;
 import com.spring.study.member.vo.MemberDTO;
@@ -49,9 +49,8 @@ public class AticleController2 {
 		logger.info("===========		listArticleForm() start	==============");
 
 		// endPage
-		PagingResponseDTO<AticleVo> PagingResponseDTO = articleService.EndPagination(1, 10);
+		PagingResponseDTO<ArticleVo> PagingResponseDTO = articleService.EndPagination(1, 10);
 	
-		model.addAttribute("nextPage", PagingResponseDTO.getNextPage());
 		model.addAttribute("totalPage", PagingResponseDTO.getTotalPage());
 		model.addAttribute("articleList", PagingResponseDTO.getList());
 
@@ -63,7 +62,7 @@ public class AticleController2 {
 	public String ajaxArticle(Model model, @RequestParam int page) {
 		logger.info("===========		listArticle() start	==============");
 
-		List<AticleVo> articleList = articleService.EndPagingMore(page, 10);
+		List<ArticleVo> articleList = articleService.EndPagingMore(page, 10);
 		model.addAttribute("articleList", articleList);
 
 		return "/WEB-INF/views/board/ajaxArticle";
@@ -75,13 +74,12 @@ public class AticleController2 {
 		Map<String, Object> result = new HashMap<>();
 
 		if (1 == page) {
-			PagingResponseDTO<AticleVo> articlePageDto = articleService.EndPaging(1, pageSize);
+			PagingResponseDTO<ArticleVo> articlePageDto = articleService.EndPaging(1, pageSize);
 
-			result.put("nextPage", String.valueOf(articlePageDto.getNextPage()));
 			result.put("totalPage", String.valueOf(articlePageDto.getTotalPage()));
 			result.put("articleList", articlePageDto.getList());
 		} else {
-			List<AticleVo> articleList = articleService.EndPagingMore(page, pageSize);
+			List<ArticleVo> articleList = articleService.EndPagingMore(page, pageSize);
 
 			result.put("nextPage", "0");
 			result.put("totalPage", "0");
@@ -97,9 +95,8 @@ public class AticleController2 {
 		logger.info("===========		listArticle() start	==============");
 
 		// hasNext
-		PagingResponseDTO<AticleVo> articlePageDto = articleService.hasNextPaging(1, 10);
+		PagingResponseDTO<ArticleVo> articlePageDto = articleService.hasNextPaging(1, 10);
 		model.addAttribute("hasNext", articlePageDto.getHasNext());
-		model.addAttribute("nextPage", articlePageDto.getNextPage());
 		model.addAttribute("articleList", articlePageDto.getList());
 
 		return "board/listArticle2";
@@ -110,7 +107,7 @@ public class AticleController2 {
 	public String ajaxArticle2(Model model, @RequestParam int page) {
 		logger.info("===========		listArticle() start	==============");
 
-		PagingResponseDTO<AticleVo> articlePageDto = articleService.hasNextPagingMore(page, 10);
+		PagingResponseDTO<ArticleVo> articlePageDto = articleService.hasNextPagingMore(page, 10);
 		model.addAttribute("articleList", articlePageDto.getList());
 		model.addAttribute("hasNext", articlePageDto.getHasNext());
 
@@ -120,7 +117,7 @@ public class AticleController2 {
 	// hasNext
 	@RequestMapping(value = "/board/article/{page}/datas2")
 	public @ResponseBody Map<String, Object> getArticleDatas2(Model model, @PathVariable int page) {
-		PagingResponseDTO<AticleVo> articlePageDto = articleService.hasNextPagingMore(page, pageSize);
+		PagingResponseDTO<ArticleVo> articlePageDto = articleService.hasNextPagingMore(page, pageSize);
 
 		Map<String, Object> result = new HashMap<>();
 		result.put("articleList", articlePageDto.getList());
@@ -131,7 +128,7 @@ public class AticleController2 {
 
 	@RequestMapping(value = "/board/viewArticle", method = RequestMethod.GET)
 	public String viewArticle(Model model, @RequestParam("articleNo") String articleNum) {
-		AticleVo articleVo = new AticleVo();
+		ArticleVo articleVo = new ArticleVo();
 		logger.info("===========		viewArticle() start	==============");
 
 		int _articleNum = Integer.parseInt(articleNum);
@@ -143,15 +140,15 @@ public class AticleController2 {
 	}
 
 	@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.GET)
-	public @ResponseBody AticleVo viewArticle2(Model model, @PathVariable String articleNo) {
-		AticleVo articleVo = articleService.viewArticle(articleNo);
+	public @ResponseBody ArticleVo viewArticle2(Model model, @PathVariable String articleNo) {
+		ArticleVo articleVo = articleService.viewArticle(articleNo);
 
 		return articleVo;
 	}
 
 	@RequestMapping(value = "/board/modifyArticle", method = RequestMethod.POST)
 	@ResponseBody
-	public void modifyArticle(@RequestBody AticleVo articleVo) {
+	public void modifyArticle(@RequestBody ArticleVo articleVo) {
 		logger.info("============		modifArticle() start		============");
 
 		try {
@@ -163,7 +160,7 @@ public class AticleController2 {
 	}
 
 	@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.PUT)
-	public @ResponseBody Map<String, Object> modifyArticle2(@RequestBody AticleVo articleVo,
+	public @ResponseBody Map<String, Object> modifyArticle2(@RequestBody ArticleVo articleVo,
 			@PathVariable String articleNo) {
 		Map<String, Object> result = new HashMap<>();
 		//articleVo.setArticleNo(0);
@@ -221,7 +218,7 @@ public class AticleController2 {
 	// transaction 적용
 	@RequestMapping(value = "/board/replyArticle", method = RequestMethod.POST)
 	@ResponseBody
-	public String replyArticle(@RequestBody AticleVo articleVo) {
+	public String replyArticle(@RequestBody ArticleVo articleVo) {
 		logger.info("=============		replyArticle() start		==============");
 
 		int num = 0;
@@ -237,7 +234,7 @@ public class AticleController2 {
 	}
 	
 	@RequestMapping(value = "/board/{parentNo}/reply", method = RequestMethod.POST)
-	public @ResponseBody Map<String,Object> writeReply(@RequestBody AticleVo articleVo, @PathVariable String parentNo) {
+	public @ResponseBody Map<String,Object> writeReply(@RequestBody ArticleVo articleVo, @PathVariable String parentNo) {
 		Map<String, Object> result = new HashMap<>();
 /*
 		if(5 != parentNo.length()) { // TODO 시퀀스는 5자리가 보장되도록 작업 해줄 것
@@ -270,7 +267,7 @@ public class AticleController2 {
 	}
 	
 	@RequestMapping(value = "/board/deleteArticle", method = RequestMethod.POST)
-	public @ResponseBody String deleteArticle(@RequestBody AticleVo articleVo) {
+	public @ResponseBody String deleteArticle(@RequestBody ArticleVo articleVo) {
 		logger.info("===========		deleteArticle() start		=================");
 		
 		try {
@@ -311,7 +308,7 @@ public class AticleController2 {
 	}
 
 	@RequestMapping(value = "/board/modifyForm", method = RequestMethod.POST)
-	public String modifyForm(@ModelAttribute("articleVo") AticleVo articleVo, Model model) {
+	public String modifyForm(@ModelAttribute("articleVo") ArticleVo articleVo, Model model) {
 		logger.info("===========		modifyForm() start		==============");
 
 		model.addAttribute("articleVo", articleVo);
@@ -340,7 +337,7 @@ public class AticleController2 {
 	}
 
 	@RequestMapping(value = "/board/WrtiteArticle", method = RequestMethod.POST)
-	public String writeArticle(@ModelAttribute("articleVo") AticleVo articleVo, HttpServletRequest req) {
+	public String writeArticle(@ModelAttribute("articleVo") ArticleVo articleVo, HttpServletRequest req) {
 		logger.info("=============		writeArticle() start		==============");
 
 		try {

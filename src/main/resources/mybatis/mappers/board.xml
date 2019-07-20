@@ -5,7 +5,7 @@
 
 <mapper namespace="mapper.article">
 
-<!-- <resultMap type="com.spring.study.board.vo.AticleVo" id="articleResult">
+<!-- <resultMap type="com.spring.study.board.vo.ArticleVo" id="articleResult">
 	<result property="articleNo" column="ARTICLE_NO"/>
 	<result property="parentNo" column="PARENT_NO"/>
 	<result property="title" column="TITLE"/>

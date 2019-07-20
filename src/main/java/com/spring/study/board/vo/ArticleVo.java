@@ -1,11 +1,12 @@
 package com.spring.study.board.vo;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-public class AticleVo {
+public class ArticleVo {
 
 	private String articleNo;
 	private String parentNo;
@@ -22,6 +23,9 @@ public class AticleVo {
 	
 	
 	public List<ArticleReplyVo> getCommentsList() {
+		if(null == commentsList) {
+			commentsList = new ArrayList<ArticleReplyVo>();
+		}
 		return commentsList;
 	}
 

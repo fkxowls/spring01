@@ -24,7 +24,7 @@ import org.springframework.web.servlet.mvc.condition.RequestConditionHolder;
 
 import com.spring.study.board.controller.AticleController;
 import com.spring.study.board.service.ArticleService;
-import com.spring.study.board.vo.AticleVo;
+import com.spring.study.board.vo.ArticleVo;
 import com.spring.study.member.vo.MemberDTO;
 
 public class IdCheckAspect {
@@ -32,7 +32,7 @@ public class IdCheckAspect {
 
 	public Object idCheck(ProceedingJoinPoint joinPoint) {
 
-		AticleVo articleVo = (AticleVo) extractValuObject(joinPoint);
+		ArticleVo articleVo = (ArticleVo) extractValuObject(joinPoint);
 		boolean isEquals = equalsId(articleVo);
 		String redirect = "";
 
@@ -55,7 +55,7 @@ public class IdCheckAspect {
 	}
 	//글삭제 댓글 삭제 댓글 수정은 Form을 안거치고 삭제되어야함
 	public Object idCheck2(ProceedingJoinPoint joinPoint) {
-		AticleVo articleVo = (AticleVo) extractValuObject(joinPoint);
+		ArticleVo articleVo = (ArticleVo) extractValuObject(joinPoint);
 
 		String writerId = articleVo.getwriteMemberId();
 		String articleNo = articleVo.getArticleNo();
@@ -79,10 +79,10 @@ public class IdCheckAspect {
 
 	public Object extractValuObject(ProceedingJoinPoint joinPoint) {
 		Object[] args = joinPoint.getArgs();
-		AticleVo articleVo = null;
+		ArticleVo articleVo = null;
 		for (Object tmp : args) {
-			if (tmp instanceof AticleVo) {
-				articleVo = (AticleVo) tmp;
+			if (tmp instanceof ArticleVo) {
+				articleVo = (ArticleVo) tmp;
 				break;
 			}
 		}
@@ -93,7 +93,7 @@ public class IdCheckAspect {
 		return articleVo;
 	}
 
-	public boolean equalsId(AticleVo vo) {
+	public boolean equalsId(ArticleVo vo) {
 		boolean isEquals = false;
 		String redirect = "";
 
@@ -143,10 +143,10 @@ public class IdCheckAspect {
 			sessionId = "없음";
 		}
 
-		AticleVo articleVo = null;
+		ArticleVo articleVo = null;
 		for (Object tmp : args) {
-			if (tmp instanceof AticleVo) {
-				articleVo = (AticleVo) tmp;
+			if (tmp instanceof ArticleVo) {
+				articleVo = (ArticleVo) tmp;
 				String writerId = articleVo.getwriteMemberId();
 				if (sessionId.equals(writerId)) {
 					isEquals = true;
@@ -179,10 +179,10 @@ public class IdCheckAspect {
 	 * String sessionId = ""; try { sessionId = memberDTO.getMemberId(); } catch
 	 * (NullPointerException e) { sessionId = "없음"; }
 	 * 
-	 * AticleVo articleVo; String writerId; int articleNo = 0; for (Object tmp :
-	 * args) { if (tmp instanceof AticleVo) {
+	 * ArticleVo articleVo; String writerId; int articleNo = 0; for (Object tmp :
+	 * args) { if (tmp instanceof ArticleVo) {
 	 * 
-	 * articleVo = (AticleVo) tmp; writerId = articleVo.getwriteMemberId();
+	 * articleVo = (ArticleVo) tmp; writerId = articleVo.getwriteMemberId();
 	 * articleNo = articleVo.getArticleNo(); if (!sessionId.equals(writerId)) { }
 	 * break; } } ArticleService articleService = new ArticleService();
 	 * articleService.viewArticle(articleNo); }

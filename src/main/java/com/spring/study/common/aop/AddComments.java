@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 import org.aspectj.lang.ProceedingJoinPoint;
 
 @Documented
-@Target({ ElementType.METHOD})
+@Target({ ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AddComments {
 	
