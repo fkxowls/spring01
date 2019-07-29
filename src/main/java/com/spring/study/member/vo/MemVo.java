@@ -3,9 +3,8 @@ package com.spring.study.member.vo;
 public class MemVo {
 	String memberId;
     String memberPwd;
-    int memberLevel;
-    
-    
+    int memberLevel; //0:관리자, 1:그 외 회원
+
 	public String getMemberId() {
 		return memberId;
 	}

@@ -73,7 +73,6 @@
 
 	<beans:bean id="jsonMessageConverter"
 		class="org.springframework.http.converter.json.GsonHttpMessageConverter">
-
 	</beans:bean>
 
 

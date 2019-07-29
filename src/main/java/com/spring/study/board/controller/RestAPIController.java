@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.spring.study.board.service.ArticleService;
 import com.spring.study.board.vo.ArticleReplyVo;
@@ -45,18 +44,18 @@ public class RestAPIController {
 		public @ResponseBody Map<String, Object> getArticleDatas(@PathVariable int page) {
 			Map<String, Object> result = new HashMap<>();
 
-//			if (1 == page) {
+			if (1 == page) {
 				PagingResponseDTO<ArticleVo> articlePageDto = articleService.EndPaging(page, pageSize);
 
 				result.put("totalPage", String.valueOf(articlePageDto.getTotalPage()));
 				result.put("articleList", articlePageDto.getList());
-//			} else {
-//				List<ArticleVo> articleList = articleService.EndPagingMore(page, pageSize);
-//
-//				result.put("nextPage", "0");
-//				result.put("totalPage", "0");
-//				result.put("articleList", articleList);
-//			}
+			} else {
+				List<ArticleVo> articleList = articleService.EndPagingMore(page, pageSize);
+
+				result.put("nextPage", "0");
+				result.put("totalPage", "0");
+				result.put("articleList", articleList);
+			}
 
 			return result;
 		}
@@ -80,14 +79,14 @@ public class RestAPIController {
 			return articleVo;
 		}
 		
-		@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.PUT)
+		//@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.PUT)
 		public @ResponseBody Map<String, Object> modifyArticle(@RequestBody ArticleVo articleVo,
 				@PathVariable String articleNo) {
 			Map<String, Object> result = new HashMap<>();
 			//articleVo.setArticleNo(0);
 
 			try {
-				articleService.modifyArticle(articleVo);
+				//articleService.modifyArticle(articleVo,);
 				result.put("code",HttpStatus.OK);
 			} catch (Exception e) {
 				result.put("msg", "해당 글이 존재하지 않습니다.");
@@ -99,12 +98,27 @@ public class RestAPIController {
 		}
 		
 		@RequestMapping(value = "/board/{articleNo}/comment", method = RequestMethod.POST)
-		public @ResponseBody int insertComment(@RequestBody ArticleReplyVo replyVo, HttpSession session) {
+		public @ResponseBody Map<String, Object> insertComment(@RequestBody ArticleReplyVo replyVo, HttpSession session) {
+			Map<String, Object> returnMap = new HashMap<>();
+			
 			MemberDTO member = (MemberDTO) session.getAttribute("memberSession");
 			replyVo.setWriteMemberId(member.getMemberId());
-			// TODO 뷰단에서 사용자명 계속 전달하는 것 다 걷어내고, 이 위치에서 세션에서 멤버ID 가져온다
-			//세션을 어떻게 넘겨야하는가
-			return articleService.insertComment(replyVo);
+
+
+			try {
+				String msg = articleService.insertComment(replyVo);
+				returnMap.put("code",HttpStatus.OK);
+				returnMap.put("msg",msg);
+			} catch (NotFoundException e) {
+				returnMap.put("code", HttpStatus.NOT_FOUND);
+				returnMap.put("msg",e.getMessage());
+				e.printStackTrace();
+			} catch (Exception e) {
+				returnMap.put("code", HttpStatus.NOT_FOUND);
+				returnMap.put("msg", "알 수 없는 오류가 발생 했습니다. 다시 시도 해주세요");
+				e.printStackTrace();
+			}
+				return returnMap;
 		}
 		
 		@RequestMapping(value = "/board/{articleNo}/comment", method = RequestMethod.GET, produces = "application/json; charset=utf8")
@@ -114,17 +128,17 @@ public class RestAPIController {
 			return vo;
 		}
 		
-		@RequestMapping(value = "/board/{parentNo}/reply", method = RequestMethod.POST)
-		public @ResponseBody Map<String,Object> writeReply(@RequestBody ArticleVo articleVo, @PathVariable String parentNo) {
+		@RequestMapping(value = "/board/{parentId}/reply", method = RequestMethod.POST)
+		public @ResponseBody Map<String,Object> writeReply(@RequestBody ArticleVo articleVo, @PathVariable String parentId) {
 			Map<String, Object> result = new HashMap<>();
 
-			if(5 != parentNo.length()) { // TODO 시퀀스는 5자리가 보장되도록 작업 해줄 것
+			if(5 != parentId.length()) { // TODO 시퀀스는 5자리가 보장되도록 작업 해줄 것
 				result.put("code", HttpStatus.BAD_REQUEST);
 				result.put("msg", "입력 값이 올바르지 않습니다. 다시 확인 해주세요.");
 				return result;
 			}
 			
-			articleVo.setParentNo(parentNo);
+			articleVo.setParentId(parentId);
 			
 			try {
 				String msg = articleService.replyArticle(articleVo);
@@ -150,7 +164,7 @@ public class RestAPIController {
 		@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.DELETE)
 		public @ResponseBody Map<String, Object> deleteArticle(@RequestBody ArticleVo articleVo) {
 			Map<String, Object> result = new HashMap<>();
-			
+			System.out.println("삭제");
 			try {
 				articleService.deleteArticle(articleVo);
 				result.put("msg",HttpStatus.OK);

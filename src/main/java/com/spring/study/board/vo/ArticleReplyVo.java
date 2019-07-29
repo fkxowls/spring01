@@ -3,38 +3,51 @@ package com.spring.study.board.vo;
 import java.util.Date;
 
 public class ArticleReplyVo {
-	String articleNo;
-    int replyNo;
-    int parentNo;
-    String content;
-    Date writeDate;
-    String writeMemberId;
-    int level;
+	private String articleId;
+	private String replyId;
+	private int parentId;
+	private String content;
+	private Date writeDate;
+	private String writeMemberId;
+	private int level;
+	private int secretChkFlag;
     
     @Override
     public String toString() {
     	
-    	return "[articleNo: " +articleNo+", replyNo: " +replyNo+", parentNo: " + parentNo
+    	return "[articleId: " +articleId+", replyId: " +replyId+", parentNo: " + parentId
     			+",content:"+ content+", writeDate"+ writeDate +", writeMemberId:"+writeMemberId +"]";
     }
     
-	public String getArticleNo() {
-		return articleNo;
+	public int getParentId() {
+		return parentId;
 	}
-	public void setArticleNo(String articleNo) {
-		this.articleNo = articleNo;
+	public void setParentId(int parentId) {
+		this.parentId = parentId;
 	}
-	public int getReplyNo() {
-		return replyNo;
+	public int getSecretChkFlag() {
+		return secretChkFlag;
 	}
-	public void setReplyNo(int replyNo) {
-		this.replyNo = replyNo;
+	public void setSecretChkFlag(int secretChkFlag) {
+		this.secretChkFlag = secretChkFlag;
+	}
+	public String getArticleId() {
+		return articleId;
+	}
+	public void setArticleId(String articleId) {
+		this.articleId = articleId;
+	}
+	public String getReplyId() {
+		return replyId;
+	}
+	public void setReplyId(String replyId) {
+		this.replyId = replyId;
 	}
 	public int getParentNo() {
-		return parentNo;
+		return parentId;
 	}
-	public void setParentNo(int parentNo) {
-		this.parentNo = parentNo;
+	public void setParentNo(int parentId) {
+		this.parentId = parentId;
 	}
 	public String getContent() {
 		return content;

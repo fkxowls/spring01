@@ -58,7 +58,7 @@ public class IdCheckAspect {
 		ArticleVo articleVo = (ArticleVo) extractValuObject(joinPoint);
 
 		String writerId = articleVo.getwriteMemberId();
-		String articleNo = articleVo.getArticleNo();
+		String articleId = articleVo.getArticleId();
 		boolean isEquals = equalsId(articleVo);
 		String redirect = "";
 		
@@ -87,7 +87,7 @@ public class IdCheckAspect {
 			}
 		}
 		logger.info("==============                         =============================" );
-		System.out.println(articleVo.getArticleNo());
+		System.out.println(articleVo.getArticleId());
 		System.out.println(articleVo.getwriteMemberId());
 		logger.info("==============                         =============================" );
 		return articleVo;

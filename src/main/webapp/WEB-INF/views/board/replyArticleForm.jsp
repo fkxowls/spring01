@@ -37,7 +37,7 @@
 	    <tr>
 	      <td align="right"> </td>
 	      <td colspan="2">
-	       <input type="button" data-article-no="${articleNo }" class="btn1" value="답글쓰기" />
+	       <input type="button" data-article-id="${articleId }" class="btn1" value="답글쓰기" />
 	       <input type=button value="목록보기"/>
 	      </td>
      </tr>
@@ -63,14 +63,14 @@ $(document).ready(function(){
 	$('.btn1').click(function(){
 		var title = $('input[name=title]').val();
 		var content = $('textarea[name=content]').val();
-		var parentNo = $('.btn1').data('articleNo'); // TODO parentNo로 전부 이름변경
-		var articleNo = $('.btn1').data('articleNo'); //isExistsArticle메소드로 현재글이있는지 판단하려면 articleNo도 필요함
+		var parentNo = $('.btn1').data('articleId'); // TODO parentNo로 전부 이름변경
+		var articleId = $('.btn1').data('articleId'); //isExistsArticle메소드로 현재글이있는지 판단하려면 articleId도 필요함
 		var writeMemberId = $('input[name=writeMemberId]').val();
 		
 		var data = {};
 		data.title = title;
 		data.content = content;
-		data.articleNo = articleNo;
+		data.articleId = articleId;
 		data.parentNo = parentNo;
 		data.writeMemberId = writeMemberId;
 		

@@ -9,24 +9,25 @@
   	    		  A.*
 			FROM    (
   	          SELECT	 LEVEL AS LVL
-        	            , ARTICLE_NO
-            	        , REPLY_NO
-                	    , PARENT_NO
+        	            , ARTICLE_ID
+            	        , REPLY_ID
+                	    , PARENT_ID
                     	, CONTENT
 	                    , WRITE_MEMBER_ID
+	                    , SECRET_CHK_FLAG
     	               
         	    FROM    ARTICLE_REPLY
             	START WITH
-                	    PARENT_NO           = 0 
+                	    PARENT_ID           = 0 
             	CONNECT BY
-            	        PRIOR ARTICLE_NO    = PARENT_NO 
+            	        PRIOR ARTICLE_ID    = PARENT_ID 
 	            ORDER SIBLINGS BY
-    	                ARTICLE_NO DESC
+    	                ARTICLE_ID DESC
        			 ) A
-       			 WHERE ARTICLE_NO in (
-	       			SELECT regexp_substr(#{articleNo}, '[^,]+', 1, LEVEL)
+       			 WHERE ARTICLE_ID in (
+	       			SELECT regexp_substr(#{articleId}, '[^,]+', 1, LEVEL)
 					FROM DUAL
-					CONNECT BY LEVEL &lt;= length(regexp_replace(#{articleNo}, '[^,]+', '')) + 1
+					CONNECT BY LEVEL &lt;= length(regexp_replace(#{articleId}, '[^,]+', '')) + 1
        			 )
 		<!-- WHERE   rNum BETWEEN (#{pageNum}-1)*10+1   AND (#{pageNum}-1)*10+10  -->
 	
@@ -39,32 +40,56 @@
 			FROM    (
   	          SELECT	ROWNUM as rNum
     	                ,LEVEL AS LVL
-        	            , ARTICLE_NO
-            	        , REPLY_NO
-                	    , PARENT_NO
+        	            , ARTICLE_ID
+            	        , REPLY_ID
+                	    , PARENT_ID
                     	, CONTENT
 	                    , WRITE_MEMBER_ID
     	               
         	    FROM    ARTICLE_REPLY
             	START WITH
-                	    PARENT_NO           = 0 
+                	    PARENT_ID           = 0 
             	CONNECT BY
-            	        PRIOR ARTICLE_NO    = PARENT_NO 
+            	        PRIOR ARTICLE_ID    = PARENT_ID 
 	            ORDER SIBLINGS BY
-    	                ARTICLE_NO DESC
+    	                ARTICLE_ID DESC
        			 ) A
-       			 WHERE ARTICLE_NO = #{articleNo}
+       			 WHERE ARTICLE_ID = #{articleId}
 	</select>
+	
+	<insert id="isExistComment">
+		SELECT	 NVL(MIN('Y'), 'N')
+		FROM 	DUAL
+		WHERE	1			= 1
+		AND		EXISTS
+				(
+					SELECT 
+							1
+					FROM	ARTICLE_REPLY
+					WHERE	
+							REPLY_ID = #{replyId}
+				)
+	</insert>
 	
 	<insert id="insertComment" parameterType="articleReplyVo">
 		INSERT INTO ARTICLE_REPLY
+		(
+			REPLY_ID
+			,ARTICLE_ID
+			,PARENT_ID
+			,CONTENT
+			,WRITE_MEMBER_ID
+			,SECRET_CHK_FLAG
+			,WRITE_DATE
+		)
 		VALUES
 		(
 		 	 COMMENT_SEQ.NEXTVAL
-		 	 ,#{articleNo}
-			 ,#{parentNo}
+		 	 ,#{articleId}
+			 ,#{parentId}
 			 ,#{content}
 			 ,#{writeMemberId}
+			 ,#{secretChkFlag}
 			 ,sysdate
 		)
 	

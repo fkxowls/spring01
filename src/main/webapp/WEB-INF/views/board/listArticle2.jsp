@@ -131,10 +131,10 @@
  	<li>
  		<div id="divPaging">
  			<c:if test="${0 != totalPage and totalPage != page }">
- 				<button type="button" id="moreContent"  data-next-page="${nextPage}" onClick="getMoreContents2(this);">More ~ EndPage</button>
+ 				<button type="button" id="moreContent"  data-next-page="1" onClick="getMoreContents2(this);">More ~ EndPage</button>
  			</c:if>
  			<c:if test="${hasNext}">
- 				<button type="button" id="moreContent"  data-next-page="${nextPage}" onClick="getMoreContents(this);">More ~ HasNext</button>
+ 				<button type="button" id="moreContent"  data-next-page="1" onClick="getMoreContents(this);">More ~ HasNext</button>
  			</c:if>
  			<a class="cls1" href="${contextPath}/board/writeArticleForm.do"><p class=cls2>글쓰기</p></a>
  		</div>

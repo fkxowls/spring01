@@ -1,31 +1,74 @@
+ALTER TABLE ARTICLE ADD CONSTRAINT WRITE_MEMBER_FK FOREIGN KEY(WRITE_MEMBER_ID) REFERENCES MEMBER(MEMBER_ID)
 DROP TABLE ARTICLE
-DELETE FROM ARTICLE
-ALTER TABLE ARTICLE DROP CONSTRAINT FK_ID01
-select * from article
+delete from article
+ALTER TABLE ARTICLE ADD(NOTICE_CHK_FLAG NUMBER(1));
+SELECT * FROM ARTICLE
+ALTER TABLE ARTICLE MODIFY (WRITE_DATE DEFAULT null);
+SELECT * FROM USER_CONSTRAINTS WHERE TABLE_NAME = 'ARTICLE'
+ALTER TABLE ARTICLE DROP CONSTRAINT SYS_C008213;
+CREATE INDEX MEMBER_ID_IDX ON ARTICLE(WRITE_MEMBER_ID)
+SELECT INDEX_NAME FROM USER_INDEXES WHERE TABLE_NAME = 'ARTICLE'
+--NL조인
+SELECT  /*+ ordered use_nl(t2)*/
+		T2.*
+FROM 	NOTICE_ARTICLE T1, ARTICLE T2
+WHERE	
+		T1.ARTICLE_ID = T2.ARTICLE_ID
+		;
+		
+SELECT /*+ INDEX(MEMBER_ID_IDX)*/
+		* 
+FROM ARTICLE
+WHERE WRITE_MEMBER_ID = 'admin'
 
+SELECT 
+		*
+FROM 	ARTICLE
+WHERE  	1 = 1
+and		ARTICLE_ID = 10072
+AND		EXISTS
+				(
+					SELECT 
+							1
+					FROM	MEMBER
+					WHERE	
+							MEMBER_ID = 'admin'
+					AND		MEMBER_LEVEL = 10
+				)
+--세미조인		
+SELECT 	A.TITLE
+FROM  	ARTICLE A
+WHERE  	EXISTS
+			   (	SELECT *
+					FROM NOTICE_ARTICLE B
+					WHERE A.ARTICLE_ID = B.ARTICLE_ID
+					AND B.NOTICE_ID > 0
+			    )
 
-SELECT RN,ARTICLE_NO 
-FROM
-(
-	SELECT /*+ INDEX_DESC(ARTICLE ARTICLE_NO)*/ ROWNUM AS RN,ARTICLE_NO
-	FROM ARTICLE
-	WHERE ARTICLE_NO > 0
-	AND ROWNUM <= 50
-) 
-WHERE RN > 10
-;
+--Multi Insert
 
-WHERE 
+			    
+SELECT  /*+ ordered use_nl(B)*/
+	 A.* 
+FROM	 ARTICLE A
+		,NOTICE_ARTICLE B
+WHERE A.ARTICLE_ID = B.ARTICLE_ID
+AND   B.NOTICE_ID = '10054'; 
+
+NOTICE_ID_SEQ.nextval;
+SELECT * FROM  ARTICLE
 CREATE TABLE ARTICLE
 (
-	ARTICLE_NO NUMBER(10) PRIMARY KEY
-	,PARENT_NO NUMBER(10)
+	ARTICLE_ID NUMBER(10) PRIMARY KEY
+	,PARENT_ID NUMBER(10)
 	,TITLE VARCHAR2(200) NOT NULL
 	,CONTENT VARCHAR2(1000) NOT NULL
 	,WRITE_DATE DATE DEFAULT SYSDATE NOT NULL
 	,WRITE_MEMBER_ID VARCHAR2(50) NOT NULL
-	,CONSTRAINT FK_ID01 FOREIGN KEY(WRITE_MEMBER_ID) REFERENCES MEMBER(MEMBER_ID)
+	,MODIFY_MEMBER_ID  VARCHAR2(50)
+	,MODIFY_DATE DATE DEFAULT SYSDATE NOT NULL
 )
+CONSTRAINT FK_ID01 FOREIGN KEY(WRITE_MEMBER_ID) REFERENCES MEMBER(MEMBER_ID)
 ;
 
 ALTER TABLE ARTICLE ADD FOREIGN KEY(WRITE_MEMBER_ID) REFERENCES MEMBER(MEMBER_ID)
@@ -41,166 +84,96 @@ CREATE SEQUENCE NO_SEQ
 DROP SEQUENCE NO_SEQ
 
 
-
-insert into ARTICLE
-values
+SELECT RN,ARTICLE_ID
+FROM
 (
-	NO_SEQ.NEXTVAL
-	,21
-	,'ARTICLE22'
-	,'ARTICLE22.'
-	,sysdate
-	,'admin'
-)
+	SELECT /*+ INDEX_DESC(ARTICLE ARTICLE_ID)*/ ROWNUM AS RN,ARTICLE_ID
+	FROM ARTICLE
+	WHERE ARTICLE_ID > 0
+	AND ROWNUM <= 50
+) 
+WHERE RN > 10
+;
 
-
-insert into ARTICLE
-values
-(
-	NO_SEQ.NEXTVAL
-	,0
-	,'ARTICLE02'
-	,'ARTICLE02.'
-	,sysdate
-	,'mem2'
-)
-
-
-insert into ARTICLE
-values
-(
-	NO_SEQ.NEXTVAL
-	,0
-	,'ffffff'
-	,'ffffff.'
-	,sysdate
-	,'mem1'
-)
-
-
-insert into ARTICLE
-values
-(
-	NO_SEQ.NEXTVAL
-	,3
-	,'ARTICLE04'
-	,'ARTICLE04.'
-	,sysdate
-	,'admin'
-)
-
-
-insert into ARTICLE
-values
-(
-	NO_SEQ.NEXTVAL
-	,2
-	,'ARTICLE05'
-	,'ARTICLE05.'
-	,sysdate
-	,'admin'
-)
-
-	SELECT
-      		  A.*
-		FROM    (
-            SELECT	ROWNUM as rNum
-                    ,LEVEL AS LVL
-                    , ARTICLE_NO
-                    , PARENT_NO
-                    , TITLE
-                    , CONTENT
-                    , WRITE_MEMBER_ID
-                    , WRITE_DATE
-            FROM    ARTICLE
-			WHERE  ARTICLE_NO > 0  
-            START WITH
+SELECT
+      	  A.*
+FROM    (
+          SELECT	ROWNUM as rNum
+                  ,LEVEL AS LVL
+                  , ARTICLE_NO
+                  , PARENT_NO
+                  , TITLE
+                  , CONTENT
+                  , WRITE_MEMBER_ID
+                  , WRITE_DATE
+          FROM    ARTICLE
+		  WHERE   ARTICLE_NO > 0  
+          START WITH
                     PARENT_NO           = 0 
-            CONNECT BY
+          CONNECT BY
                     PRIOR ARTICLE_NO    = PARENT_NO 
-            ORDER SIBLINGS BY
+          ORDER     SIBLINGS BY
                     ARTICLE_NO DESC
-       		 ) A
-		WHERE   rNum  BETWEEN 1  AND 90
+       	) A
+WHERE   rNum  BETWEEN 1  AND 90
 		
 	<-- X -->
 	SELECT * FROM (
-		SELECT /*+ INDEX_DESC(ARTICLE ARTICLE_NO)*/ ROWNUM AS RNUM, Z.* FROM(
+		SELECT /*+ INDEX_DESC(ARTICLE ARTICLE_OD)*/ ROWNUM AS RNUM, Z.* FROM(
 			SELECT * FROM ARTICLE
 		)Z WHERE ROWNUM <=21
 	)WHERE RNUM >= 11
 		
 	
-	SELECT 	 X.*
-             
- 	FROM (
- 			SELECT  /*+ INDEX_DESC(ARTICLE ARTICLE_NO)*/
- 					ROWNUM AS RNUM
- 					,LEVEL AS LVL
- 				    , A.*      
-         	 FROM (
-         	 		SELECT    ARTICLE_NO
-            				 , PARENT_NO
-            				 , TITLE
-           					 , CONTENT
-           					 , WRITE_MEMBER_ID
-            		 		 
-            		FROM ARTICLE
-            		ORDER BY ARTICLE_NO DESC
-         	 	  ) A
- 	 		 WHERE ROWNUM <= 1
- 	 	  ) X
- 	 WHERE   X.RNUM >= 10
-		
- 	  SELECT	ROWNUM as rNum
-                    ,LEVEL AS LVL
-                    , ARTICLE_NO
-                    , PARENT_NO
-                    , TITLE
-                    , CONTENT
-                    , WRITE_MEMBER_ID
-                    , WRITE_DATE 
-            FROM    ARTICLE
-			WHERE   ARTICLE_NO > 0
-            START WITH
-                    PARENT_NO           = 0 
-            CONNECT BY
-                    PRIOR ARTICLE_NO    = PARENT_NO 
-            ORDER SIBLINGS BY
-                    ARTICLE_NO DESC
-
 SELECT 	 X.*
              
  	FROM (
- 			SELECT  /*+ INDEX_DESC(ARTICLE ARTICLE_NO)*/
+ 			SELECT  /*+ INDEX_DESC(SYS_C008216)*/
  					ROWNUM AS RNUM
  				    , A.*      
          	 FROM (
-         	 		SELECT    ARTICLE_NO
-            				 , PARENT_NO
+         	 		SELECT    ARTICLE_ID
+            				 , PARENT_ID
             				 , TITLE
            					 , CONTENT
            					 , WRITE_MEMBER_ID
             		 		 
             		FROM ARTICLE
-            		ORDER BY ARTICLE_NO DESC
+            		ORDER BY ARTICLE_ID DESC
          	 	  ) A
  	 		 WHERE ROWNUM <= 10
  	 	  ) X
- 	 WHERE   X.RNUM >= 1                 
+ 	 WHERE   X.RNUM >= 1
  	 
- 	 
- 	 SELECT	 NVL(MIN('Y'), 'N')
-		FROM 	DUAL
-		WHERE EXISTS
-				(
-					SELECT 
-							1
-					FROM	ARTICLE
-					WHERE	
-							WRITE_MEMBER_ID = 'mem2'
-					AND		ARTICLE_NO = 871
-				); 
-SELECT
-					NO_SEQ.NEXTVAL
-			FROM	DUAL
+SELECT	 NVL(MIN('Y'), 'N')
+FROM 	DUAL
+WHERE EXISTS
+(
+		SELECT 
+				1
+		FROM	ARTICLE
+		WHERE	
+				WRITE_MEMBER_ID = 'mem2'
+		AND		ARTICLE_NO = 871
+); 
+
+INSERT INTO ARTICLE
+		(
+			ARTICLE_ID
+			,PARENT_ID
+			,TITLE
+			,NOTICE_CHK_FLAG
+			,CONTENT
+			,WRITE_MEMBER_ID
+			,WRITE_DATE
+		)
+		VALUES
+		(
+			10110
+			,0
+			,'dddddd'
+			,1
+			,'sss'
+			,'admin'
+			,SYSDATE
+		)

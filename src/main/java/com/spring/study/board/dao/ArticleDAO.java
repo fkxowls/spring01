@@ -17,8 +17,10 @@ import com.spring.study.board.vo.ArticleReplyVo;
 import com.spring.study.board.vo.ArticleVo;
 import com.spring.study.board.vo.CommonRequestDto;
 import com.spring.study.board.vo.HasNextPaging;
+import com.spring.study.board.vo.NoticeArticleVo;
 import com.spring.study.board.vo.PagingResponseDTO;
 import com.spring.study.common.aop.AddComments;
+import com.spring.study.member.vo.MemberDTO;
 
 @Repository("articleDAO")
 public class ArticleDAO extends BaseDAO {
@@ -49,16 +51,22 @@ public class ArticleDAO extends BaseDAO {
 		return super.selectPageDto("mapper.article.listArticle2", vo);
 	}
 
-	public boolean isExistsArticle(String articleNo) {
-		String result = sqlSession.selectOne("mapper.article.isArticleNo", articleNo);
-		if (result.equals("Y")) {
+	public boolean isExistsArticle(String articleId) {
+		String result = sqlSession.selectOne("mapper.article.isarticleId", articleId);		if (result.equals("Y")) {
+			System.out.println("true");
 			return true;
 		}
+
 		return false;
-
 	}
-
+	
+	public boolean isExistsComment(String replyId) {
+		String result = sqlSession.selectOne("mapper.comment.isExistComment", replyId);
+		
+		return false;
+	}
 	// 순수 게시글 리스트만 가져오는 DAO 페이징정보 DAO는 getArticleByTotalCount/getArticleByHasNext
+	@AddComments
 	public List<ArticleVo> ListArticle(CommonRequestDto vo) {
 
 		return sqlSession.selectList("mapper.article.listArticle2", vo);
@@ -71,12 +79,13 @@ public class ArticleDAO extends BaseDAO {
 
 	public void insertArticle(ArticleVo articleVo) {
 		System.out.println("=======================================				articleVo:");
-		System.out.println("=======================================			             : " + articleVo.getContent());
 		sqlSession.insert("mapper.article.insertArticle", articleVo);
 
 	}
 
 	public void updateArticle(ArticleVo articleVo) {
+		System.out.println("------  " + articleVo.getArticleId()+", " + articleVo.getwriteMemberId());
+		System.out.println("===== "+articleVo.getModifyMemberId());
 		sqlSession.update("mapper.article.updateArticle", articleVo);
 
 	}
@@ -100,8 +109,8 @@ public class ArticleDAO extends BaseDAO {
 		return sqlSession.insert("mapper.article.insertReply", articleVo);
 	}
 
-	public List<ArticleReplyVo> commentsList(String articleNos) {
-		return sqlSession.selectList("mapper.comment.listComment", articleNos);
+	public List<ArticleReplyVo> commentsList(String articleIds) {
+		return sqlSession.selectList("mapper.comment.listComment", articleIds);
 	}
 
 	public boolean equalsWriterId(ArticleVo vo) {
@@ -114,7 +123,6 @@ public class ArticleDAO extends BaseDAO {
 
 	public int insertComment(ArticleReplyVo replyVo) {
 		logger.info("=================== 		DAO insertComment:{}");
-		logger.info("parentNo: {}", replyVo.getParentNo());
 		return sqlSession.insert("mapper.comment.insertComment", replyVo);
 
 	}
@@ -130,29 +138,60 @@ public class ArticleDAO extends BaseDAO {
 		return sqlSession.selectList("mapper.article.listArticle2", Vo);
 	}
 
-	private String dateFormat(Date curDate) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("HHmm");
+	public String getNextArticleId() {
 
-		try {
-			curDate = dateFormat.parse(dateFormat.format(curDate));
-		} catch (ParseException e) {
-			e.printStackTrace();
+		return sqlSession.selectOne("mapper.article.articleId");
+	}
+
+	public List<ArticleVo> getNoticeList() {
+		return sqlSession.selectList("mapper.article.noticeList");
+		
+	}
+
+	public void registerNotice(NoticeArticleVo articleVo) {
+		System.out.println("===============================");
+		System.out.println(articleVo.getArticleId());
+		System.out.println(articleVo.getEnforcementDate());
+		System.out.println(articleVo.getExpirationDate());
+		System.out.println("===============================");
+		sqlSession.insert("mapper.article.registerNotice", articleVo);
+		
+	}
+
+	public List<ArticleVo> getMyArticleList(String userId) {
+		
+		return sqlSession.selectList("mapper.article.getMyArticleList", userId);
+	}
+
+	public boolean isNoticeId(String articleId) {
+		String result = sqlSession.selectOne("mapper.article.isNoticeId", articleId); 
+		if(result.equals("Y")) {
+			return true;
 		}
-		long curDateTime = curDate.getTime();
-		String curDateStr = String.valueOf(curDateTime);
-
-		return curDateStr;
+		return false;
 	}
 
-	public String getArticleNo() {
-
-		return sqlSession.selectOne("mapper.article.articleNo");
+	public int getMemberLevel(MemberDTO memberDTO) {
+		int result = sqlSession.selectOne("mapper.article.chkMemberLevel",memberDTO);		
+		
+		return result;
+		
 	}
-
-	public Map<String, List<ArticleReplyVo>> temporaryMethod() {
-
-		return null;
-	}
+	
+	
+//	private String dateFormat(Date curDate) {
+//		SimpleDateFormat dateFormat = new SimpleDateFormat("HHmm");
+//
+//		try {
+//			curDate = dateFormat.parse(dateFormat.format(curDate));
+//		} catch (ParseException e) {
+//			e.printStackTrace();
+//		}
+//		long curDateTime = curDate.getTime();
+//		String curDateStr = String.valueOf(curDateTime);
+//
+//		return curDateStr;
+//	}
 
 //	public List<ArticleVo> ListArticle(PageDto vo) {
 //	logger.info("=========            startNum:{}", vo.getStartNum());

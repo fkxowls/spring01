@@ -12,9 +12,9 @@
 <script  src="http://code.jquery.com/jquery-latest.min.js"></script>
 </head>
 <body>
-<h1>${nowArticleNo }</h1>
+<h1>${nowArticleId }</h1>
 	<form name="frmArticle" method="post"
-		action="${contextPath}/board/modifyForm.do?articleNo=${articleVo.articleNo}">
+		action="/board/modifyForm.do?articleId=${articleVo.articleId}">
 		<table border=0 align="center">
 
 			<tr>
@@ -37,30 +37,35 @@
 				<td><input type=button value="등록" onClick="fn_insertComment()">
 			</tr>
 
-			<table id="commentList" data-article-no="${articleVo.articleNo}" border=0 align="center">
+			<table id="commentList" data-article-id="${articleVo.articleId}" border=0 align="center">
 				
 			</table>
 
 			<tr id="tr_btn">
-				<td colspan="2" align="center"><input type=submit value="수정하기">
-					<input type="button" value="삭제하기" onClick="fn_delete('${articleVo.articleNo}','${memberSession.memberId }')"> 
+				<td colspan="2" align="center">
+					<input type="submit" value="수정하기" <%-- onClick="fn_modifyForm('${articleVo.articleId}','${articleVo.writeMemberId }')" --%>>
+					<input type="button" value="삭제하기" onClick="fn_delete('${articleVo.articleId}','${memberSession.memberId }')"> 
 					<input type=button value="리스트로 돌아가기">
-					<input type=button value="답글쓰기" onClick="fn_reply('${articleVo.articleNo}')">
+					<input type=button value="답글쓰기" onClick="fn_reply('${articleVo.articleId}')">
 				</td>
 			</tr>
 		</table>
 	</form>
 </body>
 <script type="text/javascript">
-	function fn_delete(articleNo,sessionId) {
-		var data = {};
-		data.articleNo = articleNo;
-		data.writeMemberId = sessionId;
+
+	function fn_modifyForm(articleId,writeMemberId){
+		alert(writeMemberId);
+		frmArticle.action = "${contextPath}/board/modifyForm.do?writeMemberId="+writeMemberId+"&articleId="+articleId;
+		frmArticle.submit();
+		/* var data = {};
+		data.articleId = articleId;
+		data.writeMemberId = writeMemberId;
 		var sendData = JSON.stringify(data);
 		
 		$.ajax({
 			type: 'post',
-			url : "${contextPath}/board/deleteArticle.do",
+			url : '${contextPath}/board/modifyForm.do',
 			headers : {
 				"Content-Type" : "application/json"
 			},
@@ -68,25 +73,46 @@
 			data : sendData
 		}).done(function(data){
 			alert(data.msg);
-			$(location).attr('href', redirect.redirect);
+			$(location).attr('href', data.redirect);
+		}); */
+		
+	}
+
+	function fn_delete(articleId,sessionId) {
+		var data = {};
+		data.articleId = articleId;
+		data.writeMemberId = sessionId;
+		var sendData = JSON.stringify(data);
+		
+		$.ajax({
+			type: 'delete',
+			url : "${contextPath}/board/"+articleId,
+			headers : {
+				"Content-Type" : "application/json"
+			},
+			dataType : 'json',
+			data : sendData
+		}).done(function(data){
+			alert(data.msg);
+			$(location).attr('href', data.redirect);
 		});
 	}
 
 	function fn_reply(num) {
 		var title = $('#title').val();
 		alert(title);
-		frmArticle.action = "${contextPath}/board/writeReplyForm.do?articleNo="+num+"&title="+title;
+		frmArticle.action = "/board/writeReplyForm.do?articleId="+num+"&title="+title;
 		frmArticle.submit();
 	}
 
 	function getCommentList() {
-		// todo JSON.parse('{"' + decodeURI(location.search.substring(1)).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}').articleNo
-		//var articleNo = JSON.parse('{"' + decodeURI(location.search.substring(1)).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}').articleNo;
-		var articleNo = $('#commentList').data('articleNo');
+		// todo JSON.parse('{"' + decodeURI(location.search.substring(1)).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}').articleId
+		//var articleId = JSON.parse('{"' + decodeURI(location.search.substring(1)).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}').articleId;
+		var articleId = $('#commentList').data('articleId');
 		
 		$.ajax({
 			type : 'GET',
-			url : '${contextPath}/board/commentList.do?articleNo=' + articleNo,
+			url : '${contextPath}/board/commentList.do?articleId=' + articleId,
 			dataType : 'json',
 			data : $('#commentForm').serialize(),
 			contentType : "application/json; charset=UTF-8",
@@ -101,9 +127,9 @@
 					html +="[답글]</c:if>""; */
 					html += data[i].content + "</td>";
 					html += "<td>";
-					html += "<a id='reCommentBtn' onClick=fn_reComment("+data[i].replyNo+")>"
+					html += "<a id='reCommentBtn' onClick=fn_reComment("+data[i].replyId+")>"
 							+ "답글" + "</a></td></tr>"
-					html += "<tr class=recomment"+data[i].replyNo+"></tr>";
+					html += "<tr class=recomment"+data[i].replyId+"></tr>";
 				}
 				$("#commentList").html(html);
 			}
@@ -111,13 +137,15 @@
 	}
 	
 	function fn_insertComment() {
-		var articleNo = $('#commentList').data('articleNo');
+		var articleId = $('#commentList').data('articleId');
 		var content = $('input[name=comment]').val();
+		var secretChkFlag = 1;
 		var data = {};
 		
-		data.articleNo = articleNo;
+		data.articleId = articleId;
 		data.content = content;
-	
+		data.secretChkFlag = secretChkFlag;
+		
 		var sendData = JSON.stringify(data);
 
 		$.ajax({
@@ -138,16 +166,17 @@
 		var html = "";
 		html += "<td colspan=3><input type=text size=45 name=reComment></td>";
 		html += "<td><input type=button value=등록 onClick=insertReComment('" + idx + "')></td>";
+		html += "<td><input type=</td>"
 		$(tagName).append(html);
 	}
 
 	function insertReComment(idx) {
 		alert(idx);
-		var articleNo = $('#commentList').data('articleNo');
+		var articleId = $('#commentList').data('articleId');
 		var content =	$('input[name=reComment]').val();
 		var data = {};
 		
-		data.articleNo = articleNo;
+		data.articleId = articleId;
 		data.content = content;
 		
 		var sendData = JSON.stringify(data);

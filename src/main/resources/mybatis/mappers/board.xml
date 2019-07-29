@@ -6,16 +6,16 @@
 <mapper namespace="mapper.article">
 
 <!-- <resultMap type="com.spring.study.board.vo.ArticleVo" id="articleResult">
-	<result property="articleNo" column="ARTICLE_NO"/>
-	<result property="parentNo" column="PARENT_NO"/>
+	<result property="articleNo" column="articleNo"/>
+	<result property="parentNo" column="PARENT_ID"/>
 	<result property="title" column="TITLE"/>
 	<result property="content" column="CONTENT"/>
 	<result property="writeDate" column="WRITE_DATE"/>
 	<result property="writeMemberId" column="WRITE_MEMBER_ID"/> 
-	<collection property="commentsList" column="ARTICLE_NO" javaType="java.util.ArrayList" ofType="articleReplyVo" select="getCommentListByArticleNo"/>
+	<collection property="commentsList" column="ARTICLE_NO" javaType="java.util.ArrayList" ofType="articleReplyVo" select="getCommentListByarticleNo"/>
 </resultMap> -->
 <!-- 	
- 	<select id="getCommentListByArticleNo" resultType="articleReplyVo">
+ 	<select id="getCommentListByarticleNo" resultType="articleReplyVo">
 		SELECT
   	    		  A.*
 			FROM    (
@@ -53,14 +53,14 @@
  					ROWNUM AS RNUM
  				    , A.*      
          	 FROM (
-         	 		SELECT    ARTICLE_NO
-            				 , PARENT_NO
+         	 		SELECT    ARTICLE_ID
+            				 , PARENT_ID
             				 , TITLE
            					 , CONTENT
            					 , WRITE_MEMBER_ID
             		 		 
             		FROM ARTICLE
-            		ORDER BY ARTICLE_NO DESC
+            		ORDER BY ARTICLE_ID DESC
          	 	  ) A
  	 		 WHERE ROWNUM <= #{endNum}
  	 	  ) X
@@ -70,20 +70,20 @@
 	<select id="listArticle" resultType="articleVo">
             SELECT	ROWNUM as rNum
                     ,LEVEL AS LVL
-                    , ARTICLE_NO
-                    , PARENT_NO
+                    , ARTICLE_ID
+                    , PARENT_ID
                     , TITLE
                     , CONTENT
                     , WRITE_MEMBER_ID
                     <!-- , WRITE_DATE -->
             FROM    ARTICLE
-			WHERE   ARTICLE_NO > 0
+			WHERE   ARTICLE_ID > 0
             START WITH
-                    PARENT_NO           = 0 
+                    PARENT_ID           = 0 
             CONNECT BY
-                    PRIOR ARTICLE_NO    = PARENT_NO 
+                    PRIOR ARTICLE_ID    = PARENT_ID 
             ORDER SIBLINGS BY
-                    ARTICLE_NO DESC
+                    ARTICLE_ID DESC
        		
 	</select>
 	
@@ -91,36 +91,43 @@
 		SELECT 
 				* 
 		FROM 	ARTICLE 
-		WHERE 	ARTICLE_NO = #{articleNo}
+		WHERE 	ARTICLE_ID = #{articleId}
 	</select>
 	
 	<insert id="insertArticle" parameterType="articleVo">
 		INSERT INTO ARTICLE
 		(
-			ARTICLE_NO
-			,PARENT_No
+			ARTICLE_ID
+			,PARENT_ID
 			,TITLE
+			,NOTICE_CHK_FLAG
 			,CONTENT
 			,WRITE_MEMBER_ID
+			,WRITE_DATE
 		)
 		VALUES
 		(
-			NO_SEQ.NEXTVAL
+			#{articleId}
 			,0
 			,#{title}
+			,#{noticeChkFlag}
 			,#{content}
 			,#{writeMemberId}
+			,#{writeDate}
 		)
 	</insert>
 	
 	<update id="updateArticle" parameterType="articleVo">
 		UPDATE ARTICLE
 		SET
-			TITLE		= #{title}
-			,CONTENT	= #{content}
+				TITLE			  = #{title}
+				,CONTENT		  = #{content}
+				,MODIFY_MEMBER_ID = #{modifyMemberId}
+				,MODIFY_DATE 	  = #{modifyDate}
+			
 		WHERE
-			ARTICLE_NO	= #{articleNo}
-		AND	WRITE_MEMBER_ID = #{writeMemberId}
+				ARTICLE_ID	      = #{articleId}
+		AND		WRITE_MEMBER_ID   = #{writeMemberId}
 	</update>
 	
 	<select id="totalArticle" resultType="int">
@@ -132,43 +139,43 @@
 	
 	<select id="getSequence" resultType="int">
 		SELECT 
-				MAX(ARTICLE_NO)
+				MAX(ARTICLE_ID)
 		FROM 	ARTICLE
 	</select>
 	
 	<delete id="deleteArticle" parameterType="String">
 		DELETE 	
 		FROM	ARTICLE
-		WHERE	ARTICLE_NO = #{articleNo}
+		WHERE	ARTICLE_ID = #{articleId}
 		AND		WRITE_MEMBER_ID = #{writeMemberId}
 	
 	</delete>
 	
 	<insert id="insertReply" parameterType="articleVo">
-		<!-- <selectKey keyProperty="articleNo" resultType="int" order="BEFORE">
+		<!-- <selectKey keyProperty="articleId" resultType="int" order="BEFORE">
 			SELECT
 					NO_SEQ.NEXTVAL
 			FROM	DUAL
 		</selectKey> -->
 			INSERT INTO ARTICLE
 			(
-				ARTICLE_NO
-				,PARENT_NO
+				ARTICLE_ID
+				,PARENT_ID
 				,TITLE
 				,CONTENT
 				,WRITE_MEMBER_ID
 			)
 			VALUES
 			(
-				#{articleNo}
-				,#{parentNo}
+				#{articleId}
+				,#{parentId}
 				,#{title}
 				,#{content}
 				,#{writeMemberId}
 			)
 	</insert>
 	
-	<select id="isArticleNo" parameterType="String" resultType="String">
+	<select id="isarticleId" parameterType="String" resultType="String">
 		SELECT	 NVL(MIN('Y'), 'N')
 		FROM 	DUAL
 		WHERE	1			= 1
@@ -178,7 +185,7 @@
 							1
 					FROM	ARTICLE
 					WHERE	
-							ARTICLE_NO = #{articleNo}
+							ARTICLE_ID = #{articleId}
 				)
 	</select>
 	<!-- 아이디 체크 AOP를 위한 쿼리-->	
@@ -192,14 +199,72 @@
 							1
 					FROM	ARTICLE
 					WHERE	
-							ARTICLE_NO = #{articleNo}
+							ARTICLE_ID = #{articleId}
 					AND		WRITE_MEMBER_ID = #{writeMemberId} 
 				)
 	</select>
-	<select id="articleNo" resultType="String">
+	
+	<select id="articleId" resultType="String">
 		SELECT
 					NO_SEQ.NEXTVAL
 			FROM	DUAL
+	</select>
+	
+	<select id="noticeList" resultType="articleVo">
+		SELECT  /*+ ordered use_nl(t2)*/
+				T2.*
+		FROM 	NOTICE_ARTICLE T1, ARTICLE T2
+		WHERE	
+				T1.ARTICLE_ID = T2.ARTICLE_ID
+	</select>
+	
+	<insert id="registerNotice" parameterType="articleVo">
+		<selectKey keyProperty="noticeId" resultType="String" order="BEFORE">
+			SELECT NOTICE_ID_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO NOTICE_ARTICLE
+		(
+			NOTICE_ID
+			,ARTICLE_ID
+			,ENFORCEMENT_DATE
+			,EXPIRATION_DATE
+		)
+		VALUES
+		(
+			#{noticeId}
+			,#{articleId}
+			,#{enforcementDate}
+			,#{expirationDate}
+		)
+	</insert>
+	
+	<select id="getMyArticleList" parameterType="String" resultType="articleVo">
+		SELECT /*+ INDEX(MEMBER_ID_IDX)*/
+				* 
+		FROM ARTICLE
+		WHERE WRITE_MEMBER_ID = #{writeMemberId}
+	</select>	
+	
+	<select id="isNoticeId" parameterType="String" resultType="String">
+		SELECT  NVL(MIN('Y'), 'N')
+		FROM 	DUAL
+		WHERE	1			= 1
+		AND		EXISTS
+				(
+						SELECT 
+									1
+						FROM		NOTICE_ARTICLE
+						WHERE	
+									ARTICLE_ID = #{articleId}
+				)
+	</select>
+	
+	<select id="chkMemberLevel" parameterType="com.spring.study.member.vo.MemberDTO" resultType="int">
+		SELECT	member_level
+		FROM	MEMBER
+		WHERE
+				MEMBER_ID 	 = #{memberId}
+		AND		MEMBER_LEVEL = #{memberLevel}
 	</select>
 	
 </mapper>

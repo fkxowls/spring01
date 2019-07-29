@@ -54,11 +54,13 @@ public class ArticleAddContentsAspect {
 //			articleNumberList.add(vo.getArticleNo());
 //		}
 //		String articleNumbers = String.join(",", articleNumberList);
+	
 		String articleNumbers = returnList.stream()
-				.map(ArticleVo::getArticleNo)
+				.map(ArticleVo::getArticleId)
 				.collect(Collectors.joining(","));
 		
 		List<ArticleReplyVo> commentsList = articleDAO.commentsList(articleNumbers);
+		
 //		for(ArticleVo ArticleVo : returnList) {
 //			String key = ArticleVo.getArticleNo();
 //			ArticleVo.setCommentsList(Lists.newArrayList());
@@ -76,11 +78,10 @@ public class ArticleAddContentsAspect {
 //			}
 //		}
 		
-		Map<String, List<ArticleReplyVo>> commentsListByArticleNo = commentsList.stream()
-				.collect(Collectors.groupingBy(ArticleReplyVo::getArticleNo));
+		Map<String, List<ArticleReplyVo>> commentsListByArticleId = commentsList.stream()
+				.collect(Collectors.groupingBy(ArticleReplyVo::getArticleId));
 		
-		returnList.stream().filter( vo -> null == vo.getArticleNo() ).limit(10)
-				.forEach( vo -> vo.setCommentsList(commentsListByArticleNo.get(vo.getArticleNo())) );
+		returnList.stream().forEach( vo -> vo.setCommentsList(commentsListByArticleId.get(vo.getArticleId())) );
 		
 //		Stream<ArticleVo> stream = returnList.stream();
 //		stream = stream.filter( vo -> null == vo.getArticleNo() );

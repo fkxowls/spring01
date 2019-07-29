@@ -4,8 +4,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <c:forEach var="articleVO" items="${articleList }" varStatus="vs">
     <ul align="center" class="contents" <c:if test="${vs.last}">data-has-next="${hasNext}"</c:if>>
-        <li>${articleVO.articleNo }</li>
-        <li class="left"><a class='cls1' href="${contextPath}/board/viewArticle.do?articleNo=${articleVO.articleNo}">${articleVO.title}</a></li>
+        <li>${articleVO.articleId }</li>
+        <li class="left"><a class='cls1' href="${contextPath}/board/viewArticle.do?articleId=${articleVO.articleId}">${articleVO.title}</a></li>
         <li>${articleVO.writeMemberId }</li>
         <li>${articleVO.writeDate }</li>
     </ul>

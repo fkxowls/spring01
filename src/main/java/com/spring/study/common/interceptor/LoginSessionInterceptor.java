@@ -21,9 +21,7 @@ public class LoginSessionInterceptor extends HandlerInterceptorAdapter {
 			throws Exception {
 		logger.info("=================		preHandle() start		==================");
 		HttpSession session = request.getSession();
-		//String contextPath = request.getContextPath();
 
-		
 		String sessionId ="";
 		try {
 			MemberDTO memberDTO = (MemberDTO) session.getAttribute("memberSession");
