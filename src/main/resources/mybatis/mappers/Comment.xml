@@ -5,30 +5,63 @@
 
 <mapper namespace="mapper.comment">
 	<select id="listComment" parameterType="String" resultType="articleReplyVo">
+		<![CDATA[
+		SELECT	 A.*
+		FROM      (
+  	                  SELECT	
+        	                    B.*
+    	               
+        	   		  FROM     (
+        	   		  			SELECT   ROW_NUMBER() OVER(PARTITION BY ARTICLE_ID  ORDER BY REPLY_ID DESC) AS RANK_NUMBER
+  	                  		   			, LEVEL AS LVL
+        	   		  					, ARTICLE_ID
+            	        	   			, REPLY_ID
+	                         	  		, PARENT_ID
+                    		 	 	    , CONTENT
+	                         	  		, WRITE_MEMBER_ID
+	                          			, SECRET_CHK_FLAG
+	                          	FROM     ARTICLE_REPLY
+       				 			WHERE    ARTICLE_ID in (
+	       													SELECT regexp_substr('10087', '[^,]+', 1, LEVEL)
+															FROM DUAL
+															CONNECT BY LEVEL >= length(regexp_replace('10087', '[^,]+', '')) + 1
+       			 						     			) 
+            					CONNECT BY
+            	    		  			 PRIOR ARTICLE_ID   = PARENT_ID 
+        	   				  ) B
+					where  B.RANK_NUMBER <= #{endNum}
+        	   				  
+       			 ) A	
+		WHERE  A.RANK_NUMBER >= #{startNum}
+	 ]]>
+	
+	</select>
+	<!-- 페이징 전 쿼리 -->
+	<select id="listCommentNotPaging" parameterType="String" resultType="articleReplyVo">
 		SELECT
   	    		  A.*
-			FROM    (
-  	          SELECT	 LEVEL AS LVL
-        	            , ARTICLE_ID
-            	        , REPLY_ID
-                	    , PARENT_ID
-                    	, CONTENT
-	                    , WRITE_MEMBER_ID
-	                    , SECRET_CHK_FLAG
+		FROM      (
+  	                  SELECT	 LEVEL AS LVL
+        	                   , ARTICLE_ID
+            	        	   , REPLY_ID
+	                           , PARENT_ID
+                    		   , CONTENT
+	                           , WRITE_MEMBER_ID
+	                           , SECRET_CHK_FLAG
     	               
-        	    FROM    ARTICLE_REPLY
-            	START WITH
-                	    PARENT_ID           = 0 
-            	CONNECT BY
-            	        PRIOR ARTICLE_ID    = PARENT_ID 
-	            ORDER SIBLINGS BY
-    	                ARTICLE_ID DESC
+        	   		  FROM     ARTICLE_REPLY
+       				  WHERE    ARTICLE_ID in (
+	       										SELECT regexp_substr(#{articleId}, '[^,]+', 1, LEVEL)
+												FROM DUAL
+												CONNECT BY LEVEL &lt;= length(regexp_replace(#{articleId}, '[^,]+', '')) + 1
+       			 						     )
+            		START WITH
+                			    PARENT_ID           = 0 
+            		CONNECT BY
+            	    		    PRIOR ARTICLE_ID    = PARENT_ID 
+	            	ORDER SIBLINGS BY
+    	            		    ARTICLE_ID DESC
        			 ) A
-       			 WHERE ARTICLE_ID in (
-	       			SELECT regexp_substr(#{articleId}, '[^,]+', 1, LEVEL)
-					FROM DUAL
-					CONNECT BY LEVEL &lt;= length(regexp_replace(#{articleId}, '[^,]+', '')) + 1
-       			 )
 		<!-- WHERE   rNum BETWEEN (#{pageNum}-1)*10+1   AND (#{pageNum}-1)*10+10  -->
 	
 	
