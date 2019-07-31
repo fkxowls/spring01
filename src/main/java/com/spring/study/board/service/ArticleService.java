@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.spring.study.board.controller.AticleController;
 import com.spring.study.board.dao.ArticleDAO;
+import com.spring.study.board.dao.CommentDAO;
 import com.spring.study.board.vo.ArticleReplyVo;
 import com.spring.study.board.vo.ArticleVo;
 import com.spring.study.board.vo.HasNextPaging;
@@ -32,23 +33,27 @@ public class ArticleService {
 
 	@Autowired
 	private ArticleDAO articleDAO;
-
+	@Autowired
+	private CommentDAO commentDAO;
 	///
 	public ArticleVo viewArticle(String articleId, MemberDTO memberDTO) throws Exception {
 		// 공지글 수는 전체글수에 비해 엄청 적으니까 공지글테이블에 있는 글번호인지 확인
 		boolean isNoticeId = articleDAO.isNoticeId(articleId);
 		ArticleVo returnVo = null;
-
+		
+		
 		if (isNoticeId) {// 공지글 테이블에 글이있을 시
 			// 공지글에 있는 것을 확인 후 회원레벨 10(관리자),20(우수회원)이면 접근 30(일반회원)이면 팅겨냄
 			int memberLevel = 0;
-			try {
-				// session에 멤버정보가 없다 = 로그인 x인 상태 = 예외발생시켜서 로그인페이지로 보낸다
-				memberLevel = articleDAO.getMemberLevel(memberDTO);
-			} catch (Exception e) {
+			
+			// session에 멤버정보가 없다 = 로그인 x인 상태 = 예외발생시켜서 로그인페이지로 보낸다
+			if(null == memberDTO) {
 				throw new NotFoundException("로그인 후 이용가능합니다");
 			}
-
+			memberLevel = articleDAO.getMemberLevel(memberDTO);
+			/*
+			 * if (0 == memberLevel) { throw new NotFoundException("로그인 후 이용가능합니다"); }
+			 */
 			if (20 == memberLevel || 10 == memberLevel) {
 				// 글 상세보기
 				returnVo = articleDAO.viewArticle(articleId);
@@ -94,10 +99,12 @@ public class ArticleService {
 	}
 
 	public void modifyArticle(ArticleVo articleVo, MemberDTO memberDTO) throws Exception {
+
 		try {
 			String userId = memberDTO.getMemberId();
 			// 수정자 입력
 			articleVo.setModifyMemberId(userId);
+			// 널포인트 체크는 try문 쓰지말고 if로 처리
 		} catch (NullPointerException e) {
 			throw new NullPointerException("로그인 세션 만료");
 		}
@@ -168,10 +175,11 @@ public class ArticleService {
 		} catch (NullPointerException e) {
 			userId = "NullPointetException";
 		}
-		
-		List<ArticleReplyVo> commentsList = articleDAO.commentsList(articleId);
+
+		List<ArticleReplyVo> commentsList = commentDAO.commentsList(articleId);
 		for (int i = 0; i < commentsList.size(); i++) {
-			if (1 == commentsList.get(i).getSecretChkFlag() && !userId.contentEquals(commentsList.get(i).getWriteMemberId())) {
+			if (1 == commentsList.get(i).getSecretChkFlag()
+					&& !userId.contentEquals(commentsList.get(i).getWriteMemberId())) {
 				commentsList.get(i).setContent("비밀 댓글 입니다");
 			}
 		}
@@ -186,19 +194,19 @@ public class ArticleService {
 		}
 
 		if (replyVo.getParentNo() != 0) {
-			boolean isExistsComment = articleDAO.isExistsComment(replyVo.getReplyId());
+			boolean isExistsComment = commentDAO.isExistsComment(replyVo.getReplyId());
 			if (!isExistsComment) {
 				throw new NotFoundException("댓글이 존재하지 않습니다.");
 			}
 		}
 
-		int result = articleDAO.insertComment(replyVo);
+		int result = commentDAO.insertComment(replyVo);
 
 		return "댓글 작성에 성공 했습니다.";
 	}
 
 	public void insertReComment(ArticleReplyVo replyVo) {
-		articleDAO.insertComment(replyVo);
+		commentDAO.insertComment(replyVo);
 	}
 
 	// endPage 관련 일반 서비스
@@ -210,7 +218,7 @@ public class ArticleService {
 		return resp;
 	}
 
-	public List<ArticleVo> EndPagingMore(int page, int pageSize) {
+	public List<ArticleVo> endPagingMoreByTotalCount(int page, int pageSize) {
 		int startNum = (page - 1) * pageSize + 1;
 		int endNum = page * pageSize;
 
@@ -221,8 +229,8 @@ public class ArticleService {
 		return list;
 	}
 
-	// endPage 관련 restAPI 서비스
-	public PagingResponseDTO<ArticleVo> EndPaging(int page, int pageSize) {
+	// endPage 관련 restAPI 서비스 (FeedType)
+	public PagingResponseDTO<ArticleVo> endPaginationByTotalCount(int page, int pageSize) {
 		CommonRequestDto req = new CommonRequestDto.Builder(page, pageSize).build();
 		PagingResponseDTO<ArticleVo> resp = articleDAO.getArticleByTotalCountAddComments(req);
 
