@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.support.SessionStatus;
 
 import com.spring.study.board.controller.AticleController;
 import com.spring.study.member.service.MemberService;
-import com.spring.study.member.vo.MemberDTO;
+import com.spring.study.member.vo.Member;
 import com.spring.study.member.vo.MemVo;
 
 @Controller
@@ -43,11 +44,11 @@ public class MemberController {
 		MemVo member = memberService.login(memberVo);
 
 		// TODO 세션에 로그인 정보 담는다 -> 지금은 이름, ID 정도만 담으면 될 것 같음
-		MemberDTO memberDTO = memberService.setMemberSession(member);
+		Member memberDTO = memberService.setMemberSession(member);
 		session.setAttribute("memberSession", memberDTO);
 
 
-		return "redirect:/board/listArticleForm.do";
+		return "redirect:/board/article/list";
 	}
 
 	@RequestMapping(value = "/member/logout", method = RequestMethod.GET)

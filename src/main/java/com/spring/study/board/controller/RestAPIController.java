@@ -21,16 +21,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.spring.study.board.service.ArticleService;
 import com.spring.study.board.vo.ArticleReplyVo;
 import com.spring.study.board.vo.ArticleVo;
-import com.spring.study.board.vo.PagingResponseDTO;
-import com.spring.study.member.vo.MemberDTO;
+import com.spring.study.common.model.PageList;
+import com.spring.study.member.vo.Member;
 
 import javassist.NotFoundException;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 
-/************************************
-	restAPI용 컨트롤러를 따로 분리해보자
-	
-************************************/
+//AticleController를 REST로 변경 중 
 @Controller
 public class RestAPIController {
 	private static final Logger logger = LoggerFactory.getLogger(AticleController.class);
@@ -41,16 +38,16 @@ public class RestAPIController {
 	
 	// endPage restAPI
 		@RequestMapping(value = "/board/article/{page}/datas")
-		public @ResponseBody Map<String, Object> getArticleDatas(@PathVariable int page) {
+		public @ResponseBody Map<String, Object> getFeedTypeArticlesByTotalCount(@PathVariable int page) {
 			Map<String, Object> result = new HashMap<>();
 
 			if (1 == page) {
-				PagingResponseDTO<ArticleVo> articlePageDto = articleService.EndPaging(page, pageSize);
+				PageList<ArticleVo> articlePageDto = articleService.endPaginationByTotalCount(page, pageSize);
 
 				result.put("totalPage", String.valueOf(articlePageDto.getTotalPage()));
 				result.put("articleList", articlePageDto.getList());
 			} else {
-				List<ArticleVo> articleList = articleService.EndPagingMore(page, pageSize);
+				List<ArticleVo> articleList = articleService.getArticleMore(page, pageSize);
 
 				result.put("nextPage", "0");
 				result.put("totalPage", "0");
@@ -62,8 +59,8 @@ public class RestAPIController {
 		
 		// hasNext
 		@RequestMapping(value = "/board/article/{page}/datas2")
-		public @ResponseBody Map<String, Object> getArticleDatas2(Model model, @PathVariable int page) {
-			PagingResponseDTO<ArticleVo> articlePageDto = articleService.hasNextPagingMore(page, pageSize);
+		public @ResponseBody Map<String, Object> getFeedTypeArticlesByHasNext(Model model, @PathVariable int page) {
+			PageList<ArticleVo> articlePageDto = articleService.hasNextPagingMore(page, pageSize);
 
 			Map<String, Object> result = new HashMap<>();
 			result.put("articleList", articlePageDto.getList());
@@ -101,7 +98,7 @@ public class RestAPIController {
 		public @ResponseBody Map<String, Object> insertComment(@RequestBody ArticleReplyVo replyVo, HttpSession session) {
 			Map<String, Object> returnMap = new HashMap<>();
 			
-			MemberDTO member = (MemberDTO) session.getAttribute("memberSession");
+			Member member = (Member) session.getAttribute("memberSession");
 			replyVo.setWriteMemberId(member.getMemberId());
 
 

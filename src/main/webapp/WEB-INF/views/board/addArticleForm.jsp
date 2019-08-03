@@ -30,8 +30,8 @@
 		 <tr>
 			   <td align="right">공지글 여부 </td>
 			   <td colspan="2">
-			   		<input type="radio" name="noticeChkFlag" value="1">공지글
-			   		<input type="radio" name="noticeChkFlag" value="0">일반글
+			   		<input type="radio" name="noticeChkFlag" value="true">공지글
+			   		<input type="radio" name="noticeChkFlag" value="false">일반글
 			   </td>
 		 </tr>
 	 		<tr>
@@ -53,7 +53,7 @@
 	function fn_writeArticle(){
 		var title = $('input[name=title]').val();
 		var writeMemberId = $('input[name=writeMemberId]').val();
-		var noticeChkFlag = $('input[name=noticeChkFlag]').val();
+		var isNotice = $('input[name=noticeChkFlag]').val();
 		var content = $('textarea[name=content]').val();
 		var enforcementDate = new Date("2019-08-17T09:38:51.249Z");
 		var expirationDate = new Date("2019-09-10T09:38:51.249Z");
@@ -61,7 +61,7 @@
 		
 		data.title = title;
 		data.writeMemberId = writeMemberId;
-		data.noticeChkFlag = noticeChkFlag;
+		data.isNotice = isNotice;
 		data.content = content;
 		
 		var noticeArticle = {}

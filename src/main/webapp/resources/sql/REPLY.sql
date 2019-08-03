@@ -6,12 +6,15 @@ SELECT * FROM ARTICLE_REPLY WHERE ARTICLE_ID = 10004
 SELECT CONSTRAINT_NAME, STATUS
 FROM ALL_CONSTRAINTS
 WHERE TABLE_NAME = 'ARTICLE_REPLY';
-ALTER TABLE ARTICLE_REPLY ADD(SECRET_CHK_FLAG NUMBER(1));
+ALTER TABLE ARTICLE_REPLY ADD(SECRET_TYPE_CD NUMBER(3));
 ALTER TABLE ARTICLE_REPLY MODIFY (SECRET_CHK_FLAG DEFAULT 0);
 ALTER TABLE ARTICLE_REPLY RENAME COLUMN PARENT_IO TO PARENT_ID;
 ALTER TABLE ARTICLE_REPLY RENAME COLUMN REPLY_NO TO REPLY_ID;
 ALTER TABLE ARTICLE_REPLY DROP CONSTRAINT FK_ARTICLE_NO;
-select * from ARTICLE_REPLY
+select * from ARTICLE_REPLY where article_id = 10083
+
+update article_reply set SECRET_TYPE_CD = 10 where reply_id = 125
+
 CREATE TABLE ARTICLE_REPLY
 (
 	REPLY_ID NUMBER(10)	PRIMARY KEY
@@ -145,6 +148,59 @@ FROM DUAL
 			 ,1
 			 ,sysdate
 		)
-	
-	
-	
+SELECT	 A.*
+		FROM      (
+  	                  SELECT	
+        	                    B.*
+    	               
+        	   		  FROM     (
+        	   		  			SELECT   ROW_NUMBER() OVER(PARTITION BY ARTICLE_ID  ORDER BY REPLY_ID DESC) AS RANK_NUMBER
+  	                  		   			, LEVEL AS LVL
+        	   		  					, ARTICLE_ID
+            	        	   			, REPLY_ID
+	                         	  		, PARENT_ID
+                    		 	 	    , CONTENT
+	                         	  		, WRITE_MEMBER_ID
+	                          			, SECRET_CHK_FLAG
+	                          	FROM     ARTICLE_REPLY
+       				 			WHERE    ARTICLE_ID in (
+	       												SELECT regexp_substr('10087', '[^,]+', 1, LEVEL)
+														FROM DUAL
+														CONNECT BY LEVEL >= length(regexp_replace('10087', '[^,]+', '')) + 1
+       			 						     			) 
+            					CONNECT BY
+            	    		  			 PRIOR ARTICLE_ID    = PARENT_ID 
+        	   				  ) B
+		where  B.RANK_NUMBER <=10
+        	   				  
+       			 ) A	
+WHERE  A.RANK_NUMBER >= 1
+
+SELECT   A.*
+        FROM      (
+                      SELECT    
+                                B.*
+                       
+                      FROM     (
+                                SELECT   ROW_NUMBER() OVER(PARTITION BY ARTICLE_ID  ORDER BY REPLY_ID DESC) AS RANK_NUMBER
+                                        , LEVEL AS LVL
+                                        , ARTICLE_ID
+                                        , REPLY_ID
+                                        , PARENT_ID
+                                        , CONTENT
+                                        , WRITE_MEMBER_ID
+                                        , SECRET_CHK_FLAG
+                                        <!-- /* IS_SRECET(boolean-true,false) , SECRET_YN(String-"Y","N"), SECRET_TYPE_CD(String-"10","20") S */ -->
+                                FROM     ARTICLE_REPLY
+                                WHERE    ARTICLE_ID in (
+                                                            SELECT regexp_substr('10087', '[^,]+', 1, LEVEL)
+                                                            FROM DUAL
+                                                            CONNECT BY LEVEL >= length(regexp_replace('10087', '[^,]+', '')) + 1
+                                                        ) 
+                                CONNECT BY
+                                         PRIOR ARTICLE_ID   = PARENT_ID 
+                              ) B
+                    where  B.RANK_NUMBER <= 10
+                              
+                 ) A    
+        WHERE  A.RANK_NUMBER >= 1

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.spring.study.board.controller.AticleController;
 import com.spring.study.member.dao.MemberDAO;
-import com.spring.study.member.vo.MemberDTO;
+import com.spring.study.member.vo.Member;
 import com.spring.study.member.vo.MemVo;
 
 @Service("memberService")
@@ -24,8 +24,8 @@ public class MemberService {
 		return memVo;
 	}
 
-	public MemberDTO setMemberSession(MemVo member) {
-		MemberDTO memberDTO = new MemberDTO();
+	public Member setMemberSession(MemVo member) {
+		Member memberDTO = new Member();
 		memberDTO.setMemberId(member.getMemberId());
 		memberDTO.setMemberLevel(member.getMemberLevel());
 		return memberDTO;

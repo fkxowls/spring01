@@ -10,8 +10,7 @@
 		FROM      (
   	                  SELECT	
         	                    B.*
-    	               
-        	   		  FROM     (
+    	             FROM     (
         	   		  			SELECT   ROW_NUMBER() OVER(PARTITION BY ARTICLE_ID  ORDER BY REPLY_ID DESC) AS RANK_NUMBER
   	                  		   			, LEVEL AS LVL
         	   		  					, ARTICLE_ID
@@ -19,20 +18,20 @@
 	                         	  		, PARENT_ID
                     		 	 	    , CONTENT
 	                         	  		, WRITE_MEMBER_ID
-	                          			, SECRET_CHK_FLAG
+	                          			, SECRET_TYPE_CD
 	                          	FROM     ARTICLE_REPLY
        				 			WHERE    ARTICLE_ID in (
-	       													SELECT regexp_substr('10087', '[^,]+', 1, LEVEL)
+	       													SELECT regexp_substr(#{articleId}, '[^,]+', 1, LEVEL)
 															FROM DUAL
-															CONNECT BY LEVEL >= length(regexp_replace('10087', '[^,]+', '')) + 1
+															CONNECT BY LEVEL >= length(regexp_replace(#{articleId}, '[^,]+', '')) + 1
        			 						     			) 
             					CONNECT BY
             	    		  			 PRIOR ARTICLE_ID   = PARENT_ID 
         	   				  ) B
-					where  B.RANK_NUMBER <= #{endNum}
+					WHERE  B.RANK_NUMBER <= 10
         	   				  
        			 ) A	
-		WHERE  A.RANK_NUMBER >= #{startNum}
+		WHERE  A.RANK_NUMBER >= 1
 	 ]]>
 	
 	</select>
@@ -78,6 +77,7 @@
                 	    , PARENT_ID
                     	, CONTENT
 	                    , WRITE_MEMBER_ID
+	                    ,SECRET_TYPE_CD
     	               
         	    FROM    ARTICLE_REPLY
             	START WITH

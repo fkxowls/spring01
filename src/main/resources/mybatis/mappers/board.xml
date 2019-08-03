@@ -5,7 +5,7 @@
 
 <mapper namespace="mapper.article">
 
-<!-- <resultMap type="com.spring.study.board.vo.ArticleVo" id="articleResult">
+<!-- <resultMap type="com.spring.study.common.model.ArticleVo" id="articleResult">
 	<result property="articleNo" column="articleNo"/>
 	<result property="parentNo" column="PARENT_ID"/>
 	<result property="title" column="TITLE"/>
@@ -45,28 +45,61 @@
 	
 	<!-- <select id="listArticle2" resultMap="articleResult"> -->
 	<select id="listArticle2" resultType="articleVo">
-	<![CDATA[
-	SELECT 	 X.*
-             
- 	FROM (
- 			SELECT  /*+ INDEX_DESC(ARTICLE ARTICLE_NO)*/
- 					ROWNUM AS RNUM
- 				    , A.*      
-         	 FROM (
-         	 		SELECT    ARTICLE_ID
-            				 , PARENT_ID
-            				 , TITLE
-           					 , CONTENT
-           					 , WRITE_MEMBER_ID
-            		 		 
-            		FROM ARTICLE
-            		ORDER BY ARTICLE_ID DESC
-         	 	  ) A
- 	 		 WHERE ROWNUM <= #{endNum}
- 	 	  ) X
- 	 WHERE   X.RNUM >= #{startNum}
- 	 ]]>
+	
+		SELECT  X.*
+		FROM    (
+					SELECT  
+					        A.*   
+					FROM    ( 
+			                   SELECT  /*+ INDEX_DESC(A ARTICLE_PK)*/
+                                       ROW_NUMBER() OVER(ORDER BY A.ARTICLE_ID DESC) AS RNUM
+                                      , A.ARTICLE_ID
+                                      , A.PARENT_ID
+                                      , A.TITLE
+                                      , A.CONTENT
+                                      , A.WRITE_MEMBER_ID
+                                FROM    ARTICLE A
+                                WHERE   1                   = 1
+                                <if test="writeMemberId != null">
+                                AND     A.WRITE_MEMBER_ID = #{writeMemberId}
+                               </if>
+					        ) A
+		<![CDATA[
+					WHERE   A.RNUM         <= #{endNum}
+		        ) X
+		 WHERE  X.RNUM      >= #{startNum}
+		 ]]>
+ 	 
 	</select>
+	
+    <select id="listNoticeArticle2" resultType="articleVo">
+    <![CDATA[
+        SELECT  X.*
+        FROM    (
+                    SELECT  
+                            A.*   
+                    FROM    (
+                                SELECT  /*+ ORDERED USE_NL(NA A) INDEX_DESC(NA NOTICE_ARTICLE_PK) INDEX_DESC(A ARTICLE_PK) */
+                                        ROW_NUMBER() OVER(PARTITION BY A.ARTICLE_ID ORDER BY A.ARTICLE_ID DESC) AS RNUM
+                                      , A.ARTICLE_ID
+                                      , A.PARENT_ID
+                                      , A.TITLE
+                                      , A.CONTENT
+                                      , A.WRITE_MEMBER_ID
+                                FROM    NOTICE_ARTICLE  NA <!--  모수 자체가 ARTICLE 보다 현저하게 적음 -->
+                                      , ARTICLE         A
+                                WHERE   1                   = 1
+                                AND     A.ARTICLE_ID        = NA.ARTICLE_ID
+                                AND     SYSDATE             BETWEEN NA.DISPLAY_START_DATE   AND NA.DISPLAY_END_DATE -- 추가로 NOTICE_ARTICLE 자체적인 필터 걸어서 모수를 더 줄일 수도 있음
+                                ORDER BY
+                                        A.ARTICLE_ID DESC
+                            ) A
+                    WHERE   A.RNUM     <= #{endNum:INTEGER}
+                ) X
+         WHERE  X.RNUM      >= #{startNum:INTEGER}
+     ]]>
+    </select>
+	
 	<select id="listArticle" resultType="articleVo">
             SELECT	ROWNUM as rNum
                     ,LEVEL AS LVL
@@ -259,7 +292,7 @@
 				)
 	</select>
 	
-	<select id="chkMemberLevel" parameterType="com.spring.study.member.vo.MemberDTO" resultType="int">
+	<select id="chkMemberLevel" parameterType="com.spring.study.member.vo.Member" resultType="int">
 		SELECT	member_level
 		FROM	MEMBER
 		WHERE

@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ArticleVo {
 
@@ -16,13 +17,14 @@ public class ArticleVo {
 	private Date writeDate;
 	private String writeMemberId;
 	private int rnum;
-	private int noticeChkFlag;
+	private boolean isNotice;
+	
 	private String modifyMemberId;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
 	private Date modifyDate;
 	private List<ArticleReplyVo> commentsList;
 	private NoticeArticleVo noticeArticle;
-	
+
 	public NoticeArticleVo getNoticeArticle() {
 		return noticeArticle;
 	}
@@ -32,12 +34,12 @@ public class ArticleVo {
 	}
 
 	public List<ArticleReplyVo> getCommentsList() {
-		if(null == commentsList) {
+		if (null == commentsList) {
 			commentsList = new ArrayList<ArticleReplyVo>();
 		}
 		return commentsList;
 	}
-	
+
 	public String getModifyMemberId() {
 		return modifyMemberId;
 	}
@@ -54,12 +56,12 @@ public class ArticleVo {
 		this.modifyDate = modifyDate;
 	}
 
-	public int getNoticeChkFlag() {
-		return noticeChkFlag;
+	public boolean isNotice() {
+		return isNotice;
 	}
 
-	public void setNoticeChkFlag(int noticeChkFlag) {
-		this.noticeChkFlag = noticeChkFlag;
+	public void setNotice(boolean isNotice) {
+		this.isNotice = isNotice;
 	}
 
 	public void setCommentsList(List<ArticleReplyVo> commentsList) {
@@ -122,10 +124,12 @@ public class ArticleVo {
 		this.writeMemberId = writeMemberId;
 	}
 
-	/*
-	 * @Override public String toString() {
-	 * 
-	 * return "제목: " + title + ", 내용: " + content +"댓글: " + commentsList; }
-	 */
+	
+//	@Override
+//  	public String toString() {
+//		ObjectMapper mapper = new ObjectMapper();
+//		return mapper.writeValueAsString(this);
+//	}
+ 
 
 }

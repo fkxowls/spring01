@@ -7,6 +7,7 @@ public class CommonRequestDto {
 	private int page;
 	private int pageSize;
 	private boolean moreView;
+	private String writeMemberId;
 	
 	public static class Builder {
 		private int page;
@@ -14,6 +15,8 @@ public class CommonRequestDto {
 		private int startNum;
 		private int endNum;
 		private boolean moreView;
+		private String writeMemberId;
+		
 
 		//필수 요소
 		public Builder() {
@@ -30,6 +33,11 @@ public class CommonRequestDto {
 		}
 		public Builder useMoreView(boolean moreView) {
 			this.moreView = moreView;
+			return this;
+		}
+		
+		public Builder setWriteMemberId(String writeMemberId) {
+			this.writeMemberId = writeMemberId;
 			return this;
 		}
 		
@@ -56,6 +64,7 @@ public class CommonRequestDto {
 		this.page = builder.page;
 		this.pageSize = builder.pageSize;
 		this.moreView = builder.moreView;
+		this.writeMemberId = builder.writeMemberId;
 	}
 	
 	public int getStartNum() {
@@ -76,6 +85,10 @@ public class CommonRequestDto {
 
 	public int getPageSize() {
 		return pageSize;
+	}
+
+	public String getWriteMemberId() {
+		return writeMemberId;
 	}
 	
 }

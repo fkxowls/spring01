@@ -25,7 +25,7 @@ import org.springframework.web.servlet.mvc.condition.RequestConditionHolder;
 import com.spring.study.board.controller.AticleController;
 import com.spring.study.board.service.ArticleService;
 import com.spring.study.board.vo.ArticleVo;
-import com.spring.study.member.vo.MemberDTO;
+import com.spring.study.member.vo.Member;
 
 public class IdCheckAspect {
 	private static final Logger logger = LoggerFactory.getLogger(AticleController.class);
@@ -102,7 +102,7 @@ public class IdCheckAspect {
 		HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
 				.getResponse();
 
-		MemberDTO memberDTO = (MemberDTO) session.getAttribute("memberSession");
+		Member memberDTO = (Member) session.getAttribute("memberSession");
 		String sessionId = "";
 
 		try {

@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import com.spring.study.board.controller.AticleController;
-import com.spring.study.member.vo.MemberDTO;
+import com.spring.study.member.vo.Member;
 
 public class InterceptorBack_Up extends HandlerInterceptorAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(AticleController.class);
@@ -26,7 +26,7 @@ public class InterceptorBack_Up extends HandlerInterceptorAdapter {
 		String writeMemberId ="";
 		String sessionId	="";
 		try {
-			MemberDTO memberDTO = (MemberDTO) session.getAttribute("memberSession");
+			Member memberDTO = (Member) session.getAttribute("memberSession");
 
 			writeMemberId = request.getParameter("writeMemberId");
 			sessionId = memberDTO.getMemberId();

@@ -6,11 +6,14 @@ import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import com.spring.study.board.controller.AticleController;
 import com.spring.study.board.vo.ArticleReplyVo;
 
-public class CommentDAO {
+
+@Repository("commentDAO")
+public class CommentDao {
 	private static final Logger logger = LoggerFactory.getLogger(AticleController.class);
 	private static String mapper = "mapper.article";
 	
@@ -27,8 +30,7 @@ public class CommentDAO {
 		return sqlSession.selectList("mapper.comment.listComment", articleIds);
 	}
 	
-	public int insertComment(ArticleReplyVo replyVo) {
-		logger.info("=================== 		DAO insertComment:{}");
+	public int writeComment(ArticleReplyVo replyVo) {
 		return sqlSession.insert("mapper.comment.insertComment", replyVo);
 
 	}

@@ -1,8 +1,8 @@
-package com.spring.study.board.vo;
+package com.spring.study.common.model;
 
 import java.util.List;
 
-public class PagingResponseDTO<E> {
+public class PageList<E> {
 	private boolean hasNext = false;	
 	private int page;
 	private int pageSize;
@@ -11,7 +11,7 @@ public class PagingResponseDTO<E> {
 	private int endNum;
 	private List<E> list;
 	
-	public PagingResponseDTO(int page, int pageSize, List<E> list, int totalCount, boolean hasNext) { // 리스폰스 객체
+	public PageList(int page, int pageSize, List<E> list, int totalCount, boolean hasNext) { // 리스폰스 객체
 		this.page = page;
 		this.pageSize = pageSize;
 		this.list = list;	

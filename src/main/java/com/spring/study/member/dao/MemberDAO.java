@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.spring.study.member.vo.MemberDTO;
+import com.spring.study.member.vo.Member;
 import com.spring.study.board.controller.AticleController;
 import com.spring.study.member.vo.MemVo;
 

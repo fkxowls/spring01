@@ -109,10 +109,10 @@
 		// todo JSON.parse('{"' + decodeURI(location.search.substring(1)).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}').articleId
 		//var articleId = JSON.parse('{"' + decodeURI(location.search.substring(1)).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}').articleId;
 		var articleId = $('#commentList').data('articleId');
-		
+		var writeMemberId = $('#writeMemberId').val(); 
 		$.ajax({
 			type : 'GET',
-			url : '${contextPath}/board/commentList.do?articleId=' + articleId,
+			url : '${contextPath}/board/commentList.do?articleId=' + articleId +"&writeMemberId=" + writeMemberId,
 			dataType : 'json',
 			data : $('#commentForm').serialize(),
 			contentType : "application/json; charset=UTF-8",
@@ -174,10 +174,12 @@
 		alert(idx);
 		var articleId = $('#commentList').data('articleId');
 		var content =	$('input[name=reComment]').val();
+		var parentId = idx
 		var data = {};
 		
 		data.articleId = articleId;
 		data.content = content;
+		data.parentId = parentId;
 		
 		var sendData = JSON.stringify(data);
 	

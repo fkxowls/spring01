@@ -11,6 +11,7 @@ public class ArticleReplyVo {
 	private String writeMemberId;
 	private int level;
 	private int secretChkFlag;
+	private String secretTypeCd;
     
     @Override
     public String toString() {
@@ -72,6 +73,14 @@ public class ArticleReplyVo {
 	}
 	public void setLevel(int level) {
 		this.level = level;
+	}
+
+	public String getSecretTypeCd() {
+		return secretTypeCd;
+	}
+
+	public void setSecretTypeCd(String secretTypeCd) {
+		this.secretTypeCd = secretTypeCd;
 	}
     
     

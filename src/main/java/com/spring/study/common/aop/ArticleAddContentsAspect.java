@@ -14,10 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
-import com.spring.study.board.dao.ArticleDAO;
+import com.spring.study.board.dao.CommentDao;
 import com.spring.study.board.vo.ArticleReplyVo;
 import com.spring.study.board.vo.ArticleVo;
-import com.spring.study.board.vo.PagingResponseDTO;
+import com.spring.study.common.model.PageList;
 
 @Aspect
 @Component
@@ -25,7 +25,7 @@ public class ArticleAddContentsAspect {
 	private static final Logger logger = LoggerFactory.getLogger(ArticleAddContentsAspect.class);
 	
 	@Autowired
-	private ArticleDAO articleDAO;
+	private CommentDao commentDAO;
 	
 	@Around("@annotation(com.spring.study.common.aop.AddComments)")
 	public Object addComments(ProceedingJoinPoint joinPoint) {
@@ -33,14 +33,11 @@ public class ArticleAddContentsAspect {
 		Object returnObj = null;
 		try {
 			returnObj = joinPoint.proceed();
-		} catch (Throwable e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} catch (Throwable e) {	e.printStackTrace(); }
 		
 		List<ArticleVo> returnList = new LinkedList<ArticleVo>();
-		if (returnObj instanceof PagingResponseDTO) {
-			returnList = ((PagingResponseDTO<ArticleVo>) returnObj).getList();
+		if (returnObj instanceof PageList) {
+			returnList = ((PageList<ArticleVo>) returnObj).getList();
 		} else if (returnObj instanceof List) {
 			returnList = (List<ArticleVo>) returnObj;
 		} else if (returnObj instanceof ArticleVo) {
@@ -59,7 +56,8 @@ public class ArticleAddContentsAspect {
 				.map(ArticleVo::getArticleId)
 				.collect(Collectors.joining(","));
 		
-		List<ArticleReplyVo> commentsList = articleDAO.commentsList(articleNumbers);
+		//TODO ArticleReplyVo 페이징 정보도 담을 수 있게 만들기/ 이왕이면 request/response로 나눠보자
+		List<ArticleReplyVo> commentsList = commentDAO.commentsList(articleNumbers);
 		
 //		for(ArticleVo ArticleVo : returnList) {
 //			String key = ArticleVo.getArticleNo();

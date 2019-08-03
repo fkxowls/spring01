@@ -5,10 +5,11 @@ import java.util.List;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.spring.study.common.model.CommonRequestDto;
+import com.spring.study.board.vo.CommonRequestDto;
 import com.spring.study.common.model.PageList;
 
-public class BaseDAOBackUp {
+public class BaseDao {
+	
 	@Autowired
 	SqlSession sqlSession;
 
@@ -19,12 +20,6 @@ public class BaseDAOBackUp {
 	protected <E> PageList<E> selectPageDto(String statement, String countStatement, Object parameter) {
 		CommonRequestDto dto = (CommonRequestDto) parameter;
 		
-		/********************
-		 * 불변객체로 쭈욱 가고싶은데 hasNext,endPage 분기를 어떻게 할까 기존 pageDTO에있던 setter삭제 빌더클래스에
-		 * startNum과 endNum구현 page와 pageSize만 받은 DTO를 파라미터로 받고 필요한 startNum과 endNum를 가공한
-		 * 후 새로운 pageDTO를 생성??
-		 *********************/
-
 		int totalCount = 0;
 		if (null != countStatement) {
 			totalCount = sqlSession.selectOne(countStatement);

@@ -145,6 +145,27 @@ SELECT 	 X.*
  	 	  ) X
  	 WHERE   X.RNUM >= 1
  	 
+SELECT  X.*
+        FROM    (
+                    SELECT  
+                            A.*   
+                    FROM    (  -- TODO WRITE_MEMBER_ID 에 인덱스 추가 (ARTICLE_ID, WRITE_MEMBER_ID 이거 두 컬럼으로) -- 모수가 ARTICLE과 같거나, ARTICLE에서 비중이 많을 때     
+                               SELECT  /*+ INDEX_DESC(A ARTICLE_PK)*/
+                                       ROW_NUMBER() OVER(PARTITION BY A.ARTICLE_ID ORDER BY A.ARTICLE_ID DESC) AS RNUM
+                                      , A.ARTICLE_ID
+                                      , A.PARENT_ID
+                                      , A.TITLE
+                                      , A.CONTENT
+                                      , A.WRITE_MEMBER_ID
+                                FROM    ARTICLE A
+                                WHERE   1                   = 1
+                                AND     (#{writeMemberId}   IS NULL OR A.WRITE_MEMBER_ID = #{writeMemberId})<!--   인덱스 추가필요 (ARTICLE에서 WRITE_MEMBER_ID가 중복되는 케이스는 많다) -->
+                               <!--  AND     (#{title}           IS NULL OR A.TITLE LIKE '%'||#{title}||'%') --><!--   인덱스 추가 무의미 (ARTICLE에서 TITLE가 중복되는 케이스는 없다고 봐도 무방) -->
+                            ) A
+                    WHERE   A.RNUM         <= #{endNum:INTEGER}
+                ) X
+         WHERE  X.RNUM      >= #{startNum:INTEGER}
+ 	 
 SELECT	 NVL(MIN('Y'), 'N')
 FROM 	DUAL
 WHERE EXISTS
@@ -177,3 +198,64 @@ INSERT INTO ARTICLE
 			,'admin'
 			,SYSDATE
 		)
+SELECT 
+				* 
+FROM 	ARTICLE _reply
+WHERE 	ARTICLE_ID = '10086'
+
+SELECT  X.*
+        FROM    (   SELECT  A.*   
+                    FROM    ( 
+                                SELECT  /*+ INDEX_DESC(A ARTICLE_PK)*/
+                                        ROW_NUMBER() OVER(ORDER BY ARTICLE_ID DESC) AS RNUM  
+                                      , A.ARTICLE_ID
+                                      , A.PARENT_ID
+                                      , A.TITLE
+                                      , A.CONTENT
+                                      , A.WRITE_MEMBER_ID
+                                FROM    ARTICLE A
+                            ) A
+                    WHERE   RNUM         <= 10
+                               
+                ) X
+         WHERE  X.RNUM      >= 1
+         
+SELECT   X.*
+             
+    FROM (
+            SELECT  /*+ INDEX_DESC(ARTICLE ARTICLE_NO)*/
+                    ROWNUM AS RNUM
+                    , A.*      
+             FROM (
+                    SELECT    ARTICLE_ID
+                             , PARENT_ID
+                             , TITLE
+                             , CONTENT
+                             , WRITE_MEMBER_ID
+                             
+                    FROM ARTICLE
+                    ORDER BY ARTICLE_ID desc
+                  ) A
+             WHERE ROWNUM <= 10
+          ) X
+     WHERE   X.RNUM >= 1      
+     
+SELECT   X.*
+             
+    FROM (
+            SELECT  /*+ INDEX_DESC(ARTICLE ARTICLE_NO)*/
+                    ROWNUM AS RNUM
+                    , A.*      
+             FROM (
+                    SELECT    ARTICLE_ID
+                             , PARENT_ID
+                             , TITLE
+                             , CONTENT
+                             , WRITE_MEMBER_ID
+                             
+                    FROM ARTICLE
+                    ORDER BY ARTICLE_ID DESC
+                  ) A
+             WHERE ROWNUM <= #{endNum}
+          ) X
+     WHERE   X.RNUM >= #{startNum}     

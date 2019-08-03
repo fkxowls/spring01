@@ -1,16 +1,20 @@
 package com.spring.study.member.vo;
 
-public class MemberDTO {
+import org.apache.commons.lang3.StringUtils;
+
+public class Member {
 	private String memberId;
 	private int memberLevel;
 	
-	public MemberDTO(){
-		
-	}
+	public Member() {}
 	
-	public MemberDTO(String memberId,int memberLevel){
+	public Member(String memberId,int memberLevel) {
 		this.memberId=memberId;
 		this.memberLevel=memberLevel;
+	}
+	
+	public boolean isLogin() {
+		return StringUtils.isNotEmpty(this.memberId);
 	}
 	
 	public String getMemberId() {
