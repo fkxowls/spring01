@@ -1,4 +1,4 @@
-package com.spring.study.member.vo;
+package com.spring.study.member.model;
 
 import org.apache.commons.lang3.StringUtils;
 

@@ -9,7 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.spring.study.board.controller.AticleController;
-import com.spring.study.board.vo.ArticleReplyVo;
+import com.spring.study.comment.model.CommentPageList;
+import com.spring.study.comment.model.CommentsRequestDto;
+import com.spring.study.comment.model.CommentsVo;
+import com.spring.study.member.model.Member;
 
 
 @Repository("commentDAO")
@@ -25,14 +28,39 @@ public class CommentDao {
 		
 		return false;
 	}
+	/*****************************
+	최종적으로 CommentsRequestDto로 받는 메서드만 남겨야함
+	*****************************/
+	public CommentPageList commentsList(CommentsRequestDto commentDto) {
+		CommentsVo vo = new CommentsVo(commentDto.getCommentsPage());
+		vo.setArticleId(commentDto.getArticleId());
+		vo.setStartNum(commentDto.getStartNum());
+		vo.setEndNum(commentDto.getEndNum());
+		
+		List<CommentsVo> commentList = sqlSession.selectList("mapper.comment.listComment", vo);
+		
+		return new CommentPageList(commentDto.getCommentsPage(), commentDto.getPageSize(), commentList); 
+	}
 	
-	public List<ArticleReplyVo> commentsList(String articleIds) {
+	public List<CommentsVo> commentsList(String articleIds) {
 		return sqlSession.selectList("mapper.comment.listComment", articleIds);
 	}
 	
-	public int writeComment(ArticleReplyVo replyVo) {
-		return sqlSession.insert("mapper.comment.insertComment", replyVo);
+	public int writeComment(CommentsRequestDto crd,  Member member) {
+		CommentsVo vo = new CommentsVo();	
+		vo.setWriteMemberId(member.getMemberId());
+		vo.setArticleId(crd.getArticleId());
+		vo.setParentId(crd.getParentId());
+		vo.setContent(crd.getContent());
+		vo.setSecretTypeCd(crd.getSecretTypeCd());
+		
+		return sqlSession.insert("mapper.comment.insertComment", vo);
 
+	}
+	
+	public String getWriterOfArticle(String articleId) {
+		// TODO 글작성자 가져오는 쿼리 날리기
+		return null;
 	}
 	
 	

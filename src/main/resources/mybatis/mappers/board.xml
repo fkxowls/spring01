@@ -292,7 +292,7 @@
 				)
 	</select>
 	
-	<select id="chkMemberLevel" parameterType="com.spring.study.member.vo.Member" resultType="int">
+	<select id="chkMemberLevel" parameterType="memberVo" resultType="int">
 		SELECT	member_level
 		FROM	MEMBER
 		WHERE

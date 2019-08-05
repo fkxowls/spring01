@@ -17,13 +17,13 @@ import org.springframework.stereotype.Repository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.study.board.controller.AticleController;
-import com.spring.study.board.vo.ArticleVo;
-import com.spring.study.board.vo.CommonRequestDto;
-import com.spring.study.board.vo.HasNextPaging;
-import com.spring.study.board.vo.NoticeArticleVo;
+import com.spring.study.board.model.ArticleVo;
+import com.spring.study.board.model.CommonRequestDto;
+import com.spring.study.board.model.HasNextPaging;
+import com.spring.study.board.model.NoticeArticleVo;
 import com.spring.study.common.aop.AddComments;
 import com.spring.study.common.model.PageList;
-import com.spring.study.member.vo.Member;
+import com.spring.study.member.model.Member;
 
 @Repository("articleDAO")
 public class ArticleDao extends BaseDao {
@@ -33,14 +33,6 @@ public class ArticleDao extends BaseDao {
 	
 	@Autowired
 	SqlSession sqlSession;
-
-	/********************************************************************
-	 * 기존의 코드 public PagingResponseDTO<ArticleVo> ListArticle2(PageDto vo) { return
-	 * super.selectPageDto("mapper.article.listArticle2",
-	 * "mapper.article.totalArticle", vo); } endPage와 hsaNext 페이징을 BaseDAO로 분리 후
-	 * totalCount여부로 분기하기때문에 totalCount를 제외하고 코드가 공통됨 => endPage용 DAO와 hasNext용 다오의
-	 * 차이점은 totalCount를 가져오나 안오냐의 차이
-	 ***********************************************************************/
 
 	@AddComments // TODO PageDto인지 List인지 단일VO인지 체크해서 -> 각 VO에 reply 필드에 reply
 	public PageList<ArticleVo> getArticlePageListWithCountAddComments(Object vo) {
@@ -91,8 +83,6 @@ public class ArticleDao extends BaseDao {
 	}
 
 	public void updateArticle(ArticleVo articleVo) {
-		System.out.println("------  " + articleVo.getArticleId()+", " + articleVo.getwriteMemberId());
-		System.out.println("===== "+articleVo.getModifyMemberId());
 		sqlSession.update(mapper + "updateArticle", articleVo);
 
 	}

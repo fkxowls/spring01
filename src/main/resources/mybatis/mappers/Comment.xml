@@ -4,7 +4,7 @@
    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="mapper.comment">
-	<select id="listComment" parameterType="String" resultType="articleReplyVo">
+	<select id="listComment" parameterType="articleReplyVo" resultType="articleReplyVo">
 		<![CDATA[
 		SELECT	 A.*
 		FROM      (
@@ -28,10 +28,10 @@
             					CONNECT BY
             	    		  			 PRIOR ARTICLE_ID   = PARENT_ID 
         	   				  ) B
-					WHERE  B.RANK_NUMBER <= 10
+					WHERE  B.RANK_NUMBER <= #{endNum}
         	   				  
        			 ) A	
-		WHERE  A.RANK_NUMBER >= 1
+		WHERE  A.RANK_NUMBER >= #{startNum}
 	 ]]>
 	
 	</select>
@@ -112,8 +112,8 @@
 			,PARENT_ID
 			,CONTENT
 			,WRITE_MEMBER_ID
-			,SECRET_CHK_FLAG
-			,WRITE_DATE
+			,SECRET_TYPE_CD
+			
 		)
 		VALUES
 		(
@@ -122,8 +122,8 @@
 			 ,#{parentId}
 			 ,#{content}
 			 ,#{writeMemberId}
-			 ,#{secretChkFlag}
-			 ,sysdate
+			 ,#{secretTypeCd}
+			
 		)
 	
 	</insert>

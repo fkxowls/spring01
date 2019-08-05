@@ -1,4 +1,4 @@
-package com.spring.study.board.vo;
+package com.spring.study.board.model;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.spring.study.comment.model.CommentsVo;
 
 public class ArticleVo {
 
@@ -22,7 +23,7 @@ public class ArticleVo {
 	private String modifyMemberId;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
 	private Date modifyDate;
-	private List<ArticleReplyVo> commentsList;
+	private List<CommentsVo> commentsList;
 	private NoticeArticleVo noticeArticle;
 
 	public NoticeArticleVo getNoticeArticle() {
@@ -33,9 +34,9 @@ public class ArticleVo {
 		this.noticeArticle = noticeArticle;
 	}
 
-	public List<ArticleReplyVo> getCommentsList() {
+	public List<CommentsVo> getCommentsList() {
 		if (null == commentsList) {
-			commentsList = new ArrayList<ArticleReplyVo>();
+			commentsList = new ArrayList<CommentsVo>();
 		}
 		return commentsList;
 	}
@@ -64,7 +65,7 @@ public class ArticleVo {
 		this.isNotice = isNotice;
 	}
 
-	public void setCommentsList(List<ArticleReplyVo> commentsList) {
+	public void setCommentsList(List<CommentsVo> commentsList) {
 		this.commentsList = commentsList;
 	}
 

@@ -90,8 +90,8 @@
 
 			$.ajax({
 				type : 'post',
-				url : '${contextPath}/board/modifyArticle',
-				//url:  '${contextPath}/board/article/'+articleId,
+				/* url : '${contextPath}/board/modifyArticle', */
+				url:  '${contextPath}/board/'+articleId,
 				contentType : 'application/json',
 				dataType : 'json',
 				data : sendData

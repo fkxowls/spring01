@@ -6,9 +6,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.spring.study.member.vo.Member;
 import com.spring.study.board.controller.AticleController;
-import com.spring.study.member.vo.MemVo;
+import com.spring.study.member.model.MemberVo;
+import com.spring.study.member.model.Member;
 
 @Repository("MemberDAO")
 public class MemberDAO {
@@ -16,7 +16,7 @@ public class MemberDAO {
 	@Autowired
 	SqlSession sqlSession;
 	
-	public MemVo checkMember(MemVo memberVo) {
+	public MemberVo checkMember(MemberVo memberVo) {
 		logger.info("===================== 			memberDAO checkMember() start		==========================");
 		return sqlSession.selectOne("mapper.member.checkMember", memberVo);
 	}

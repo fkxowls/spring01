@@ -1,4 +1,4 @@
-package com.spring.study.board.vo;
+package com.spring.study.board.model;
 
 public interface Cacheable {
 	

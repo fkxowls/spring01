@@ -29,7 +29,7 @@ function getCommentList(){
 	
 	$.ajax({
 		type: 'GET',
-		url: '${contextPath}/board/commentList.do',
+		url: '${contextPath}/board/commentList2.do',
 		dataType: 'json',
 		data: $('#commentForm').serialize(),
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8", 

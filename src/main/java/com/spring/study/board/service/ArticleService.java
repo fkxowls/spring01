@@ -2,6 +2,7 @@ package com.spring.study.board.service;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -15,12 +16,14 @@ import org.springframework.stereotype.Service;
 import com.spring.study.board.controller.AticleController;
 import com.spring.study.board.dao.ArticleDao;
 import com.spring.study.board.dao.CommentDao;
-import com.spring.study.board.vo.ArticleReplyVo;
-import com.spring.study.board.vo.ArticleVo;
-import com.spring.study.board.vo.CommonRequestDto;
+import com.spring.study.board.model.ArticleVo;
+import com.spring.study.board.model.CommonRequestDto;
+import com.spring.study.comment.model.CommentPageList;
+import com.spring.study.comment.model.CommentsRequestDto;
+import com.spring.study.comment.model.CommentsVo;
 import com.spring.study.common.model.CommonCode;
 import com.spring.study.common.model.PageList;
-import com.spring.study.member.vo.Member;
+import com.spring.study.member.model.Member;
 
 import javassist.NotFoundException;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
@@ -34,14 +37,14 @@ public class ArticleService {
 	private SimpleDateFormat sdf = new SimpleDateFormat();
 
 	@Autowired
-	private ArticleDao articleDAO;
+	private ArticleDao articleDao;
 	@Autowired
-	private CommentDao commentDAO;
+	private CommentDao commentDao;
 
 	///
-	public ArticleVo getArticleContents(String articleId, Member memberDTO) throws Exception {
+	public ArticleVo getArticleContents(String articleId, Member member) throws Exception {
 		// 공지글 수는 전체글수에 비해 엄청 적으니까 공지글테이블에 있는 글번호인지 확인
-		boolean isNoticeId = articleDAO.isNoticeId(articleId);
+		boolean isNoticeId = articleDao.isNoticeId(articleId);
 		ArticleVo returnVo = null;
 
 		if (isNoticeId) {// 공지글 테이블에 글이있을 시
@@ -49,23 +52,23 @@ public class ArticleService {
 			int memberLevel = 0;
 
 			// session에 멤버정보가 없다 = 로그인 x인 상태 = 예외발생시켜서 로그인페이지로 보낸다
-			if (null == memberDTO) {
+			if (null == member) {
 				throw new NotFoundException("로그인 후 이용가능합니다");
 			}
-			memberLevel = articleDAO.getMemberLevel(memberDTO);
+			memberLevel = articleDao.getMemberLevel(member);
 			/*
 			 * if (0 == memberLevel) { throw new NotFoundException("로그인 후 이용가능합니다"); }
 			 */
 			if (20 == memberLevel || 10 == memberLevel) {
 				// 글 상세보기
-				returnVo = articleDAO.viewArticle(articleId);
+				returnVo = articleDao.viewArticle(articleId);
 			} else {
 				// 상위회원만 접근 가능하다고 오류를 던진다
 				throw new SQLException("우수회원부터 접근 가능합니다");
 			}
 
 		} else {// 공지글 테이블에 글이 없을때 = 그냥 일반 글 일 때
-			returnVo = articleDAO.viewArticle(articleId);
+			returnVo = articleDao.viewArticle(articleId);
 		}
 
 		/****************************************
@@ -84,12 +87,12 @@ public class ArticleService {
 		Date curDate = new Date();
 		articleVo.setWriteDate(curDate);
 
-		articleDAO.insertArticle(articleVo);
+		articleDao.insertArticle(articleVo);
 
 		// if - NOTICE_TABLE에 데이터 입력중에 ARTICLE테이블에 등록된 글 정보가 꺠진다면?
 		if (true == articleVo.isNotice()) {
 			articleVo.getNoticeArticle().setArticleId(articleId);
-			articleDAO.registerNotice(articleVo.getNoticeArticle());
+			articleDao.registerNotice(articleVo.getNoticeArticle());
 		}
 
 		return articleId;
@@ -106,7 +109,7 @@ public class ArticleService {
 			throw new NullPointerException("로그인 세션 만료");
 		}
 
-		boolean isExistsArticle = articleDAO.isExistsArticle(articleVo.getArticleId());
+		boolean isExistsArticle = articleDao.isExistsArticle(articleVo.getArticleId());
 
 		if (!isExistsArticle) {
 			new NotFoundException("권한없는 접근입니다");
@@ -118,35 +121,35 @@ public class ArticleService {
 
 		articleVo.setModifyDate(curDate);
 		System.out.println(articleVo.getModifyDate() + "--====---=-=-=-=-=-===-=-=");
-		articleDAO.updateArticle(articleVo);
+		articleDao.updateArticle(articleVo);
 	}
 
 	public void deleteArticle(ArticleVo vo) throws Exception {
-		boolean result = articleDAO.equalsWriterId(vo);
+		boolean result = articleDao.equalsWriterId(vo);
 
 		if (!result) {
 			throw new NotFoundException("권한없는 접근입니다");
 		}
 
-		articleDAO.deleteArticle(vo);
+		articleDao.deleteArticle(vo);
 	}
 
 	// transaction
 	public String writeReply(ArticleVo articleVo) throws Exception {
 		// 답글쓰기전 부모글 체크
-		boolean isExistsArticle = articleDAO.isExistsArticle(articleVo.getArticleId());
+		boolean isExistsArticle = articleDao.isExistsArticle(articleVo.getArticleId());
 		if (!isExistsArticle) {
 			throw new NotFoundException("답변하려는 글이 존재하지 않습니다.");
 		}
 
 		articleVo.setArticleId(this.giveArticleId());
 
-		int result = articleDAO.replyArticle(articleVo);
+		int result = articleDao.replyArticle(articleVo);
 		if (0 == result) {
 			throw new InternalException("서버 오류입니다. 다시 시도해주세요.");
 		}
 
-		isExistsArticle = articleDAO.isExistsArticle(articleVo.getArticleId());
+		isExistsArticle = articleDao.isExistsArticle(articleVo.getArticleId());
 		if (!isExistsArticle) {
 			throw new NotFoundException("답변하려는 글이 존재하지 않습니다.");
 		}
@@ -159,89 +162,92 @@ public class ArticleService {
 	 * 답글말고 일반 글쓰기에서 현재 시퀀스 조회후 + 1 을 하는건 좋지 않은 방법인가??
 	 ****************************/
 	public String giveArticleId() {
-		String result = articleDAO.getNextArticleId();
+		String result = articleDao.getNextArticleId();
 		return result;
 	}
 
-	public List<ArticleReplyVo> getComments(String articleId, String writeMemberId) {
-		List<ArticleReplyVo> vo =  this.getComments(articleId, writeMemberId, null);
-		return vo;
+	public CommentPageList getComments(CommentsRequestDto req) {
+		CommentPageList commentPageList = this.getComments(req, null);
+		return commentPageList;
 	}
-
-	public List<ArticleReplyVo> getComments(String articleId, String wrtieMemberId, Member user) {
-		final String userId = user.getMemberId();
-
-		List<ArticleReplyVo> commentsList = commentDAO.commentsList(articleId);
-
-//		for (int i = 0; i < commentsList.size(); i++) {
-//			if (1 == commentsList.get(i).getSecretChkFlag()
-//					&& !userId.contentEquals(commentsList.get(i).getWriteMemberId())) {
-//				commentsList.get(i).setContent("비밀 댓글 입니다");
-//			}
-//		}
-				
-		commentsList.stream() // TODO 원글작성자도 볼 수 있게
+	//commentPage정보 받아와야한다
+	public CommentPageList getComments(CommentsRequestDto req, String userId) {
+		//final String userId = user;
+		String articleWriterId = req.getWriteMemberId();
+		
+		CommentPageList commentPageList = commentDao.commentsList(req);
+		List<CommentsVo> commentsList = commentPageList.getCommentsList();
+		
+		commentsList.stream()
 				.filter(comment -> CommonCode.SECRET_TYPE_CD_SECRET_Y.getCode().equals(comment.getSecretTypeCd()))
-				.filter(comment -> !StringUtils.equals(userId, wrtieMemberId)) 
+				.filter(comment -> !StringUtils.equals(userId, articleWriterId)) 
 				.filter(comment -> !StringUtils.equals(userId, comment.getWriteMemberId()))
 				.forEach(comment -> comment.setContent("비밀 댓글 입니다"));
 
-//		String test = "1"+"2"+"333";
-//		
-//		StringBuilder test1 = new StringBuilder();
-//		test1.append("1").append("22").append("333");
-//		test1.toString();
-//
-//		StringBuffer test2 = new StringBuffer();
-//		test2.append("1").append("22").append("333");
-//		test2.toString(); // 쓰레드-안전
+		return commentPageList;
+	}
+	
+	public CommentPageList getCommentsPageList(String articleId, int commentsPage, String userId) {
+		//final String userId = user.getMemberId();
+		String articleWriterId = commentDao.getWriterOfArticle(articleId);
+		
+		CommentsRequestDto commentsRequestDto = new CommentsRequestDto(articleId, commentsPage, userId);
+		commentsRequestDto.setArticleId(articleId);
+		commentsRequestDto.setCommentsPage(commentsPage);
 
-//		Stream<ArticleVo> stream = returnList.stream();
-//		stream = stream.filter( vo -> null == vo.getArticleNo() );
-//		stream = stream.limit(10);
-//		stream.forEach( vo -> vo.setCommentsList(commentsListByArticleNo.get(vo.getArticleNo())) );
+		
+		CommentPageList commentPageList = commentDao.commentsList(commentsRequestDto);
+		List<CommentsVo> commentsList = commentPageList.getCommentsList();
+		
+		commentsList.stream()
+				.filter(comment -> CommonCode.SECRET_TYPE_CD_SECRET_Y.getCode().equals(comment.getSecretTypeCd()))
+				.filter(comment -> !StringUtils.equals(userId, articleWriterId)) 
+				.filter(comment -> !StringUtils.equals(userId, comment.getWriteMemberId()))
+				.forEach(comment -> comment.setContent("비밀 댓글 입니다"));
 
-		return commentsList;
+		return commentPageList;
 	}
 
-	public String writeComment(ArticleReplyVo replyVo) throws Exception {
-		boolean isExistsArticle = articleDAO.isExistsArticle(replyVo.getArticleId());
-
+	public String writeComment(CommentsRequestDto commentsRequestDto, Member member) throws Exception {
+		
+		boolean isExistsArticle = articleDao.isExistsArticle(commentsRequestDto.getArticleId());
+		
 		if (!isExistsArticle) {
 			throw new NotFoundException("글이 존재하지 않습니다.");
 		}
 
-		if (replyVo.getParentNo() != 0) {
-			boolean isExistsComment = commentDAO.isExistsComment(replyVo.getReplyId());
+		if (commentsRequestDto.getParentId() != 0) {
+			boolean isExistsComment = commentDao.isExistsComment(commentsRequestDto.getReplyId());
 			if (!isExistsComment) {
 				throw new NotFoundException("댓글이 존재하지 않습니다.");
 			}
 		}
-		// 여기서 오류나면 catch(Execption e)여기서 어차피 잡힘
-		commentDAO.writeComment(replyVo);
+
+		commentDao.writeComment(commentsRequestDto, member);
 
 		return "댓글 작성에 성공 했습니다.";
 	}
 
-	public void insertReComment(ArticleReplyVo replyVo) {
-		commentDAO.writeComment(replyVo);
-	}
+	/*
+	 * public void insertReComment(CommentsVo replyVo) {
+	 * commentDAO.writeComment(replyVo); }
+	 */
 
 	/****************************************************************************************************
 	 ****************************************************************************************************
 	 ****************************************************************************************************/
 	public PageList<ArticleVo> getArticlePageListWithCount(CommonRequestDto req) {
-		PageList<ArticleVo> pageList = articleDAO.getArticlePageListWithCount(req);
+		PageList<ArticleVo> pageList = articleDao.getArticlePageListWithCount(req);
 		return pageList;
 	}
 
 	public List<ArticleVo> getArticleList(CommonRequestDto req) {
-		List<ArticleVo> list = articleDAO.ListArticle(req);
+		List<ArticleVo> list = articleDao.ListArticle(req);
 		return list;
 	}
 
 	public PageList<ArticleVo> getArticlePageList(CommonRequestDto req) {
-		PageList<ArticleVo> resp = articleDAO.getArticlePageList(req);
+		PageList<ArticleVo> resp = articleDao.getArticlePageList(req);
 		return resp;
 	}
 
@@ -259,7 +265,7 @@ public class ArticleService {
 	// endPage 관련 restAPI 서비스 (FeedType)
 	public PageList<ArticleVo> endPaginationByTotalCount(int page, int pageSize) {
 		CommonRequestDto req = new CommonRequestDto.Builder(page, pageSize).build();
-		PageList<ArticleVo> resp = articleDAO.getArticlePageListWithCountAddComments(req);
+		PageList<ArticleVo> resp = articleDao.getArticlePageListWithCountAddComments(req);
 
 		// List<ArticleVo> list = articleDAO.ListArticle(req);
 		// int totalCount = articleDAO.getTotalArticles();
@@ -284,15 +290,15 @@ public class ArticleService {
 	}
 
 	public int getTotalArticles() {
-		return articleDAO.getTotalArticles();
+		return articleDao.getTotalArticles();
 	}
 
 	public int getSequence() {
-		return articleDAO.getSequence();
+		return articleDao.getSequence();
 	}
 
 	public List<ArticleVo> getNoticeList() {
-		return articleDAO.getNoticeList();
+		return articleDao.getNoticeList();
 
 	}
 
@@ -305,7 +311,7 @@ public class ArticleService {
 			throw new NullPointerException("로그인 세션 만료");
 		}
 
-		List<ArticleVo> myArticleList = articleDAO.getMyArticleList(userId);
+		List<ArticleVo> myArticleList = articleDao.getMyArticleList(userId);
 		return myArticleList;
 	}
 
@@ -327,5 +333,6 @@ public class ArticleService {
 		}
 		return null;
 	}
+	
 
 }

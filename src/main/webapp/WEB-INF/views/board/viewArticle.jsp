@@ -12,7 +12,6 @@
 <script  src="http://code.jquery.com/jquery-latest.min.js"></script>
 </head>
 <body>
-<h1>${nowArticleId }</h1>
 	<form name="frmArticle" method="post"
 		action="/board/modifyForm.do?articleId=${articleVo.articleId}">
 		<table border=0 align="center">
@@ -106,45 +105,54 @@
 	}
 
 	function getCommentList() {
-		// todo JSON.parse('{"' + decodeURI(location.search.substring(1)).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}').articleId
-		//var articleId = JSON.parse('{"' + decodeURI(location.search.substring(1)).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g,'":"') + '"}').articleId;
 		var articleId = $('#commentList').data('articleId');
-		var writeMemberId = $('#writeMemberId').val(); 
+        var writeMemberId = $('#writeMemberId').val(); 
+		var commentsPage = 1;
+		var data = {};
+		
+		data.articleId = articleId;
+		data.commentsPage = commentsPage;
+		data.writeMemberId = writeMemberId;
+		
+		var sendData = JSON.stringify(data);
+		alert(sendData);
+		
 		$.ajax({
-			type : 'GET',
-			url : '${contextPath}/board/commentList.do?articleId=' + articleId +"&writeMemberId=" + writeMemberId,
-			dataType : 'json',
-			data : $('#commentForm').serialize(),
-			contentType : "application/json; charset=UTF-8",
-			success : function(data) {
-				var html = "";
-				alert("성공");
-				for (var i = 0; i < data.length; i++) {
-					html += "<tr><td align=left width=110>";
-					html += data[i].writeMemberId + ":&nbsp;</td>";
-					html += "<td width=230>";
-					/* html +="<c:if test='"+data[i].level+">0'>";
-					html +="[답글]</c:if>""; */
-					html += data[i].content + "</td>";
-					html += "<td>";
-					html += "<a id='reCommentBtn' onClick=fn_reComment("+data[i].replyId+")>"
-							+ "답글" + "</a></td></tr>"
-					html += "<tr class=recomment"+data[i].replyId+"></tr>";
-				}
-				$("#commentList").html(html);
-			}
-		})
+			type : 'get',
+            url : '${contextPath}/board/commentList.do?articleId='+articleId+'&commentsPage='+commentsPage+'&writeMemberId='+writeMemberId,
+            dataType : 'json',
+            data : $('#commentForm').serialize(),
+            contentType : "application/json; charset=UTF-8",
+		}).done(function(data){
+			var html = "";
+            alert("성공");
+            alert(data.commentsList.length);
+            for (var i = 0; i < data.commentsList.length; i++) {
+            	alert(i);
+                html += "<tr><td align=left width=110>";
+                html += data.commentsList[i].writeMemberId + ":&nbsp;</td>";
+                html += "<td width=230>";
+                /* html +="<c:if test='"+result[i].level+">0'>";
+                html +="[답글]</c:if>""; */
+                html += data.commentsList[i].content + "</td>";
+                html += "<td>";
+                html += "<a id='reCommentBtn' onClick=fn_reComment("+data.commentsList[i].replyId+")>"
+                        + "답글" + "</a></td></tr>"
+                html += "<tr class=recomment"+data.commentsList[i].replyId+"></tr>";
+            }
+            $("#commentList").html(html);
+        })
 	}
 	
 	function fn_insertComment() {
 		var articleId = $('#commentList').data('articleId');
 		var content = $('input[name=comment]').val();
-		var secretChkFlag = 1;
+		var secretTypeCd = 10;
 		var data = {};
 		
 		data.articleId = articleId;
 		data.content = content;
-		data.secretChkFlag = secretChkFlag;
+		data.secretTypeCd = secretTypeCd;
 		
 		var sendData = JSON.stringify(data);
 

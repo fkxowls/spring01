@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import com.spring.study.board.controller.AticleController;
-import com.spring.study.member.vo.Member;
+import com.spring.study.member.model.Member;
 
 public class InterceptorBack_Up extends HandlerInterceptorAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(AticleController.class);

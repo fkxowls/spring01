@@ -70,6 +70,12 @@
 		<beans:property name="suffix" value=".jsp" />
 	</beans:bean>
 
+    <!--  -->
+    <annotation-driven>
+        <argument-resolvers>
+            <beans:bean class="com.spring.study.common.util.UserArgumentResolver"></beans:bean>
+        </argument-resolvers>
+    </annotation-driven>
 
 	<beans:bean id="jsonMessageConverter"
 		class="org.springframework.http.converter.json.GsonHttpMessageConverter">
@@ -80,7 +86,7 @@
 	<mvc:interceptors>
 		<mvc:interceptor>
 			<!-- <mvc:mapping path="/*/write*.do" /> -->
-			<mvc:mapping path="/board/write*.do" />
+			<mvc:mapping path="/board/write2*.do" />
 			<beans:bean
 				class="com.spring.study.common.interceptor.LoginSessionInterceptor" />
 		</mvc:interceptor>

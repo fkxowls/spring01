@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 import com.spring.study.board.dao.CommentDao;
-import com.spring.study.board.vo.ArticleReplyVo;
-import com.spring.study.board.vo.ArticleVo;
+import com.spring.study.board.model.ArticleVo;
+import com.spring.study.comment.model.CommentsVo;
 import com.spring.study.common.model.PageList;
 
 @Aspect
@@ -57,7 +57,7 @@ public class ArticleAddContentsAspect {
 				.collect(Collectors.joining(","));
 		
 		//TODO ArticleReplyVo 페이징 정보도 담을 수 있게 만들기/ 이왕이면 request/response로 나눠보자
-		List<ArticleReplyVo> commentsList = commentDAO.commentsList(articleNumbers);
+		List<CommentsVo> commentsList = commentDAO.commentsList(articleNumbers);
 		
 //		for(ArticleVo ArticleVo : returnList) {
 //			String key = ArticleVo.getArticleNo();
@@ -76,8 +76,8 @@ public class ArticleAddContentsAspect {
 //			}
 //		}
 		
-		Map<String, List<ArticleReplyVo>> commentsListByArticleId = commentsList.stream()
-				.collect(Collectors.groupingBy(ArticleReplyVo::getArticleId));
+		Map<String, List<CommentsVo>> commentsListByArticleId = commentsList.stream()
+				.collect(Collectors.groupingBy(CommentsVo::getArticleId));
 		
 		returnList.stream().forEach( vo -> vo.setCommentsList(commentsListByArticleId.get(vo.getArticleId())) );
 		

@@ -1,6 +1,6 @@
-package com.spring.study.member.vo;
+package com.spring.study.member.model;
 
-public class MemVo {
+public class MemberVo {
 	String memberId;
     String memberPwd;
     int memberLevel; //0:관리자, 1:그 외 회원

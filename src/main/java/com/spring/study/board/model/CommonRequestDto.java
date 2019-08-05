@@ -1,4 +1,4 @@
-package com.spring.study.board.vo;
+package com.spring.study.board.model;
 
 //리퀘스용 DTO
 public class CommonRequestDto {

@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 
 import com.spring.study.board.controller.AticleController;
+import com.spring.study.member.model.MemberVo;
+import com.spring.study.member.model.Member;
 import com.spring.study.member.service.MemberService;
-import com.spring.study.member.vo.Member;
-import com.spring.study.member.vo.MemVo;
 
 @Controller
 @SessionAttributes("memberSession")
@@ -37,11 +37,11 @@ public class MemberController {
 	}
 
 	@RequestMapping(value = "/member/login", method = RequestMethod.POST)
-	public String login(@ModelAttribute("memberVo") MemVo memberVo, HttpSession session, HttpServletRequest req,
+	public String login(@ModelAttribute("memberVo") MemberVo memberVo, HttpSession session, HttpServletRequest req,
 			Model model) {
 		logger.info("============		login() start		==============");
 
-		MemVo member = memberService.login(memberVo);
+		MemberVo member = memberService.login(memberVo);
 
 		// TODO 세션에 로그인 정보 담는다 -> 지금은 이름, ID 정도만 담으면 될 것 같음
 		Member memberDTO = memberService.setMemberSession(member);

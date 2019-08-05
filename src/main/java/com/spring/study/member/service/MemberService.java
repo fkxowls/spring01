@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.spring.study.board.controller.AticleController;
 import com.spring.study.member.dao.MemberDAO;
-import com.spring.study.member.vo.Member;
-import com.spring.study.member.vo.MemVo;
+import com.spring.study.member.model.MemberVo;
+import com.spring.study.member.model.Member;
 
 @Service("memberService")
 public class MemberService {
@@ -17,14 +17,14 @@ public class MemberService {
 	@Autowired
 	MemberDAO memberDAO;
 	
-	public MemVo login(MemVo memberVo) {
+	public MemberVo login(MemberVo memberVo) {
 		logger.info("============		memberService login() start		==============");
-		MemVo memVo = memberDAO.checkMember(memberVo);
+		MemberVo memVo = memberDAO.checkMember(memberVo);
 		logger.info("============		memberService login() end		==============");
 		return memVo;
 	}
 
-	public Member setMemberSession(MemVo member) {
+	public Member setMemberSession(MemberVo member) {
 		Member memberDTO = new Member();
 		memberDTO.setMemberId(member.getMemberId());
 		memberDTO.setMemberLevel(member.getMemberLevel());

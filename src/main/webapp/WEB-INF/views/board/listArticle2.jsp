@@ -186,6 +186,15 @@ function getMoreContents2(btnEl){
 	});
 }
 
+function viewArticle(articleId) {
+	$.ajax({
+		type: 'get', 
+		url : '/board/'+articleId
+	}).done(function(result){
+		
+	})
+}
+
 
 /*
 function getArticleList2(num){

@@ -23,12 +23,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
+import com.spring.study.board.model.ArticleVo;
+import com.spring.study.board.model.CommonRequestDto;
 import com.spring.study.board.service.ArticleService;
-import com.spring.study.board.vo.ArticleReplyVo;
-import com.spring.study.board.vo.ArticleVo;
-import com.spring.study.board.vo.CommonRequestDto;
+import com.spring.study.comment.model.CommentPageList;
+import com.spring.study.comment.model.CommentsRequestDto;
+import com.spring.study.comment.model.CommentsVo;
 import com.spring.study.common.model.PageList;
-import com.spring.study.member.vo.Member;
+import com.spring.study.member.model.Member;
 
 import javassist.NotFoundException;
 
@@ -98,10 +100,8 @@ public class AticleController {
 
 	// 글 상세보기 ///
 	@RequestMapping(value = "/board/viewArticle", method = RequestMethod.GET)
-	public String viewArticle(Model model, @RequestParam String articleId, HttpSession session) {
+	public String viewArticle(Model model, @RequestParam String articleId, Member member) {
 		ArticleVo articleVo = new ArticleVo();
-		//여기 세션도 인터셉터로??
-		Member member = (Member) session.getAttribute("memberSession");
 		String returnURI = "";
 		
 		try {
@@ -122,15 +122,6 @@ public class AticleController {
 		return returnURI;
 	}
 
-	// 공지글 목록 //보완하기
-	@RequestMapping(value = "/board/noticeList", method = RequestMethod.GET)
-	public @ResponseBody Map<String, Object> getNoticeList() {
-		Map<String, Object> result = new HashMap<>();
-		List<ArticleVo> noticeList = articleService.getNoticeList();
-		result.put("noticleList", noticeList);
-		return result;
-	}
-
 	// 글쓰기 
 	@RequestMapping(value = "/board/WrtiteArticle", method = RequestMethod.POST)
 	public @ResponseBody String writeArticle(@RequestBody ArticleVo articleVo, HttpServletRequest req) {
@@ -149,13 +140,10 @@ public class AticleController {
 	// 글쓰기(수정) 
 	@RequestMapping(value = "/board/modifyArticle", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String, String> modifyArticle(@RequestBody ArticleVo articleVo, HttpSession session) {
+	public Map<String, String> modifyArticle(@RequestBody ArticleVo articleVo, Member member) {
 		Map<String, String> result = new HashMap<>();
-		
-		//얘도 인터셉터로 주입받기
-		Member memberDTO = (Member) session.getAttribute("memberSession");
 		try {
-			articleService.modifyArticle(articleVo, memberDTO);
+			articleService.modifyArticle(articleVo, member);
 			result.put("msg", "글 수정 완료");
 			logger.info("=============		modifyArticle() {}",result.get("msg"));
 		
@@ -203,19 +191,17 @@ public class AticleController {
 
 		return returnMap;
 	}
-
+	/**
+	 * 수정일짜 default되어 있는거 제거 후 댓글 수정시 수정일자 new Date()로 넣기
+	 **/
 	// 댓글쓰기 //대댓글쓰기
 	@RequestMapping(value = "/board/writeComment", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String, String> writeComment(@RequestBody ArticleReplyVo replyVo, HttpSession session) {
+	public Map<String, String> writeComment(@RequestBody CommentsRequestDto commentsRequestDto, Member member) {
 		Map<String, String> returnMap = new HashMap<>();
 		
-		//얘도 객체 주입받기
-		Member member = (Member) session.getAttribute("memberSession");
-		replyVo.setWriteMemberId(member.getMemberId());
-
 		try {
-			String result = articleService.writeComment(replyVo);
+			String result = articleService.writeComment(commentsRequestDto, member);
 			returnMap.put("msg", result);
 			logger.info("=============		writeComment() {}",returnMap.get("msg"));		
 		} catch (NotFoundException e) {
@@ -265,18 +251,20 @@ public class AticleController {
 	}
 
 	// 댓글목록 ///
-	@RequestMapping(value = "/board/commentList", produces = "application/json; charset=utf8")
-	@ResponseBody
-	public List<ArticleReplyVo> getCommentList(@RequestParam String articleId, @RequestParam String writeMemberId, HttpSession session/*, MemberDTO member*/) {
-		
-		Member userId = (Member) session.getAttribute("memberSession");
-		List<ArticleReplyVo> vo = null;
-		// 예시
-		if(userId.isLogin()) {
-			vo = articleService.getComments(articleId, writeMemberId, userId); 
-		}else { vo = articleService.getComments(articleId, writeMemberId); }
+	@RequestMapping(value = "/board/commentList", method = RequestMethod.GET)
+	public @ResponseBody CommentPageList getCommentList(@ModelAttribute CommentsRequestDto commentsRequestDto, Member member) {
+		CommentPageList commentPageList = new CommentPageList();
+		String userId;
+		if(member.isLogin()) {
+			userId = member.getMemberId();
+			commentPageList = articleService.getComments(commentsRequestDto, userId); 
+		}else { 
+			userId ="";
+			commentPageList = articleService.getComments(commentsRequestDto, userId); 
+		}
 
-		return vo;
+		
+		return commentPageList;
 	}
 
 	// 글쓰기페이지
@@ -300,14 +288,12 @@ public class AticleController {
 
 	// 글수정페이지 ///
 	@RequestMapping(value = "/board/modifyForm", method = RequestMethod.POST)
-	public String modifyForm(@ModelAttribute("articleVo") ArticleVo articleVo, Model model, HttpSession session) {
+	public String modifyForm(@ModelAttribute("articleVo") ArticleVo articleVo, Model model,Member member) {
 		String returnURI = "";
-
-		Member memberDTO = (Member) session.getAttribute("memberSession");
-
 		boolean isEquals = false;
+		
 		try {
-			isEquals = articleService.isEqualsWriterId(articleVo, memberDTO);
+			isEquals = articleService.isEqualsWriterId(articleVo, member);
 		} catch (Exception e) {
 			return "member/loginForm";
 		}
@@ -323,13 +309,21 @@ public class AticleController {
 
 		return returnURI;
 	}
+	
+	// 공지글 목록 //보완하기
+		@RequestMapping(value = "/board/noticeList", method = RequestMethod.GET)
+		public @ResponseBody Map<String, Object> getNoticeList() {
+			Map<String, Object> result = new HashMap<>();
+			List<ArticleVo> noticeList = articleService.getNoticeList();
+			result.put("noticleList", noticeList);
+			return result;
+		}
 
 	// 내가 쓴 글 보기 ///
 	@RequestMapping(value = "/board/myArticleList", method = RequestMethod.GET)
-	public @ResponseBody Map<String, Object> getMyArticleList(HttpSession session) {
+	public @ResponseBody Map<String, Object> getMyArticleList(Member member) {
 		Map<String, Object> returnMap = new HashMap<String, Object>();
-		Member member = (Member) session.getAttribute("memberSession");
-
+	
 		List<ArticleVo> myArticleList = articleService.getMyArticleList(member);
 
 		returnMap.put("articleList", myArticleList);
