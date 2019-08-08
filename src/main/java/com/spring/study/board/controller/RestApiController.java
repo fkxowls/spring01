@@ -32,7 +32,20 @@ import javassist.NotFoundException;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 
 //AticleController를 REST로 변경 중 
-//공지글 볼때 등급낮아서 팅겨내는 로직 다시 하기
+
+/***		
+	해야할 것
+0.DTO캐싱 후에 아래것들 마저 수행
+1.글쓰기폼 글수정폼 답글작성폼
+2.글쓰기
+3.글 수정
+4.공지글 목록
+5.내가 쓴글 보기
+6.공지글 볼때 등급낮아서 팅겨내는 로직 다시 하기
+
+
+***/		
+
 @Controller
 public class RestAPIController {
 	private static final Logger logger = LoggerFactory.getLogger(AticleController.class);
@@ -60,7 +73,7 @@ public class RestAPIController {
 				result.put("totalPage", "0");
 				result.put("articleList", articleList);
 			}
-
+			
 			return result;
 		}
 		
@@ -168,11 +181,6 @@ public class RestAPIController {
 			return commentPageList;
 		}
 		
-		//글쓰기
-		
-		//글 수정
-		
-		//글 삭제
 		
 		//이 아래로 아직안함
 		@RequestMapping(value = "/board/{parentId}/reply", method = RequestMethod.POST)
