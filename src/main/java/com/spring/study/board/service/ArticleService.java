@@ -48,23 +48,22 @@ public class ArticleService {
 		ArticleVo returnVo = null;
 
 		if (isNoticeId) {// 공지글 테이블에 글이있을 시
-			// 공지글에 있는 것을 확인 후 회원레벨 10(관리자),20(우수회원)이면 접근 30(일반회원)이면 팅겨냄
-			int memberLevel = 0;
+			//이것도 체크해야함
+			String userLevel = member.getMemberLevel();
 
 			// session에 멤버정보가 없다 = 로그인 x인 상태 = 예외발생시켜서 로그인페이지로 보낸다
 			if (null == member) {
 				throw new NotFoundException("로그인 후 이용가능합니다");
 			}
-			memberLevel = articleDao.getMemberLevel(member);
+			//userLevel = articleDao.getMemberLevel(member);
 			/*
 			 * if (0 == memberLevel) { throw new NotFoundException("로그인 후 이용가능합니다"); }
 			 */
-			if (20 == memberLevel || 10 == memberLevel) {
-				// 글 상세보기
-				returnVo = articleDao.viewArticle(articleId);
-			} else {
-				// 상위회원만 접근 가능하다고 오류를 던진다
+			if (CommonCode.USER_LEVEL_CD_BRONZE.getCode().equals(userLevel)) {
+			//if (20 == userLevel || 10 == userLevel) {
 				throw new SQLException("우수회원부터 접근 가능합니다");
+			} else {
+				returnVo = articleDao.viewArticle(articleId);
 			}
 
 		} else {// 공지글 테이블에 글이 없을때 = 그냥 일반 글 일 때
@@ -78,9 +77,8 @@ public class ArticleService {
 		return returnVo;
 	}
 
-	// 트랜잭션 적용하기
+	// 트랜잭션 적용하기 //여기서 일어날 오류??
 	public String writeArticle(ArticleVo articleVo) {
-		// 새로 작성될 글의 번호는 시퀀스로 통해 가져옴
 		String articleId = this.giveArticleId();
 		articleVo.setArticleId(articleId);
 
@@ -242,7 +240,8 @@ public class ArticleService {
 	}
 
 	public List<ArticleVo> getArticleList(CommonRequestDto req) {
-		List<ArticleVo> list = articleDao.ListArticle(req);
+//		List<ArticleVo> list = articleDao.ListArticle(req);
+		List<ArticleVo> list = articleDao.ListArticleTest(req);
 		return list;
 	}
 
@@ -315,24 +314,6 @@ public class ArticleService {
 		return myArticleList;
 	}
 
-	// Session에 있는 아이디와 레벨 가져오는 코드 메서드로 뺌
-	public Member checkSessionMemberValue(Member member) {
-		String userId = "";
-		int userLevel = 0;
 
-		try {
-			userId = member.getMemberId();
-		} catch (NullPointerException e) {
-			throw new NullPointerException("로그인 세션 만료");
-		}
-
-		try {
-			userLevel = member.getMemberLevel();
-		} catch (NullPointerException e) {
-			throw new NullPointerException("로그인 세션 만료");
-		}
-		return null;
-	}
-	
 
 }

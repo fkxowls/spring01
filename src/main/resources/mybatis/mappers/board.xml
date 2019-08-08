@@ -133,7 +133,6 @@
 			ARTICLE_ID
 			,PARENT_ID
 			,TITLE
-			,NOTICE_CHK_FLAG
 			,CONTENT
 			,WRITE_MEMBER_ID
 			,WRITE_DATE
@@ -143,7 +142,6 @@
 			#{articleId}
 			,0
 			,#{title}
-			,#{noticeChkFlag}
 			,#{content}
 			,#{writeMemberId}
 			,#{writeDate}

@@ -1,23 +1,30 @@
 package com.spring.study.board.controller;
 
+import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.support.HttpRequestHandlerServlet;
 
 import com.spring.study.board.model.ArticleVo;
 import com.spring.study.board.model.CommonRequestDto;
@@ -35,8 +42,7 @@ import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 
 /***		
 	해야할 것
-0.DTO캐싱 후에 아래것들 마저 수행
-1.글쓰기폼 글수정폼 답글작성폼
+1.글수정폼 
 2.글쓰기
 3.글 수정
 4.공지글 목록
@@ -47,7 +53,7 @@ import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 ***/		
 
 @Controller
-public class RestAPIController {
+public class RestApiController {
 	private static final Logger logger = LoggerFactory.getLogger(AticleController.class);
 	private static final int pageSize = 10;
 
@@ -56,25 +62,29 @@ public class RestAPIController {
 	
 	// endPage restAPI
 		@RequestMapping(value = "/board/article/{page}/list")
-		public @ResponseBody Map<String, Object> getFeedTypeArticlesByTotalCount(@PathVariable int page) {
-			Map<String, Object> result = new HashMap<>();
-			//첫 진입시 page는 어떻게 가져올지 다시 생각하기
+		public String getFeedTypeArticlesByTotalCount(@PathVariable int page, Model model) {
+			//Map<String, Object> result = new HashMap<>();
+			
 			CommonRequestDto req = new CommonRequestDto.Builder(page, pageSize).build();
 			
 			if (1 == page) {
 				PageList<ArticleVo> articlePageDto = articleService.getArticlePageListWithCount(req);
-
-				result.put("totalPage", String.valueOf(articlePageDto.getTotalPage()));
-				result.put("articleList", articlePageDto.getList());
+				//result.put("totalPage", String.valueOf(articlePageDto.getTotalPage()));
+				//result.put("articleList", articlePageDto.getList());
+				model.addAttribute("totalPage", String.valueOf(articlePageDto.getTotalPage()));
+				model.addAttribute("articleList", articlePageDto.getList());
+				//여기서 글상세보기 주소는 article과 1:1관계임 즉 글상세보기uri는 dto에 있어야함?? 그럼 어떻게 처리를하는가..
 			} else {
 				List<ArticleVo> articleList = articleService.getArticleList(req);
-
-				result.put("nextPage", "0");
-				result.put("totalPage", "0");
-				result.put("articleList", articleList);
+				//result.put("nextPage", "0");
+				//result.put("totalPage", "0");
+				//result.put("articleList", articleList);
+				model.addAttribute("articleList", articleList);
 			}
 			
-			return result;
+			model.addAttribute("writeArticleForm","/board/writeArticleForm");
+			
+			return "board/listArticle2";
 		}
 		
 		// hasNext
@@ -94,26 +104,75 @@ public class RestAPIController {
 		@RequestMapping(value = "/board/{articleId}", method = RequestMethod.GET)
 		public String viewArticle(Model model, @PathVariable String articleId, Member member) {
 			ArticleVo articleVo = new ArticleVo();
+			Map<String, Object> resultStatus = new HashMap<>();
 			String returnURI = "";
-			//상태코드 입력하기
+			
+			//view단에서 어떻게 받아야함???
 			try {
 				articleVo = articleService.getArticleContents(articleId, member);
-				model.addAttribute("articleVo", articleVo);
+				resultStatus.put("code",HttpStatus.OK);
+				resultStatus.put("msg", "로그인 성공");	
+				
+				model.addAttribute("articleVo", articleVo);				
 				returnURI = "board/viewArticle";
 			} catch (SQLException e) {
-				returnURI = "redirect:/board/listArticleForm";
-				//여기 리다이렉트를 여기서 처리하는게 맞는가?
-				model.addAttribute("redirect", "redirect:/board/listArticleForm");
+				//returnURI = "/board/listArticleForm";
+				resultStatus.put("code", HttpStatus.FORBIDDEN);
+				resultStatus.put("msg", e.getMessage());
+				resultStatus.put("redirect","/board/listArticleForm");
 				e.printStackTrace();
 			} catch (NotFoundException e) {
-				returnURI = "member/loginForm";
+				//returnURI = "reirect:/member/loginForm.do";
+				resultStatus.put("code", HttpStatus.UNAUTHORIZED);
+				resultStatus.put("msg", e.getMessage());
+				resultStatus.put("redirect","/member/loginForm.do");
 				e.printStackTrace();
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
-				model.addAttribute("uri", returnURI);
+				model.addAttribute("resultStatus", resultStatus);
+				model.addAttribute("modifyFormPath","/board/"+articleId);
+				model.addAttribute("replyFormPath","/board/"+articleId+"/reply");
+				model.addAttribute("articleDeletePath","/board/"+articleId);
+				//댓글리스트,댓글입력 주소도 여기서??
 			}
+			
 			return returnURI;
+		}
+		
+		@RequestMapping(value = {"/board/writeArticleForm", "/board/writeReplyForm"})
+		public String writeForm(@RequestParam(required=false) String articleId, Model model, Member member, HttpServletRequest req) {
+			ArticleVo articleVo = new ArticleVo();
+			
+			//if(!member.isLogin()) { return "redirect:/member/loginForm"; }
+			if(member == null) { return "redirect:/member/loginForm"; }
+			
+			if(req.getRequestURI().equals("/board/writeReplyForm")) {
+				//[답글]: ㅇㅇㅇㅇ 으로 제목을 지정하려면 db로 조회해서 ?? 아니면 파라미터로 제목만 보낸다?? 
+				articleVo.setArticleId(articleId);				
+			}
+			articleVo.setwriteMemberId(member.getMemberId());
+			
+			model.addAttribute("articleVo",articleVo);
+			//model.addAttribute("uri","/board/article");
+			return "board/addArticleForm";
+		}
+		
+		@RequestMapping(value = "/board/article", method = RequestMethod.POST)
+		public @ResponseBody Map<String, Object> writeArticle(@RequestBody ArticleVo articleVo, HttpServletRequest req){
+			Map<String, Object> resultMap = new HashMap<>();
+			try {
+				req.setCharacterEncoding("utf-8");
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+			//String articleId = articleService.giveArticleId();
+			String writenArticleId = articleService.writeArticle(articleVo);
+			resultMap.put("code", HttpStatus.OK);
+			resultMap.put("msg", "글 등록이 완료되었습니다.");
+			resultMap.put("redirect", "/board" + writenArticleId);
+			
+			return resultMap;
 		}
 		
 		@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.PUT)

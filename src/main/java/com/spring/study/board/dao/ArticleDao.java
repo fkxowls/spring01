@@ -1,11 +1,17 @@
 package com.spring.study.board.dao;
 
+import java.io.IOException;
 import java.text.Format;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.ibatis.session.SqlSession;
@@ -13,8 +19,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.study.board.controller.AticleController;
 import com.spring.study.board.model.ArticleVo;
@@ -27,10 +37,10 @@ import com.spring.study.member.model.Member;
 
 @Repository("articleDAO")
 public class ArticleDao extends BaseDao {
-	private static final Format fdf = FastDateFormat.getInstance( "yyyyMMdd", Locale.getDefault());
+	private static final Format fdf = FastDateFormat.getInstance("yyyyMMdd", Locale.getDefault());
 	private static final Logger logger = LoggerFactory.getLogger(AticleController.class);
 	private static String mapper = "mapper.article."; // TODO .을 여기로 옮겨오고, 이름에서는 .을 맨 앞에꺼 뺀다
-	
+
 	@Autowired
 	SqlSession sqlSession;
 
@@ -38,7 +48,7 @@ public class ArticleDao extends BaseDao {
 	public PageList<ArticleVo> getArticlePageListWithCountAddComments(Object vo) {
 		return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
 	}
-	
+
 	public PageList<ArticleVo> getArticlePageListWithCount(CommonRequestDto vo) {
 		return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
 	}
@@ -48,7 +58,7 @@ public class ArticleDao extends BaseDao {
 	}
 
 	public boolean isExistsArticle(String articleId) {
-		String result = sqlSession.selectOne(mapper + "isarticleId", articleId);		
+		String result = sqlSession.selectOne(mapper + "isarticleId", articleId);
 		if (result.equals("Y")) {
 			System.out.println("true");
 			return true;
@@ -56,7 +66,8 @@ public class ArticleDao extends BaseDao {
 
 		return false;
 	}
-	//얘는 commentDAO로 빼야함
+
+	// 얘는 commentDAO로 빼야함
 	/*
 	 * public boolean isExistsComment(String replyId) { String result =
 	 * sqlSession.selectOne("mapper.comment.isExistComment", replyId);
@@ -64,20 +75,19 @@ public class ArticleDao extends BaseDao {
 	 * return false; }
 	 */
 	// 순수 게시글 리스트만 가져오는 DAO 페이징정보 DAO는 getArticleByTotalCount/getArticleByHasNext
-	//@AddComments
+	// @AddComments
 	public List<ArticleVo> ListArticle(CommonRequestDto vo) {
 
 		return sqlSession.selectList(mapper + "listArticle2", vo);
 	}
-	
-	//@AddComments
+
+	// @AddComments
 	public ArticleVo viewArticle(String aritcleNo) {
 		return sqlSession.selectOne(mapper + "viewArticle", aritcleNo);
 
 	}
 
 	public void insertArticle(ArticleVo articleVo) {
-		System.out.println("=======================================				articleVo:");
 		sqlSession.insert(mapper + "insertArticle", articleVo);
 
 	}
@@ -145,7 +155,7 @@ public class ArticleDao extends BaseDao {
 
 	public List<ArticleVo> getNoticeList() {
 		return sqlSession.selectList(mapper + "noticeList");
-		
+
 	}
 
 	public void registerNotice(NoticeArticleVo articleVo) {
@@ -153,82 +163,102 @@ public class ArticleDao extends BaseDao {
 	}
 
 	public List<ArticleVo> getMyArticleList(String userId) {
-		
+
 		return sqlSession.selectList(mapper + "getMyArticleList", userId);
 	}
 
 	public boolean isNoticeId(String articleId) {
-		String result = sqlSession.selectOne(mapper + "isNoticeId", articleId); 
-		if(result.equals("Y")) {
+		String result = sqlSession.selectOne(mapper + "isNoticeId", articleId);
+		if (result.equals("Y")) {
 			return true;
 		}
 		return false;
 	}
 
 	public int getMemberLevel(Member memberDTO) {
-		int result = sqlSession.selectOne(mapper + "chkMemberLevel",memberDTO);		
-		
+		int result = sqlSession.selectOne(mapper + "chkMemberLevel", memberDTO);
+
 		return result;
+
+	}
+
+	public List<ArticleVo> ListArticleTest(CommonRequestDto vo) {
+
+		List<ArticleVo> list = sqlSession.selectList("mapper.article.listArticle2", vo);
+
+		HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		HttpServletResponse resp = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+				.getResponse();
+		HttpSession session = req.getSession();
+		// TODO 입력 -> key, value, ttl, expire(옵셔널)
+		// 표준포맷 : "2019/08/09 23:59:59"
+
+		String key = "com.spring.study.board.dao.ArticleDAO.ListArticleTest" + "&page=" + vo.getPage() + "&pageSize="
+				+ vo.getPageSize();
+
+		
+		String date = fdf.format(new Date()); // TODO ttl 만큼 날짜 추가해줌	
+		String expireDate = (String) session.getAttribute("expire" + key);
+		String value = "";
+		ObjectMapper mapper = new ObjectMapper();
+		
+		boolean isExpire =  compareExpireDate(date,expireDate);
+		if(isExpire) {
+			String ttl = "3600"; // 1시간
+			int intDate = Integer.parseInt(date)+Integer.parseInt(ttl);
+			expireDate = Integer.toString(intDate);
+		
+			try {
+				value = mapper.writeValueAsString(list);
+			} catch (JsonProcessingException e) {
+				// TODO 로그남기기
+				e.printStackTrace();
+			}
+		
+			session.setAttribute("expire" + key, expireDate);
+			session.setAttribute(key, value);
+		}
+		
+		expireDate = (String) session.getAttribute("expire" + key);
+		value = (String) session.getAttribute(key);
+		//직렬화?? 역직렬화??? stream.map으로??? ????
+		try {
+			list = mapper.readValue(value, List.class);
+		} catch (JsonParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} // TODO 테스트 필요
+		
+
+		return list;
+	}
+	
+	private boolean compareExpireDate(String curDate, String expireDate) {
+		if(null == expireDate) { expireDate = "0"; }
+		
+		long curTime = Integer.parseInt(curDate);
+		long expireTime = Integer.parseInt(expireDate);
+		
+		if(curTime < expireTime) { return false; }
+		else { return true; }
 		
 	}
-	
-	
-	private String dateFormat(Date curDate) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("HHmm");
 
-		try {
-			curDate = dateFormat.parse(dateFormat.format(curDate));
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		long curDateTime = curDate.getTime();
-		String curDateStr = String.valueOf(curDateTime);
-
-		return curDateStr;
+	public static void main(String[] args) {
+		String expireDate = fdf.format(new Date());
+		System.out.println(expireDate);
+		System.out.println(Integer.parseInt(expireDate)+1600);
 	}
-}
-//	public List<ArticleVo> ListArticleTest(CommonRequestDto vo) {
-//	logger.info("=========            startNum:{}", vo.getStartNum());
-//	
-//	List<ArticleVo> list = sqlSession.selectList("mapper.article.listArticle2", vo);
-//
-//	HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-//	HttpServletResponse resp = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
-//			.getResponse();
-//	HttpSession session = req.getSession();
-//	// TODO 입력 -> key, value, ttl, expire(옵셔널)
-//	// 표준포맷 : "2019/08/09 23:59:59"
-//	
-//	String ttl = "3600"; // 1시간
-//
-//	String key = "com.spring.study.board.dao.ArticleDAO.ListArticleTest"+ "&page=" + vo.getPage() + "&pageSize=" + vo.getPageSize();
-//
-//	ObjectMapper mapper = new ObjectMapper();
-//	String value = "";
-//	try {
-//		value = mapper.writeValueAsString(list);
-//	} catch (JsonProcessingException e) {
-//		// TODO 로그남기기
-//		e.printStackTrace();
-//	}
-//	String expire = fdf.format(new Date()); // TODO ttl 만큼 날짜 추가해줌
-//
-//	session.setAttribute("expire" + key, expire);
-//	session.setAttribute(key, value);
-//	
-//	{ // TODO 이름에서 Res는 빼줄 것
-//		String expireRes = session.getAttribute("expire" + key);
-//		String valueRes = session.getAttribute(key);
-//
-//		List<ArticleVo> listRes = mapper.readValue(valueRes, List.class); // TODO 테스트 필요
-//	}
-//	
-//	return list;
-//}
-//
-//}
 
-	// TODO 넣을거 -> key+value, key+expire
+}
+
+// TODO 넣을거 -> key+value, key+expire
 
 //
 //	List<ArticleVo> list;

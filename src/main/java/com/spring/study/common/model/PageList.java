@@ -10,6 +10,9 @@ public class PageList<E> {
 	private int startNum;
 	private int endNum;
 	private List<E> list;
+	private String path;
+	
+	public PageList() {}
 	
 	public PageList(int page, int pageSize, List<E> list, int totalCount, boolean hasNext) { // 리스폰스 객체
 		this.page = page;
@@ -54,6 +57,14 @@ public class PageList<E> {
 
 	public int getEndNum() {
 		return endNum;
+	}
+
+	public String getPath() {
+		return path;
+	}
+	
+	public void setPath(String path) {
+		this.path = path;
 	}
 	/*
 	 * public void setStartNum(int startNum) { this.startNum = startNum; }

@@ -6,7 +6,7 @@
     <ul align="center" class="contents" <c:if test="${vs.last}">data-has-next="${hasNext}"</c:if>>
         <li>${articleVo.articleId }</li>
         <%-- <li class="left"><a class='cls1' href="${contextPath}/board/viewArticle.do?articleId=${articleVO.articleId}">${articleVO.title}</a></li> --%>
-        <li class="left"><a class='cls1' href="javascript:viewArticle('${articleVo.articleId }')">${articleVo.title}</a></li>
+        <li class="left"><a class='cls1' href="/board/${articleVo.articleId }">${articleVo.title}</a></li>
         <li>${articleVo.writeMemberId }</li>
         <li>${articleVo.writeDate }</li>
     </ul>

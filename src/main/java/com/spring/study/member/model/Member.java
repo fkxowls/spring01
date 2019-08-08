@@ -4,11 +4,11 @@ import org.apache.commons.lang3.StringUtils;
 
 public class Member {
 	private String memberId;
-	private int memberLevel;
+	private String memberLevel;
 	
 	public Member() {}
 	
-	public Member(String memberId,int memberLevel) {
+	public Member(String memberId,String memberLevel) {
 		this.memberId=memberId;
 		this.memberLevel=memberLevel;
 	}
@@ -23,14 +23,17 @@ public class Member {
 	public void setMemberId(String memberId) {
 		this.memberId = memberId;
 	}
-	public int getMemberLevel() {
+	public String getMemberLevel() {
 		return memberLevel;
 	}
-	public void setMemberLevel(int memberLevel) {
+	public void setMemberLevel(String memberLevel) {
 		this.memberLevel = memberLevel;
 	}
 
-
+	public static void main(String[] args) {
+		Member m = new Member();
+		System.out.println(m.isLogin());
+	}
 	
 	
 }

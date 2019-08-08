@@ -20,7 +20,7 @@
     <table border="0" align="center">
       <tr>
 					<td align="right"> 작성자</td>
-					<td colspan=2  align="left"><input type="text" size="20" maxlength="100" name="writeMemberId" value="${memberSession.memberId }" readOnly/> </td>
+					<td colspan=2  align="left"><input type="text" size="20" maxlength="100" name="writeMemberId" value="${articleVo.writeMemberId }" readOnly/> </td>
 			</tr>
 
 	     <tr>
@@ -30,8 +30,8 @@
 		 <tr>
 			   <td align="right">공지글 여부 </td>
 			   <td colspan="2">
-			   		<input type="radio" name="noticeChkFlag" value="true">공지글
-			   		<input type="radio" name="noticeChkFlag" value="false">일반글
+			   		<input type="radio" name="isNotice" value="true">공지글
+			   		<input type="radio" name="isNotice" value="false">일반글
 			   </td>
 		 </tr>
 	 		<tr>
@@ -52,9 +52,9 @@
 <script type="text/javascript">
 	function fn_writeArticle(){
 		var title = $('input[name=title]').val();
+		var content = $('textarea[name=content]').val();
 		var writeMemberId = $('input[name=writeMemberId]').val();
 		var isNotice = $('input[name=noticeChkFlag]').val();
-		var content = $('textarea[name=content]').val();
 		var enforcementDate = new Date("2019-08-17T09:38:51.249Z");
 		var expirationDate = new Date("2019-09-10T09:38:51.249Z");
 		var data = {};
@@ -75,7 +75,7 @@
 		
 		$.ajax({
 			type : "post",
-			url : "/board/WrtiteArticle.do",
+			url : "/board/article",
 			headers : {
 				"Content-Type" : "application/json"
 			},
@@ -83,7 +83,7 @@
 			data : sendData
 			}).done(function(data){
 				alert(data.msg);
-				$(location).attr('href',data.redircet);
+				$(location).attr('href',data.redirect);
 			});
 	}
 	

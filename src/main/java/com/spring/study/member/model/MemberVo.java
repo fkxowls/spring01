@@ -3,7 +3,7 @@ package com.spring.study.member.model;
 public class MemberVo {
 	String memberId;
     String memberPwd;
-    int memberLevel; //0:관리자, 1:그 외 회원
+    String memberLevel; 
 
 	public String getMemberId() {
 		return memberId;
@@ -17,10 +17,10 @@ public class MemberVo {
 	public void setMemberPwd(String memberPwd) {
 		this.memberPwd = memberPwd;
 	}
-	public int getMemberLevel() {
+	public String getMemberLevel() {
 		return memberLevel;
 	}
-	public void setMemberLevel(int memberLevel) {
+	public void setMemberLevel(String memberLevel) {
 		this.memberLevel = memberLevel;
 	}
     

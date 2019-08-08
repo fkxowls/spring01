@@ -136,7 +136,7 @@
  			<c:if test="${hasNext}">
  				<button type="button" id="moreContent"  data-next-page="1" onClick="getMoreContents(this);">More ~ HasNext</button>
  			</c:if>
- 			<a class="cls1" href="${contextPath}/board/writeArticleForm.do"><p class=cls2>글쓰기</p></a>
+ 			<a class="cls1" href="${writeArticleForm }"><p class=cls2>글쓰기</p></a>
  		</div>
  	</li>
 </ul>
@@ -190,10 +190,9 @@ function viewArticle(articleId) {
 	$.ajax({
 		type: 'get', 
 		url : '/board/'+articleId
-	}).done(function(result){
-		
 	})
-}
+	
+	}
 
 
 /*

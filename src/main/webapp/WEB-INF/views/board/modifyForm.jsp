@@ -49,8 +49,8 @@
 			</tr>
 			<tr>
 				<td align="right">공지글 여부</td>
-				<td colspan="2"><input type="radio" name="noticeChkFlag"
-					value="1">공지글 <input type="radio" name="noticeChkFlag"
+				<td colspan="2"><input type="radio" name="isNotice"
+					value="1">공지글 <input type="radio" name="isNotice"
 					value="0">일반글</td>
 			</tr>
 			<tr>
