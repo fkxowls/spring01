@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -289,20 +290,28 @@ public class RestApiController {
 		//이 아래로 아직안함
 		@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.DELETE)
 		public @ResponseBody Map<String, Object> deleteArticle(@RequestBody ArticleVo articleVo) {
-			Map<String, Object> result = new HashMap<>();
+			Map<String, Object> resultState = new HashMap<>();
 			
 			//예외처리 구체적으로
 			try {
 				articleService.deleteArticle(articleVo);
-				result.put("msg",HttpStatus.OK);
-				result.put("url","/board/listArticleForm");
-			} catch (Exception e) {
-				result.put("msg", "댓글이 달린 글은 삭제할 수 없습니다.");
-				result.put("code", HttpStatus.CONFLICT);
+				resultState.put("msg",HttpStatus.OK);
+				resultState.put("path","/board/listArticleForm");
+			} catch (DataIntegrityViolationException e) {
+				resultState.put("msg", "댓글이 달린 글은 삭제할 수 없습니다.");
+				resultState.put("code", HttpStatus.CONFLICT);
 				e.printStackTrace();
-			}
+			}  catch (NotFoundException e) {
+				resultState.put("msg", e.getMessage());
+				resultState.put("code", HttpStatus.NOT_FOUND);
+				e.printStackTrace();
+			} catch (Exception e) {
+				resultState.put("msg", e.getMessage());
+				resultState.put("code", HttpStatus.SERVICE_UNAVAILABLE);
+				e.printStackTrace();
+			} 
 
-			return result;
+			return resultState;
 		}
 		
 	
