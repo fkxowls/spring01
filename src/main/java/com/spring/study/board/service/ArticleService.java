@@ -172,9 +172,9 @@ public class ArticleService {
 		return commentPageList;
 	}
 	
-	public CommentPageList getCommentsPageList(String articleId, int commentsPage, String userId) {
+	public CommentPageList getCommentsPageList(String articleId, int commentsPage, String userId, String articleWriterId) {
 		//final String userId = user.getMemberId();
-		String articleWriterId = commentDao.getWriterOfArticle(articleId);
+		//String articleWriterId = commentDao.getWriterOfArticle(articleId);
 		
 		CommentsRequestDto commentsRequestDto = new CommentsRequestDto(articleId, commentsPage, userId);
 		commentsRequestDto.setArticleId(articleId);

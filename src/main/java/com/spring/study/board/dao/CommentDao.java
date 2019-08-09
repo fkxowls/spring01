@@ -28,24 +28,17 @@ public class CommentDao {
 		
 		return false;
 	}
-	/*****************************
-	최종적으로 CommentsRequestDto로 받는 메서드만 남겨야함
-	*****************************/
+	
 	public CommentPageList commentsList(CommentsRequestDto commentDto) {
 		CommentsVo vo = new CommentsVo(commentDto.getCommentsPage());
 		vo.setArticleId(commentDto.getArticleId());
 		vo.setStartNum(commentDto.getStartNum());
 		vo.setEndNum(commentDto.getEndNum());
-		
+				
 		List<CommentsVo> commentList = sqlSession.selectList("mapper.comment.listComment", vo);
-		
 		return new CommentPageList(commentDto.getCommentsPage(), commentDto.getPageSize(), commentList); 
 	}
-	
-	public List<CommentsVo> commentsList(String articleIds) {
-		return sqlSession.selectList("mapper.comment.listComment", articleIds);
-	}
-	
+		
 	public int writeComment(CommentsRequestDto crd,  Member member) {
 		CommentsVo vo = new CommentsVo();	
 		vo.setWriteMemberId(member.getMemberId());

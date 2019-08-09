@@ -10,6 +10,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -210,7 +211,7 @@ public class RestApiController {
 		@RequestMapping(value = "/board/modifyForm")
 		public String moveModificationForm(@ModelAttribute ArticleVo articleVo, Model model, Member user) {
 			
-			if(user.isLogin()) {
+			if(null == user) {
 				articleService.isEqualsWriterId(articleVo, user);
 				model.addAttribute("articleVo", articleVo);
 			}else {
@@ -269,16 +270,17 @@ public class RestApiController {
 		}
 		//글작성자를 어떻게 보내야 하는가..... 해당 글번호로 조회해서 글작성자 아이디를 가져온다?? 
 		@RequestMapping(value = "/board/{articleId}/comments/{commentsPage}")
-		public @ResponseBody CommentPageList getCommentsList(@PathVariable("articleId") String articleId, @PathVariable("commentsPage") int commentsPage, Member user) {
+		public @ResponseBody CommentPageList getCommentsList(@RequestParam("writeMemberId") String articleWriterId, @PathVariable("articleId") String articleId, @PathVariable("commentsPage") int commentsPage, Member user) {
 			CommentPageList commentPageList = new CommentPageList();
 			String userId;
 			
-			if(user.isLogin()) {
+			if(null != user) {
 				userId = user.getMemberId();
-				commentPageList = articleService.getCommentsPageList(articleId, commentsPage, userId);
-			}else {
+				commentPageList = articleService.getCommentsPageList(articleId, commentsPage, userId, articleWriterId);
+			}else {//여기 수정해야함
+				System.out.println("aaaa");
 				userId ="";
-				commentPageList = articleService.getCommentsPageList(articleId, commentsPage, userId);
+				commentPageList = articleService.getCommentsPageList(articleId, commentsPage, userId, articleWriterId);
 			}
 			
 			
