@@ -66,14 +66,7 @@ public class ArticleDao extends BaseDao {
 
 		return false;
 	}
-
-	// 얘는 commentDAO로 빼야함
-	/*
-	 * public boolean isExistsComment(String replyId) { String result =
-	 * sqlSession.selectOne("mapper.comment.isExistComment", replyId);
-	 * 
-	 * return false; }
-	 */
+	
 	// 순수 게시글 리스트만 가져오는 DAO 페이징정보 DAO는 getArticleByTotalCount/getArticleByHasNext
 	// @AddComments
 	public List<ArticleVo> ListArticle(CommonRequestDto vo) {
@@ -92,9 +85,9 @@ public class ArticleDao extends BaseDao {
 
 	}
 
-	public void updateArticle(ArticleVo articleVo) {
+	public void updateArticle(ArticleVo articleVo, Date curDate) {
+		articleVo.setModifyDate(curDate);
 		sqlSession.update(mapper + "updateArticle", articleVo);
-
 	}
 
 	public int getTotalArticles() {
@@ -128,14 +121,6 @@ public class ArticleDao extends BaseDao {
 		}
 		return false;
 	}
-
-	/*
-	 * public int insertComment(ArticleReplyVo replyVo) {
-	 * logger.info("=================== 		DAO insertComment:{}"); return
-	 * sqlSession.insert("mapper.comment.insertComment", replyVo);
-	 * 
-	 * }
-	 */
 
 	// hasNext ArticleList
 	public List<ArticleVo> ArticleList(HasNextPaging vo) {
@@ -238,7 +223,7 @@ public class ArticleDao extends BaseDao {
 
 		return list;
 	}
-	
+	//util패키지를 만들어서 거기로 빼야하나???
 	private boolean compareExpireDate(String curDate, String expireDate) {
 		if(null == expireDate) { expireDate = "0"; }
 		

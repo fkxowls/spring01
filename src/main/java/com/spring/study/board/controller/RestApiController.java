@@ -42,14 +42,8 @@ import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 
 /***		
 	해야할 것
-1.글수정폼 
-2.글쓰기
-3.글 수정
 4.공지글 목록
 5.내가 쓴글 보기
-6.공지글 볼때 등급낮아서 팅겨내는 로직 다시 하기
-
-
 ***/		
 
 @Controller
@@ -104,35 +98,35 @@ public class RestApiController {
 		@RequestMapping(value = "/board/{articleId}", method = RequestMethod.GET)
 		public String viewArticle(Model model, @PathVariable String articleId, Member member) {
 			ArticleVo articleVo = new ArticleVo();
-			Map<String, Object> resultStatus = new HashMap<>();
+			Map<String, Object> resultState = new HashMap<>();
 			String returnURI = "";
 			
 			//view단에서 어떻게 받아야함???
 			try {
 				articleVo = articleService.getArticleContents(articleId, member);
-				resultStatus.put("code",HttpStatus.OK);
-				resultStatus.put("msg", "로그인 성공");	
+				resultState.put("code",HttpStatus.OK);
+				resultState.put("msg", "로그인 성공");	
 				
 				model.addAttribute("articleVo", articleVo);				
 				returnURI = "board/viewArticle";
 			} catch (SQLException e) {
 				//returnURI = "/board/listArticleForm";
-				resultStatus.put("code", HttpStatus.FORBIDDEN);
-				resultStatus.put("msg", e.getMessage());
-				resultStatus.put("redirect","/board/listArticleForm");
+				resultState.put("code", HttpStatus.FORBIDDEN);
+				resultState.put("msg", e.getMessage());
+				resultState.put("redirect","/board/listArticleForm");
 				e.printStackTrace();
 			} catch (NotFoundException e) {
 				//returnURI = "reirect:/member/loginForm.do";
-				resultStatus.put("code", HttpStatus.UNAUTHORIZED);
-				resultStatus.put("msg", e.getMessage());
-				resultStatus.put("redirect","/member/loginForm.do");
+				resultState.put("code", HttpStatus.UNAUTHORIZED);
+				resultState.put("msg", e.getMessage());
+				resultState.put("redirect","/member/loginForm.do");
 				e.printStackTrace();
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
-				model.addAttribute("resultStatus", resultStatus);
-				model.addAttribute("modifyFormPath","/board/"+articleId);
-				model.addAttribute("replyFormPath","/board/"+articleId+"/reply");
+				model.addAttribute("resultState", resultState);
+				model.addAttribute("modificationForm","/board/modifyForm");
+				model.addAttribute("replyFormPath","/board/replyForm?articleId"+articleId);
 				model.addAttribute("articleDeletePath","/board/"+articleId);
 				//댓글리스트,댓글입력 주소도 여기서??
 			}
@@ -140,27 +134,32 @@ public class RestApiController {
 			return returnURI;
 		}
 		
-		@RequestMapping(value = {"/board/writeArticleForm", "/board/writeReplyForm"})
-		public String writeForm(@RequestParam(required=false) String articleId, Model model, Member member, HttpServletRequest req) {
-			ArticleVo articleVo = new ArticleVo();
+		@RequestMapping(value = {"/board/writeArticleForm", "/board/replyForm"})
+		public String moveWriteForm(@RequestParam(required = false) String articleId, Model model, Member user, HttpServletRequest req) {
+			ArticleVo returnVo = new ArticleVo();
 			
 			//if(!member.isLogin()) { return "redirect:/member/loginForm"; }
-			if(member == null) { return "redirect:/member/loginForm"; }
+			if(user == null) { return "redirect:/member/loginForm"; }
 			
 			if(req.getRequestURI().equals("/board/writeReplyForm")) {
 				//[답글]: ㅇㅇㅇㅇ 으로 제목을 지정하려면 db로 조회해서 ?? 아니면 파라미터로 제목만 보낸다?? 
-				articleVo.setArticleId(articleId);				
+				returnVo.setArticleId(articleId);				
+				returnVo.setTitle("[Re]: ");
+				
+				model.addAttribute("returnVo", returnVo);
+				model.addAttribute("path", "/board/"+articleId+"reply");
+			}else {
+				model.addAttribute("path","/board/article");
 			}
-			articleVo.setwriteMemberId(member.getMemberId());
 			
-			model.addAttribute("articleVo",articleVo);
-			//model.addAttribute("uri","/board/article");
+			model.addAttribute("writeMemberId", user.getMemberId());
 			return "board/addArticleForm";
 		}
 		
 		@RequestMapping(value = "/board/article", method = RequestMethod.POST)
 		public @ResponseBody Map<String, Object> writeArticle(@RequestBody ArticleVo articleVo, HttpServletRequest req){
 			Map<String, Object> resultMap = new HashMap<>();
+			
 			try {
 				req.setCharacterEncoding("utf-8");
 			} catch (UnsupportedEncodingException e) {
@@ -168,6 +167,7 @@ public class RestApiController {
 			}
 			//String articleId = articleService.giveArticleId();
 			String writenArticleId = articleService.writeArticle(articleVo);
+		
 			resultMap.put("code", HttpStatus.OK);
 			resultMap.put("msg", "글 등록이 완료되었습니다.");
 			resultMap.put("redirect", "/board" + writenArticleId);
@@ -175,83 +175,15 @@ public class RestApiController {
 			return resultMap;
 		}
 		
-		@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.PUT)
-		public @ResponseBody Map<String, Object> modifyArticle(@RequestBody ArticleVo articleVo,
-				@PathVariable String articleNo, Member member) {
-			Map<String, Object> result = new HashMap<>();
-
-			try {
-				articleService.modifyArticle(articleVo, member);
-				result.put("code",HttpStatus.OK);
-			} catch (NotFoundException e) {
-				result.put("msg", e.getMessage());
-				result.put("code", HttpStatus.NOT_FOUND);
-				e.printStackTrace();
-			} catch (NullPointerException e) {
-				result.put("msg", e.getMessage());
-				result.put("code", HttpStatus.FORBIDDEN);
-				e.printStackTrace();
-			} catch (Exception e) {
-				result.put("msg", e.getMessage());
-				result.put("code", HttpStatus.SERVICE_UNAVAILABLE);
-				e.printStackTrace();
-			}  finally {
-				result.put("redirect", "/board/viewArticle.do?articleId=" + articleVo.getArticleId());
-			}
-
-			return result;
-		}
-		
-		@RequestMapping(value = "/board/{articleNo}/comment", method = RequestMethod.POST)
-		public @ResponseBody Map<String, Object> writeComment(@RequestBody CommentsRequestDto commentsRequestDto, Member member) {
-			Map<String, Object> returnMap = new HashMap<>();
-
-			System.out.println(member.getMemberId());
-			try {
-				String msg = articleService.writeComment(commentsRequestDto, member);
-				returnMap.put("code",HttpStatus.OK);
-				returnMap.put("msg",msg);
-			} catch (NotFoundException e) {
-				returnMap.put("code", HttpStatus.NOT_FOUND);
-				returnMap.put("msg",e.getMessage());
-				e.printStackTrace();
-			} catch (Exception e) {
-				returnMap.put("code", HttpStatus.SERVICE_UNAVAILABLE);
-				returnMap.put("msg", "알 수 없는 오류가 발생 했습니다. 다시 시도 해주세요");
-				e.printStackTrace();
-			}
-				return returnMap;
-		}
-		//글작성자를 어떻게 보내야 하는가..... 해당 글번호로 조회해서 글작성자 아이디를 가져온다?? 
-		@RequestMapping(value = "/board/{articleId}/comments/{commentsPage}", method = RequestMethod.GET, produces = "application/json; charset=utf8")
-		public @ResponseBody CommentPageList getCommentsList(@PathVariable("articleId") String articleId, @PathVariable("commentsPage") int commentsPage, Member user) {
-			CommentPageList commentPageList = new CommentPageList();
-			String userId;
-			
-			if(user.isLogin()) {
-				userId = user.getMemberId();
-				commentPageList = articleService.getCommentsPageList(articleId, commentsPage, userId);
-			}else {
-				userId ="";
-				commentPageList = articleService.getCommentsPageList(articleId, commentsPage, userId);
-			}
-			
-			
-			return commentPageList;
-		}
-		
-		
-		//이 아래로 아직안함
 		@RequestMapping(value = "/board/{parentId}/reply", method = RequestMethod.POST)
 		public @ResponseBody Map<String,Object> writeReply(@RequestBody ArticleVo articleVo, @PathVariable String parentId) {
 			Map<String, Object> result = new HashMap<>();
 
-			if(5 != parentId.length()) { // TODO 시퀀스는 5자리가 보장되도록 작업 해줄 것
+			if(5 != parentId.length()) { 
 				result.put("code", HttpStatus.BAD_REQUEST);
 				result.put("msg", "입력 값이 올바르지 않습니다. 다시 확인 해주세요.");
 				return result;
 			}
-			
 			articleVo.setParentId(parentId);
 			
 			try {
@@ -275,6 +207,84 @@ public class RestApiController {
 			return result;
 		}
 		
+		@RequestMapping(value = "/board/modifyForm")
+		public String moveModificationForm(@ModelAttribute ArticleVo articleVo, Model model, Member user) {
+			
+			if(user.isLogin()) {
+				articleService.isEqualsWriterId(articleVo, user);
+				model.addAttribute("articleVo", articleVo);
+			}else {
+				return "redirect:/member/loginForm";
+			}
+			
+			return "board/modifyForm";
+		}
+		
+		@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.PUT)
+		public @ResponseBody Map<String, Object> modifyArticle(@RequestBody ArticleVo articleVo,
+				@PathVariable String articleNo, Member member) {
+			Map<String, Object> resultState = new HashMap<>();
+
+			try {
+				articleService.modifyArticle(articleVo, member);
+				resultState.put("code",HttpStatus.OK);
+			} catch (NotFoundException e) {
+				resultState.put("msg", e.getMessage());
+				resultState.put("code", HttpStatus.NOT_FOUND);
+				e.printStackTrace();
+			} catch (NullPointerException e) {
+				resultState.put("msg", e.getMessage());
+				resultState.put("code", HttpStatus.FORBIDDEN);
+				e.printStackTrace();
+			} catch (Exception e) {
+				resultState.put("msg", e.getMessage());
+				resultState.put("code", HttpStatus.SERVICE_UNAVAILABLE);
+				e.printStackTrace();
+			}  finally {
+				resultState.put("redirect", "/board/viewArticle.do?articleId=" + articleVo.getArticleId());
+			}
+
+			return resultState;
+		}
+		
+		@RequestMapping(value = "/board/{articleNo}/comments", method = RequestMethod.POST)
+		public @ResponseBody Map<String, Object> writeComment(@RequestBody CommentsRequestDto commentsRequestDto, Member member) {
+			Map<String, Object> returnMap = new HashMap<>();
+
+			System.out.println(member.getMemberId());
+			try {
+				String msg = articleService.writeComment(commentsRequestDto, member);
+				returnMap.put("code",HttpStatus.OK);
+				returnMap.put("msg",msg);
+			} catch (NotFoundException e) {
+				returnMap.put("code", HttpStatus.NOT_FOUND);
+				returnMap.put("msg",e.getMessage());
+				e.printStackTrace();
+			} catch (Exception e) {
+				returnMap.put("code", HttpStatus.SERVICE_UNAVAILABLE);
+				returnMap.put("msg", "알 수 없는 오류가 발생 했습니다. 다시 시도 해주세요");
+				e.printStackTrace();
+			}
+				return returnMap;
+		}
+		//글작성자를 어떻게 보내야 하는가..... 해당 글번호로 조회해서 글작성자 아이디를 가져온다?? 
+		@RequestMapping(value = "/board/{articleId}/comments/{commentsPage}")
+		public @ResponseBody CommentPageList getCommentsList(@PathVariable("articleId") String articleId, @PathVariable("commentsPage") int commentsPage, Member user) {
+			CommentPageList commentPageList = new CommentPageList();
+			String userId;
+			
+			if(user.isLogin()) {
+				userId = user.getMemberId();
+				commentPageList = articleService.getCommentsPageList(articleId, commentsPage, userId);
+			}else {
+				userId ="";
+				commentPageList = articleService.getCommentsPageList(articleId, commentsPage, userId);
+			}
+			
+			
+			return commentPageList;
+		}
+		//이 아래로 아직안함
 		@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.DELETE)
 		public @ResponseBody Map<String, Object> deleteArticle(@RequestBody ArticleVo articleVo) {
 			Map<String, Object> result = new HashMap<>();

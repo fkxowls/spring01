@@ -41,32 +41,26 @@ public class ArticleService {
 	@Autowired
 	private CommentDao commentDao;
 
-	///
 	public ArticleVo getArticleContents(String articleId, Member member) throws Exception {
-		// 공지글 수는 전체글수에 비해 엄청 적으니까 공지글테이블에 있는 글번호인지 확인
 		boolean isNoticeId = articleDao.isNoticeId(articleId);
 		ArticleVo returnVo = null;
 
 		if (isNoticeId) {// 공지글 테이블에 글이있을 시
-			//이것도 체크해야함
-			String userLevel = member.getMemberLevel();
-
-			// session에 멤버정보가 없다 = 로그인 x인 상태 = 예외발생시켜서 로그인페이지로 보낸다
 			if (null == member) {
 				throw new NotFoundException("로그인 후 이용가능합니다");
 			}
+			String userLevel = member.getMemberLevel();
 			//userLevel = articleDao.getMemberLevel(member);
 			/*
 			 * if (0 == memberLevel) { throw new NotFoundException("로그인 후 이용가능합니다"); }
 			 */
-			if (CommonCode.USER_LEVEL_CD_BRONZE.getCode().equals(userLevel)) {
-			//if (20 == userLevel || 10 == userLevel) {
+			if (CommonCode.USER_LEVEL_CD_NOMAL.getCode().equals(userLevel)) {
 				throw new SQLException("우수회원부터 접근 가능합니다");
 			} else {
 				returnVo = articleDao.viewArticle(articleId);
 			}
 
-		} else {// 공지글 테이블에 글이 없을때 = 그냥 일반 글 일 때
+		} else {
 			returnVo = articleDao.viewArticle(articleId);
 		}
 
@@ -96,16 +90,10 @@ public class ArticleService {
 		return articleId;
 	}
 
-	public void modifyArticle(ArticleVo articleVo, Member memberDTO) throws Exception {
-
-		try {
-			String userId = memberDTO.getMemberId();
-			// 수정자 입력
-			articleVo.setModifyMemberId(userId);
-			// 널포인트 체크는 try문 쓰지말고 if로 처리
-		} catch (NullPointerException e) {
-			throw new NullPointerException("로그인 세션 만료");
-		}
+	public void modifyArticle(ArticleVo articleVo, Member user) throws Exception {
+		if(user == null) {	throw new NullPointerException("로그인 세션 만료"); }
+		String userId = user.getMemberId();
+		articleVo.setModifyMemberId(userId);
 
 		boolean isExistsArticle = articleDao.isExistsArticle(articleVo.getArticleId());
 
@@ -117,9 +105,8 @@ public class ArticleService {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date curDate = new Date();
 
-		articleVo.setModifyDate(curDate);
 		System.out.println(articleVo.getModifyDate() + "--====---=-=-=-=-=-===-=-=");
-		articleDao.updateArticle(articleVo);
+		articleDao.updateArticle(articleVo, curDate);
 	}
 
 	public void deleteArticle(ArticleVo vo) throws Exception {
@@ -272,20 +259,12 @@ public class ArticleService {
 		return resp;
 	}
 
-	public boolean isEqualsWriterId(ArticleVo articleVo, Member sessionMemberInfo) {
-		String userId = "";
-		try {
-			userId = sessionMemberInfo.getMemberId();
-		} catch (NullPointerException e) {
-			throw new NullPointerException("해당 작성자만 접근 가능합니다(로그인 해주세요)");
-		}
+	public boolean isEqualsWriterId(ArticleVo articleVo, Member user) {
+		if(user.getMemberId().equals(articleVo.getwriteMemberId())) {
+			return true;
+		}	
 
-		if (!articleVo.getwriteMemberId().equals(userId)) {
-
-			return false;
-		}
-
-		return true;
+		return false;
 	}
 
 	public int getTotalArticles() {
