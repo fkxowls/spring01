@@ -22,13 +22,13 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.condition.RequestConditionHolder;
 
-import com.spring.study.board.controller.AticleController;
+import com.spring.study.board.controller.OldAticleController;
 import com.spring.study.board.model.ArticleVo;
 import com.spring.study.board.service.ArticleService;
 import com.spring.study.member.model.Member;
 
 public class IdCheckAspect {
-	private static final Logger logger = LoggerFactory.getLogger(AticleController.class);
+	private static final Logger logger = LoggerFactory.getLogger(OldAticleController.class);
 
 	public Object idCheck(ProceedingJoinPoint joinPoint) {
 

@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.spring.study.board.controller.AticleController;
+import com.spring.study.board.controller.OldAticleController;
 import com.spring.study.comment.model.CommentPageList;
 import com.spring.study.comment.model.CommentsRequestDto;
 import com.spring.study.comment.model.CommentsVo;
@@ -17,7 +17,7 @@ import com.spring.study.member.model.Member;
 
 @Repository("commentDAO")
 public class CommentDao {
-	private static final Logger logger = LoggerFactory.getLogger(AticleController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ArticleController.class);
 	private static String mapper = "mapper.article";
 	
 	@Autowired

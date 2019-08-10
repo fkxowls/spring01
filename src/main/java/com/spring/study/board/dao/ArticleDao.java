@@ -26,8 +26,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spring.study.board.controller.AticleController;
-import com.spring.study.board.model.ArticleVo;
+import com.spring.study.board.controller.ArticleController;import com.spring.study.board.model.ArticleVo;
 import com.spring.study.board.model.CommonRequestDto;
 import com.spring.study.board.model.HasNextPaging;
 import com.spring.study.board.model.NoticeArticleVo;
@@ -38,7 +37,7 @@ import com.spring.study.member.model.Member;
 @Repository("articleDAO")
 public class ArticleDao extends BaseDao {
 	private static final Format fdf = FastDateFormat.getInstance("yyyyMMdd", Locale.getDefault());
-	private static final Logger logger = LoggerFactory.getLogger(AticleController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ArticleController.class);
 	private static String mapper = "mapper.article."; // TODO .을 여기로 옮겨오고, 이름에서는 .을 맨 앞에꺼 뺀다
 
 	@Autowired
@@ -67,7 +66,6 @@ public class ArticleDao extends BaseDao {
 		return false;
 	}
 	
-	// 순수 게시글 리스트만 가져오는 DAO 페이징정보 DAO는 getArticleByTotalCount/getArticleByHasNext
 	@AddComments
 	public List<ArticleVo> ListArticle(CommonRequestDto vo) {
 

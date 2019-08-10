@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.spring.study.board.controller.AticleController;
+import com.spring.study.board.controller.OldAticleController;
 import com.spring.study.board.dao.ArticleDao;
 import com.spring.study.board.model.ArticleVo;
 import com.spring.study.board.model.CommonRequestDto;
@@ -31,7 +31,7 @@ import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 @Service("ArticleService")
 public class ArticleService {
 
-	private static final Logger logger = LoggerFactory.getLogger(AticleController.class);
+	private static final Logger logger = LoggerFactory.getLogger(OldAticleController.class);
 	private static final int commentPageSize = 10;
 
 
