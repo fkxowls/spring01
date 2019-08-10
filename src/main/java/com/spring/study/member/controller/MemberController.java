@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 
-import com.spring.study.board.controller.AticleController;
+import com.spring.study.board.controller.OldAticleController;
 import com.spring.study.member.model.MemberVo;
 import com.spring.study.member.model.Member;
 import com.spring.study.member.service.MemberService;
@@ -25,7 +25,7 @@ import com.spring.study.member.service.MemberService;
 @Controller
 @SessionAttributes("memberSession")
 public class MemberController {
-	private static final Logger logger = LoggerFactory.getLogger(AticleController.class);
+	private static final Logger logger = LoggerFactory.getLogger(OldAticleController.class);
 
 	@Autowired
 	MemberService memberService;

@@ -12,8 +12,8 @@
 <script  src="http://code.jquery.com/jquery-latest.min.js"></script>
 </head>
 <body>
-	<form name="frmArticle" method="post"
-		action="/board/modifyForm.do?articleId=${articleVo.articleId}">
+	<form name="frmArticle" method="get"
+		action="${modificationForm }">
 		<table border=0 align="center">
 
 			<tr>
@@ -45,38 +45,13 @@
 					<input type="submit" value="수정하기" <%-- onClick="fn_modifyForm('${articleVo.articleId}','${articleVo.writeMemberId }')" --%>>
 					<input type="button" value="삭제하기" onClick="fn_delete('${articleVo.articleId}','${memberSession.memberId }')"> 
 					<input type=button value="리스트로 돌아가기">
-					<input type=button value="답글쓰기" onClick="fn_reply('${articleVo.articleId}')">
+					<input type=button value="답글쓰기" onClick="fn_reply('${replyFormPath}')">
 				</td>
 			</tr>
 		</table>
 	</form>
 </body>
 <script type="text/javascript">
-
-	function fn_modifyForm(articleId,writeMemberId){
-		alert(writeMemberId);
-		frmArticle.action = "${contextPath}/board/modifyForm.do?writeMemberId="+writeMemberId+"&articleId="+articleId;
-		frmArticle.submit();
-		/* var data = {};
-		data.articleId = articleId;
-		data.writeMemberId = writeMemberId;
-		var sendData = JSON.stringify(data);
-		
-		$.ajax({
-			type: 'post',
-			url : '${contextPath}/board/modifyForm.do',
-			headers : {
-				"Content-Type" : "application/json"
-			},
-			dataType : 'json',
-			data : sendData
-		}).done(function(data){
-			alert(data.msg);
-			$(location).attr('href', data.redirect);
-		}); */
-		
-	}
-
 	function fn_delete(articleId,sessionId) {
 		var data = {};
 		data.articleId = articleId;
@@ -97,10 +72,10 @@
 		});
 	}
 
-	function fn_reply(num) {
+	function fn_reply(path) {
 		var title = $('#title').val();
 		alert(title);
-		frmArticle.action = "/board/writeReplyForm.do?articleId="+num+"&title="+title;
+		frmArticle.action = path;
 		frmArticle.submit();
 	}
 
@@ -119,7 +94,7 @@
 		
 		$.ajax({
 			type : 'get',
-            url : '${contextPath}/board/commentList.do?articleId='+articleId+'&commentsPage='+commentsPage+'&writeMemberId='+writeMemberId,
+            url : '/board/'+articleId+'/comments/'+commentsPage+"?writeMemberId="+writeMemberId,
             dataType : 'json',
             data : $('#commentForm').serialize(),
             contentType : "application/json; charset=UTF-8",
@@ -158,7 +133,7 @@
 
 		$.ajax({
 			type : "post",
-			url : "${contextPath}/board/writeComment.do",
+			url : "/board/"+articleId+"/comments",
 			headers : {
 				"Content-Type" : "application/json"
 			},

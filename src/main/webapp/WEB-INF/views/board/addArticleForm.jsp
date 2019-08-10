@@ -20,13 +20,19 @@
     <table border="0" align="center">
       <tr>
 					<td align="right"> 작성자</td>
-					<td colspan=2  align="left"><input type="text" size="20" maxlength="100" name="writeMemberId" value="${articleVo.writeMemberId }" readOnly/> </td>
+					<td colspan=2  align="left"><input type="text" size="20" maxlength="100" name="writeMemberId" value="${writeMemberId }" readOnly/> </td>
 			</tr>
 
 	     <tr>
 			   <td align="right">글제목: </td>
-			   <td colspan="2"><input type="text" size="67"  maxlength="500" id="title" name="title" /></td>
+			   <c:if test="${null == returnVo }">
+			   <td colspan="2"><input type="text" size="67"  maxlength="500" id="title" name="title"/></td>
+		      </c:if>
+		      <c:if test="${null != returnVo }">
+               <td colspan="2"><input type="text" size="67"  maxlength="500" id="title" name="title" value="${returnVo.title }"/></td>
+              </c:if>
 		 </tr>
+		 <c:if test="${null == returnVo}">
 		 <tr>
 			   <td align="right">공지글 여부 </td>
 			   <td colspan="2">
@@ -34,6 +40,7 @@
 			   		<input type="radio" name="isNotice" value="false">일반글
 			   </td>
 		 </tr>
+		 </c:if>
 	 		<tr>
 				<td align="right" valign="top"><br>글내용: </td>
 				<td colspan=2><textarea id="content" name="content" rows="10" cols="65" maxlength="4000"></textarea> </td>

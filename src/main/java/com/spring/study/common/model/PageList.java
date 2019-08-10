@@ -2,6 +2,7 @@ package com.spring.study.common.model;
 
 import java.util.List;
 
+
 public class PageList<E> {
 	private boolean hasNext = false;	
 	private int page;

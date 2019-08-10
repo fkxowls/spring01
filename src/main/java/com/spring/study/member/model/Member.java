@@ -14,6 +14,7 @@ public class Member {
 	}
 	
 	public boolean isLogin() {
+		
 		return StringUtils.isNotEmpty(this.memberId);
 	}
 	
