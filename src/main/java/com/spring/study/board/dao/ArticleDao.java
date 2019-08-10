@@ -44,8 +44,8 @@ public class ArticleDao extends BaseDao {
 	@Autowired
 	SqlSession sqlSession;
 
-	@AddComments // TODO PageDto인지 List인지 단일VO인지 체크해서 -> 각 VO에 reply 필드에 reply
-	public PageList<ArticleVo> getArticlePageListWithCountAddComments(Object vo) {
+	@AddComments
+	public PageList<ArticleVo> getArticlePageListWithCountAddComments(CommonRequestDto vo) {
 		return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
 	}
 
@@ -68,13 +68,13 @@ public class ArticleDao extends BaseDao {
 	}
 	
 	// 순수 게시글 리스트만 가져오는 DAO 페이징정보 DAO는 getArticleByTotalCount/getArticleByHasNext
-	// @AddComments
+	@AddComments
 	public List<ArticleVo> ListArticle(CommonRequestDto vo) {
 
 		return sqlSession.selectList(mapper + "listArticle2", vo);
 	}
 
-	// @AddComments
+	@AddComments
 	public ArticleVo viewArticle(String aritcleNo) {
 		return sqlSession.selectOne(mapper + "viewArticle", aritcleNo);
 

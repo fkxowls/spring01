@@ -14,9 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
-import com.spring.study.board.dao.CommentDao;
 import com.spring.study.board.model.ArticleVo;
+import com.spring.study.comment.model.CommentPageList;
+import com.spring.study.comment.model.CommentsRequestDto;
 import com.spring.study.comment.model.CommentsVo;
+import com.spring.study.comments.dao.CommentDao;
 import com.spring.study.common.model.PageList;
 
 @Aspect
@@ -29,7 +31,7 @@ public class ArticleAddContentsAspect {
 	
 	@Around("@annotation(com.spring.study.common.aop.AddComments)")
 	public Object addComments(ProceedingJoinPoint joinPoint) {
-
+		System.out.println("aspect");
 		Object returnObj = null;
 		try {
 			returnObj = joinPoint.proceed();
@@ -56,8 +58,9 @@ public class ArticleAddContentsAspect {
 				.map(ArticleVo::getArticleId)
 				.collect(Collectors.joining(","));
 		
-		//TODO ArticleReplyVo 페이징 정보도 담을 수 있게 만들기/ 이왕이면 request/response로 나눠보자
-		List<CommentsVo> commentsList = commentDAO.commentsList(articleNumbers);
+		//코멘트 페이징 정보까지 담는 이유가 코멘트리스트를 페이지 사이즈만큼 가져오려는건가?? 아니면 return에 페이지정보가 있어야하는건가?? 
+		CommentsRequestDto req = new CommentsRequestDto(articleNumbers, 1, 10);
+		CommentPageList commentsPageDto = commentDAO.commentsList(req);
 		
 //		for(ArticleVo ArticleVo : returnList) {
 //			String key = ArticleVo.getArticleNo();
@@ -76,7 +79,7 @@ public class ArticleAddContentsAspect {
 //			}
 //		}
 		
-		Map<String, List<CommentsVo>> commentsListByArticleId = commentsList.stream()
+		Map<String, List<CommentsVo>> commentsListByArticleId = commentsPageDto.getCommentsList().stream()
 				.collect(Collectors.groupingBy(CommentsVo::getArticleId));
 		
 		returnList.stream().forEach( vo -> vo.setCommentsList(commentsListByArticleId.get(vo.getArticleId())) );

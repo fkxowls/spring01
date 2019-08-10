@@ -15,12 +15,12 @@ import org.springframework.stereotype.Service;
 
 import com.spring.study.board.controller.AticleController;
 import com.spring.study.board.dao.ArticleDao;
-import com.spring.study.board.dao.CommentDao;
 import com.spring.study.board.model.ArticleVo;
 import com.spring.study.board.model.CommonRequestDto;
 import com.spring.study.comment.model.CommentPageList;
 import com.spring.study.comment.model.CommentsRequestDto;
 import com.spring.study.comment.model.CommentsVo;
+import com.spring.study.comments.dao.CommentDao;
 import com.spring.study.common.model.CommonCode;
 import com.spring.study.common.model.PageList;
 import com.spring.study.member.model.Member;
@@ -32,9 +32,8 @@ import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 public class ArticleService {
 
 	private static final Logger logger = LoggerFactory.getLogger(AticleController.class);
+	private static final int commentPageSize = 10;
 
-	private FastDateFormat fdf = FastDateFormat.getInstance("yyyy-MM-dd");
-	private SimpleDateFormat sdf = new SimpleDateFormat();
 
 	@Autowired
 	private ArticleDao articleDao;
@@ -175,8 +174,7 @@ public class ArticleService {
 	public CommentPageList getCommentsPageList(String articleId, int commentsPage, String userId, String articleWriterId) {
 		//final String userId = user.getMemberId();
 		//String articleWriterId = commentDao.getWriterOfArticle(articleId);
-		
-		CommentsRequestDto commentsRequestDto = new CommentsRequestDto(articleId, commentsPage, userId);
+		CommentsRequestDto commentsRequestDto = new CommentsRequestDto(articleId, commentsPage, commentPageSize, userId);
 		commentsRequestDto.setArticleId(articleId);
 		commentsRequestDto.setCommentsPage(commentsPage);
 
@@ -222,13 +220,15 @@ public class ArticleService {
 	 ****************************************************************************************************
 	 ****************************************************************************************************/
 	public PageList<ArticleVo> getArticlePageListWithCount(CommonRequestDto req) {
-		PageList<ArticleVo> pageList = articleDao.getArticlePageListWithCount(req);
-		return pageList;
+		//PageList<ArticleVo> pageList = articleDao.getArticlePageListWithCount(req);
+		//feed형으로 받을 시
+		PageList<ArticleVo> feedTypePageList = articleDao.getArticlePageListWithCountAddComments(req);
+		return feedTypePageList;
 	}
 
 	public List<ArticleVo> getArticleList(CommonRequestDto req) {
-//		List<ArticleVo> list = articleDao.ListArticle(req);
-		List<ArticleVo> list = articleDao.ListArticleTest(req);
+		List<ArticleVo> list = articleDao.ListArticle(req);
+		//List<ArticleVo> list = articleDao.ListArticleTest(req);
 		return list;
 	}
 
@@ -247,17 +247,6 @@ public class ArticleService {
 	 * 
 	 * return resp; }
 	 */
-
-	// endPage 관련 restAPI 서비스 (FeedType)
-	public PageList<ArticleVo> endPaginationByTotalCount(int page, int pageSize) {
-		CommonRequestDto req = new CommonRequestDto.Builder(page, pageSize).build();
-		PageList<ArticleVo> resp = articleDao.getArticlePageListWithCountAddComments(req);
-
-		// List<ArticleVo> list = articleDAO.ListArticle(req);
-		// int totalCount = articleDAO.getTotalArticles();
-
-		return resp;
-	}
 
 	public boolean isEqualsWriterId(ArticleVo articleVo, Member user) {
 		if(user.getMemberId().equals(articleVo.getwriteMemberId())) {

@@ -16,17 +16,11 @@ public class CommentsRequestDto {
 	public CommentsRequestDto() {
 	
 	}
-	//articleId만 필수요소
+
 	public CommentsRequestDto(String articleId, String content, String secretTypeCd) {
 		this.articleId    = articleId;
-		this.content	  = content;
+		this.content	  = content;//?? 여기에 왜 갑분컨???
 		this.secretTypeCd =secretTypeCd;
-	}
-	
-	public CommentsRequestDto(String articleId, int commentsPage, String writeMemberId) {
-		this.articleId 	      = articleId;
-		this.commentsPage 	  = commentsPage;
-		this.writeMemberId 	  = writeMemberId;
 	}
 	
 	public CommentsRequestDto(String articleId, int commentsPage, int pageSize) {
@@ -34,6 +28,13 @@ public class CommentsRequestDto {
 		this.pageSize 	  = pageSize;
 		this.commentsPage = commentsPage;
 	}
+
+	public CommentsRequestDto(String articleId, int commentsPage, int pageSize, String writeMemberId) {
+		this.articleId 	      = articleId;
+		this.commentsPage 	  = commentsPage;
+		this.writeMemberId 	  = writeMemberId;
+	}
+	
 
 	
 	public void setArticleId(String articleId) {

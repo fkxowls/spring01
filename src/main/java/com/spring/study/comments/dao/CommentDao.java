@@ -1,4 +1,4 @@
-package com.spring.study.board.dao;
+package com.spring.study.comments.dao;
 
 import java.util.List;
 
