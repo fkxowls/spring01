@@ -34,6 +34,7 @@ import com.spring.study.board.service.ArticleService;
 import com.spring.study.comment.model.CommentPageList;
 import com.spring.study.comment.model.CommentsRequestDto;
 import com.spring.study.comment.model.CommentsVo;
+import com.spring.study.comment.service.CommentsService;
 import com.spring.study.common.model.PageList;
 import com.spring.study.member.model.Member;
 
@@ -55,6 +56,8 @@ public class ArticleController {
 
 	@Autowired
 	private ArticleService articleService;
+	@Autowired
+	private CommentsService commentsService;
 	
 	// endPage restAPI
 	@RequestMapping(value = "/board/article/{page}/list")
@@ -255,7 +258,7 @@ public class ArticleController {
 
 		System.out.println(member.getMemberId());
 		try {
-			String msg = articleService.writeComment(commentsRequestDto, member);
+			String msg = commentsService.writeComment(commentsRequestDto, member);
 			returnMap.put("code",HttpStatus.OK);
 			returnMap.put("msg",msg);
 		} catch (NotFoundException e) {
@@ -277,11 +280,11 @@ public class ArticleController {
 		
 		if(null != user) {
 			userId = user.getMemberId();
-			commentPageList = articleService.getCommentsPageList(articleId, commentsPage, userId, articleWriterId);
+			commentPageList = commentsService.getCommentsPageList(articleId, commentsPage, userId, articleWriterId);
 		}else {//여기 수정해야함
 			System.out.println("aaaa");
 			userId ="";
-			commentPageList = articleService.getCommentsPageList(articleId, commentsPage, userId, articleWriterId);
+			commentPageList = commentsService.getCommentsPageList(articleId, commentsPage, userId, articleWriterId);
 		}
 		
 		
