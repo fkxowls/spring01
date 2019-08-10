@@ -189,7 +189,7 @@ public class ArticleController {
 		articleVo.setParentId(parentId);
 		
 		try {
-			String msg = articleService.replyArticle(articleVo);
+			String msg = articleService.writeReply(articleVo);
 			result.put("code",HttpStatus.OK);
 			result.put("msg", msg);
 		} catch (NotFoundException e) {
