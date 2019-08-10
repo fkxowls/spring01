@@ -1,19 +1,9 @@
 package com.spring.study.board.model;
 
 //리퀘스용 DTO
-public class BoardRequestDto extends CommonRequestDto implements Groupable, Cacheable {
+public class BoardRequestDto extends CommonRequestDto {
 	private String boardId;
 
-	@Override
-	public String getGroupId() {
-		return boardId;
-	}
-
-	@Override
-	public String getCacheId() {
-		return boardId;
-	}
-	
 	private BoardRequestDto(Builder builder) { // 리퀘스트 객체
 		super(builder);
 		this.boardId = builder.boardId;

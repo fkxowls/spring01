@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.support.HttpRequestHandlerServlet;
 
+import com.spring.study.board.model.ArticleDto;
 import com.spring.study.board.model.ArticleVo;
 import com.spring.study.board.model.CommonRequestDto;
 import com.spring.study.board.service.ArticleService;
@@ -40,14 +41,6 @@ import com.spring.study.member.model.Member;
 
 import javassist.NotFoundException;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
-
-//AticleController를 REST로 변경 중 
-
-/***		
-	해야할 것
-4.공지글 목록
-5.내가 쓴글 보기
-***/		
 
 @Controller
 public class ArticleController {
@@ -161,8 +154,8 @@ public class ArticleController {
 		return "board/addArticleForm";
 	}
 	
-	@RequestMapping(value = "/board/article", method = RequestMethod.POST)
-	public @ResponseBody Map<String, Object> writeArticle(@RequestBody ArticleVo articleVo, HttpServletRequest req){
+	@RequestMapping(value = "/board/article", method = RequestMethod.POST)//공지글일 경우 시작일과 종료일을 넣어줘야함 articleVo말고 dto를 하나 만들어서 받는게 좋을 듯??
+	public @ResponseBody Map<String, Object> writeArticle(@RequestBody ArticleDto articleDto, HttpServletRequest req){
 		Map<String, Object> resultMap = new HashMap<>();
 		
 		try {
@@ -171,7 +164,7 @@ public class ArticleController {
 			e.printStackTrace();
 		}
 		//String articleId = articleService.giveArticleId();
-		String writenArticleId = articleService.writeArticle(articleVo);
+		String writenArticleId = articleService.writeArticle(articleDto);
 	
 		resultMap.put("code", HttpStatus.OK);
 		resultMap.put("msg", "글 등록이 완료되었습니다.");
@@ -290,12 +283,11 @@ public class ArticleController {
 		
 		return commentPageList;
 	}
-	//이 아래로 아직안함
+
 	@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.DELETE)
 	public @ResponseBody Map<String, Object> deleteArticle(@RequestBody ArticleVo articleVo) {
 		Map<String, Object> resultState = new HashMap<>();
-		
-		//예외처리 구체적으로
+
 		try {
 			articleService.deleteArticle(articleVo);
 			resultState.put("msg",HttpStatus.OK);

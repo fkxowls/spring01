@@ -26,9 +26,10 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spring.study.board.controller.ArticleController;import com.spring.study.board.model.ArticleVo;
+import com.spring.study.board.controller.ArticleController;
+import com.spring.study.board.model.ArticleDto;
+import com.spring.study.board.model.ArticleVo;
 import com.spring.study.board.model.CommonRequestDto;
-import com.spring.study.board.model.HasNextPaging;
 import com.spring.study.board.model.NoticeArticleVo;
 import com.spring.study.common.aop.AddComments;
 import com.spring.study.common.model.PageList;
@@ -77,9 +78,9 @@ public class ArticleDao extends BaseDao {
 		return sqlSession.selectOne(mapper + "viewArticle", aritcleNo);
 
 	}
-
-	public void insertArticle(ArticleVo articleVo) {
-		sqlSession.insert(mapper + "insertArticle", articleVo);
+	//여기서는 Vo로 해야할거같은데 Service단 수정 후 ㄱㄱㄱ
+	public void insertArticle(ArticleDto articleDto) {
+		sqlSession.insert(mapper + "insertArticle", articleDto);
 
 	}
 
@@ -120,17 +121,6 @@ public class ArticleDao extends BaseDao {
 		return false;
 	}
 
-	// hasNext ArticleList
-	public List<ArticleVo> ArticleList(HasNextPaging vo) {
-
-		return sqlSession.selectList(mapper + "listArticle2", vo);
-	}
-
-	public List<ArticleVo> listArticle2(HasNextPaging Vo) {
-
-		return sqlSession.selectList(mapper + "listArticle2", Vo);
-	}
-
 	public String getNextArticleId() {
 
 		return sqlSession.selectOne(mapper + "articleId");
@@ -141,8 +131,13 @@ public class ArticleDao extends BaseDao {
 
 	}
 
-	public void registerNotice(NoticeArticleVo articleVo) {
-		sqlSession.insert(mapper + "registerNotice", articleVo);
+	public void registerNotice(ArticleDto articleDto) {
+		NoticeArticleVo noticeArticleVo = new NoticeArticleVo();
+		noticeArticleVo.setArticleId(articleDto.getArticleId());
+		noticeArticleVo.setStartDate(articleDto.getStartDate());
+		noticeArticleVo.setEndDate(articleDto.getEndDate());
+		
+		sqlSession.insert(mapper + "registerNotice", noticeArticleVo);
 	}
 
 	public List<ArticleVo> getMyArticleList(String userId) {
