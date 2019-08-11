@@ -8,9 +8,9 @@ public class NoticeArticleVo {
 	private String noticeId;
 	private String articleId;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
-	private Date startDate;
+	private Date displayStartDate;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
-	private Date endDate;
+	private Date displayEndDate;
 	
 	public String getNoticeId() {
 		return noticeId;
@@ -24,18 +24,19 @@ public class NoticeArticleVo {
 	public void setArticleId(String articleId) {
 		this.articleId = articleId;
 	}
-	public Date getStartDate() {
-		return startDate;
+	public Date getDisplayStartDate() {
+		return displayStartDate;
 	}
-	public void setStartDate(Date enforcementDate) {
-		this.startDate = enforcementDate;
+	public void setDisplayStartDate(Date enforcementDate) {
+		this.displayStartDate = enforcementDate;
 	}
-	public Date getEndDate() {
-		return endDate;
+	public Date getDisplayEndDate() {
+		return displayEndDate;
 	}
-	public void setEndDate(Date expirationDate) {
-		this.endDate = expirationDate;
+	public void setDisplayEndDate(Date displayEndDate) {
+		this.displayEndDate = displayEndDate;
 	}
+
 	
 	
 }

@@ -16,10 +16,18 @@ public class ArticleDto {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
 	private Date modifyDate;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
-	private Date startDate;
+	private Date displayStartDate;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
-	private Date endDate;
+	private Date displayEndDate;
 	private boolean isNotice;
+	private String articleTypeCd;
+	
+	public String getArticleTypeCd() {
+		return articleTypeCd;
+	}
+	public void setArticleTypeCd(String articleTypeCd) {
+		this.articleTypeCd = articleTypeCd;
+	}
 	public String getArticleId() {
 		return articleId;
 	}
@@ -68,24 +76,26 @@ public class ArticleDto {
 	public void setModifyDate(Date modifyDate) {
 		this.modifyDate = modifyDate;
 	}
-	public Date getStartDate() {
-		return startDate;
+
+	public Date getDisplayStartDate() {
+		return displayStartDate;
 	}
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
+	public void setDisplayStartDate(Date displayStartDate) {
+		this.displayStartDate = displayStartDate;
 	}
-	public Date getEndDate() {
-		return endDate;
+	public Date getDisplayEndDate() {
+		return displayEndDate;
 	}
-	public void setEndDate(Date endDate) {
-		this.endDate = endDate;
+	public void setDisplayEndDate(Date displayEndDate) {
+		this.displayEndDate = displayEndDate;
 	}
 	public boolean isNotice() {
 		return isNotice;
 	}
+	
 	public void setNotice(boolean isNotice) {
 		this.isNotice = isNotice;
 	}
 	
-	
+
 }

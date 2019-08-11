@@ -80,7 +80,14 @@ public class ArticleDao extends BaseDao {
 	}
 	//여기서는 Vo로 해야할거같은데 Service단 수정 후 ㄱㄱㄱ
 	public void insertArticle(ArticleDto articleDto) {
-		sqlSession.insert(mapper + "insertArticle", articleDto);
+		ArticleVo articleVo = new ArticleVo();
+		articleVo.setArticleId(articleDto.getArticleId());
+		articleVo.setTitle(articleDto.getTitle());
+		articleVo.setContent(articleDto.getContent());
+		articleVo.setwriteMemberId(articleDto.getWriteMemberId());
+		articleVo.setWriteDate(new Date());
+		
+		sqlSession.insert(mapper + "insertArticle", articleVo);
 
 	}
 
@@ -134,8 +141,8 @@ public class ArticleDao extends BaseDao {
 	public void registerNotice(ArticleDto articleDto) {
 		NoticeArticleVo noticeArticleVo = new NoticeArticleVo();
 		noticeArticleVo.setArticleId(articleDto.getArticleId());
-		noticeArticleVo.setStartDate(articleDto.getStartDate());
-		noticeArticleVo.setEndDate(articleDto.getEndDate());
+		noticeArticleVo.setDisplayStartDate(articleDto.getDisplayStartDate());
+		noticeArticleVo.setDisplayEndDate(articleDto.getDisplayEndDate());
 		
 		sqlSession.insert(mapper + "registerNotice", noticeArticleVo);
 	}

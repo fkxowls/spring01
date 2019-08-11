@@ -154,7 +154,7 @@ public class ArticleController {
 		return "board/addArticleForm";
 	}
 	
-	@RequestMapping(value = "/board/article", method = RequestMethod.POST)//공지글일 경우 시작일과 종료일을 넣어줘야함 articleVo말고 dto를 하나 만들어서 받는게 좋을 듯??
+	@RequestMapping(value = "/board/article", method = RequestMethod.POST)
 	public @ResponseBody Map<String, Object> writeArticle(@RequestBody ArticleDto articleDto, HttpServletRequest req){
 		Map<String, Object> resultMap = new HashMap<>();
 		

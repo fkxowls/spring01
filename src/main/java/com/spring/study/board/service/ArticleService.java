@@ -68,20 +68,17 @@ public class ArticleService {
 		return returnVo;
 	}
 
-	// 트랜잭션 적용하기 //여기서 일어날 오류??
+	//여기서 일어날 오류??
 	@Transactional(rollbackFor = Exception.class)
 	public String writeArticle(ArticleDto articleDto) {
 		String articleId = this.giveArticleId();
 		articleDto.setArticleId(articleId);
-		//공지 시작날짜를 사용자가 직접 입력해야한다면 - 공지글 작성 - 시작일이 아직 도래하지 않았을때 ? -> 해당 글은 노출 되지않아야함...
-		Date curDate = new Date();
 	
 		articleDao.insertArticle(articleDto);
 
 		// if - NOTICE_TABLE에 데이터 입력중에 ARTICLE테이블에 등록된 글 정보가 꺠진다면?
-		if (true == articleDto.isNotice()) {
-			articleDao.registerNotice(articleDto);//이시점에서 noticeId가 생성 될 필요가 없기때문에 articleDto로 가공없이 통채로 보냄
-												//articleDto은 다량의 필드를 가지고 있음 - 이 dto를 동시에 여러명이 접속하여 주고받을때 부하가 심하게 걸리지 않는지
+		if (CommonCode.ARTICLE_TYPE_CD_NOTICE_N.getCode().equals(articleDto.getArticleTypeCd())) {
+			articleDao.registerNotice(articleDto);//articleDto은 다량의 필드를 가지고 있음 - 이 dto를 동시에 여러명이 접속하여 주고받을때 부하가 심하게 걸리지 않는지
 		}
 
 		return articleId;
