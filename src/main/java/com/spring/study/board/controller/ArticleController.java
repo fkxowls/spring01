@@ -6,16 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,16 +22,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.context.support.HttpRequestHandlerServlet;
 
 import com.spring.study.board.model.ArticleDto;
 import com.spring.study.board.model.ArticleVo;
-import com.spring.study.board.model.CommonRequestDto;
 import com.spring.study.board.service.ArticleService;
 import com.spring.study.comment.model.CommentPageList;
 import com.spring.study.comment.model.CommentsRequestDto;
-import com.spring.study.comment.model.CommentsVo;
 import com.spring.study.comment.service.CommentsService;
+import com.spring.study.common.model.CommonRequestDto;
 import com.spring.study.common.model.PageList;
 import com.spring.study.member.model.Member;
 
@@ -54,15 +48,13 @@ public class ArticleController {
 	
 	// endPage restAPI
 	@RequestMapping(value = "/board/article/{page}/list")
-	public String getFeedTypeArticlesByTotalCount(@PathVariable int page, Model model) {
+	public String getARticleList(@PathVariable int page, Model model) {
 		//Map<String, Object> result = new HashMap<>();
 			
 		CommonRequestDto req = new CommonRequestDto.Builder(page, pageSize).build();
 			
 		if (1 == page) {
 			PageList<ArticleVo> articlePageDto = articleService.getArticlePageListWithCount(req);
-			//result.put("totalPage", String.valueOf(articlePageDto.getTotalPage()));
-			//result.put("articleList", articlePageDto.getList());
 			model.addAttribute("totalPage", articlePageDto.getTotalPage());
 			model.addAttribute("articleList", articlePageDto.getList());
 			//여기서 글상세보기 주소는 article과 1:1관계임 즉 글상세보기uri는 dto에 있어야함?? 그럼 어떻게 처리를하는가..
@@ -81,7 +73,7 @@ public class ArticleController {
 		
 	// hasNext
 	@RequestMapping(value = "/board/article2/{page}/list")
-	public @ResponseBody Map<String, Object> getFeedTypeArticlesByHasNext(Model model, @PathVariable int page) {
+	public @ResponseBody Map<String, Object> getArticleList(Model model, @PathVariable int page) {
 		CommonRequestDto req = new CommonRequestDto.Builder(page, pageSize).useMoreView(true).build();
 	
 		PageList<ArticleVo> articlePageDto = articleService.getArticlePageList(req);

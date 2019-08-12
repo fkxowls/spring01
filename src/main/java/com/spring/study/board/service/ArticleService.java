@@ -18,12 +18,12 @@ import com.spring.study.board.controller.OldAticleController;
 import com.spring.study.board.dao.ArticleDao;
 import com.spring.study.board.model.ArticleDto;
 import com.spring.study.board.model.ArticleVo;
-import com.spring.study.board.model.CommonRequestDto;
+import com.spring.study.comment.dao.CommentDao;
 import com.spring.study.comment.model.CommentPageList;
 import com.spring.study.comment.model.CommentsRequestDto;
 import com.spring.study.comment.model.CommentsVo;
-import com.spring.study.comments.dao.CommentDao;
 import com.spring.study.common.model.CommonCode;
+import com.spring.study.common.model.CommonRequestDto;
 import com.spring.study.common.model.PageList;
 import com.spring.study.member.model.Member;
 
@@ -163,7 +163,7 @@ public class ArticleService {
 	}
 
 	public List<ArticleVo> getArticleList(CommonRequestDto req) {
-		List<ArticleVo> list = articleDao.ListArticle(req);
+		List<ArticleVo> list = articleDao.getListArticleAddComments(req);
 		//List<ArticleVo> list = articleDao.ListArticleTest(req);
 		return list;
 	}
@@ -176,14 +176,7 @@ public class ArticleService {
 	/****************************************************************************************************
 	 ****************************************************************************************************
 	 ****************************************************************************************************/
-	/*
-	 * public PageList<ArticleVo> hasNextPagingMore(int page, int pageSize) {
-	 * CommonRequestDto req = new CommonRequestDto.Builder(page, pageSize).build();
-	 * PageList<ArticleVo> resp = articleDAO.getArticlePageList(req);
-	 * 
-	 * return resp; }
-	 */
-
+	
 	public boolean isEqualsWriterId(ArticleVo articleVo, Member user) {
 		if(user.getMemberId().equals(articleVo.getwriteMemberId())) {
 			return true;

@@ -29,9 +29,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.study.board.controller.ArticleController;
 import com.spring.study.board.model.ArticleDto;
 import com.spring.study.board.model.ArticleVo;
-import com.spring.study.board.model.CommonRequestDto;
 import com.spring.study.board.model.NoticeArticleVo;
 import com.spring.study.common.aop.AddComments;
+import com.spring.study.common.model.CommonRequestDto;
 import com.spring.study.common.model.PageList;
 import com.spring.study.member.model.Member;
 
@@ -39,7 +39,7 @@ import com.spring.study.member.model.Member;
 public class ArticleDao extends BaseDao {
 	private static final Format fdf = FastDateFormat.getInstance("yyyyMMdd", Locale.getDefault());
 	private static final Logger logger = LoggerFactory.getLogger(ArticleController.class);
-	private static String mapper = "mapper.article."; // TODO .을 여기로 옮겨오고, 이름에서는 .을 맨 앞에꺼 뺀다
+	private static String mapper = "mapper.article."; 
 
 	@Autowired
 	SqlSession sqlSession;
@@ -48,7 +48,13 @@ public class ArticleDao extends BaseDao {
 	public PageList<ArticleVo> getArticlePageListWithCountAddComments(CommonRequestDto vo) {
 		return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
 	}
+	
+	@AddComments
+	public List<ArticleVo> getListArticleAddComments(CommonRequestDto vo) {
 
+		return sqlSession.selectList(mapper + "listArticle2", vo);
+	}
+	
 	public PageList<ArticleVo> getArticlePageListWithCount(CommonRequestDto vo) {
 		return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
 	}
@@ -56,6 +62,8 @@ public class ArticleDao extends BaseDao {
 	public PageList<ArticleVo> getArticlePageList(CommonRequestDto vo) {
 		return super.selectPageDto(mapper + "listArticle2", vo);
 	}
+	
+	
 
 	public boolean isExistsArticle(String articleId) {
 		String result = sqlSession.selectOne(mapper + "isarticleId", articleId);
@@ -65,12 +73,6 @@ public class ArticleDao extends BaseDao {
 		}
 
 		return false;
-	}
-	
-	@AddComments
-	public List<ArticleVo> ListArticle(CommonRequestDto vo) {
-
-		return sqlSession.selectList(mapper + "listArticle2", vo);
 	}
 
 	@AddComments
@@ -114,11 +116,6 @@ public class ArticleDao extends BaseDao {
 	public int replyArticle(ArticleVo articleVo) {
 		return sqlSession.insert(mapper + "insertReply", articleVo);
 	}
-
-	/*
-	 * public List<ArticleReplyVo> commentsList(String articleIds) { return
-	 * sqlSession.selectList("mapper.comment.listComment", articleIds); }
-	 */
 
 	public boolean equalsWriterId(ArticleVo vo) {
 		String result = sqlSession.selectOne(mapper + "equalsWriterId", vo);
@@ -234,12 +231,7 @@ public class ArticleDao extends BaseDao {
 		else { return true; }
 		
 	}
-
-	public static void main(String[] args) {
-		String expireDate = fdf.format(new Date());
-		System.out.println(expireDate);
-		System.out.println(Integer.parseInt(expireDate)+1600);
-	}
+	
 
 }
 
