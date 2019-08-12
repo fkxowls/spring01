@@ -48,6 +48,7 @@ public class ArticleController {
 	
 	// endPage restAPI
 	@RequestMapping(value = "/board/article/{page}/list")
+	
 	public String getARticleList(@PathVariable int page, Model model) {
 		//Map<String, Object> result = new HashMap<>();
 			

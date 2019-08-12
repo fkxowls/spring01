@@ -53,6 +53,10 @@
 					FROM    ( 
 			                   SELECT  /*+ INDEX_DESC(A ARTICLE_PK)*/
                                        ROW_NUMBER() OVER(ORDER BY A.ARTICLE_ID DESC) AS RNUM
+                                       /*ROW_NUMBER() OVER(ORDER BY ) AS RNUM
+                                       ROW_NUMBER() OVER(ORDER BY ) AS RNUM
+                                       ROW_NUMBER() OVER(ORDER BY ) AS RNUM
+                                       ROW_NUMBER() OVER(ORDER BY ) AS RNUM*/
                                       , A.ARTICLE_ID
                                       , A.PARENT_ID
                                       , A.TITLE

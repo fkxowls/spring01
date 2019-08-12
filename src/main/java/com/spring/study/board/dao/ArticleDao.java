@@ -1,10 +1,8 @@
 package com.spring.study.board.dao;
 
 import java.io.IOException;
-import java.text.Format;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -13,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
@@ -22,11 +21,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spring.study.board.controller.ArticleController;
 import com.spring.study.board.model.ArticleDto;
 import com.spring.study.board.model.ArticleVo;
 import com.spring.study.board.model.NoticeArticleVo;
@@ -37,8 +33,8 @@ import com.spring.study.member.model.Member;
 
 @Repository("articleDAO")
 public class ArticleDao extends BaseDao {
-	private static final Format fdf = FastDateFormat.getInstance("yyyyMMdd", Locale.getDefault());
-	private static final Logger logger = LoggerFactory.getLogger(ArticleController.class);
+	private static final FastDateFormat fdf = FastDateFormat.getInstance("yyyyMMddHHmmss", Locale.getDefault());
+	private static final Logger logger = LoggerFactory.getLogger(ArticleDao.class);
 	private static String mapper = "mapper.article."; 
 
 	@Autowired
@@ -86,7 +82,7 @@ public class ArticleDao extends BaseDao {
 		articleVo.setArticleId(articleDto.getArticleId());
 		articleVo.setTitle(articleDto.getTitle());
 		articleVo.setContent(articleDto.getContent());
-		articleVo.setwriteMemberId(articleDto.getWriteMemberId());
+		articleVo.setWriteMemberId(articleDto.getWriteMemberId());
 		articleVo.setWriteDate(new Date());
 		
 		sqlSession.insert(mapper + "insertArticle", articleVo);
@@ -165,71 +161,57 @@ public class ArticleDao extends BaseDao {
 	}
 
 	public List<ArticleVo> ListArticleTest(CommonRequestDto vo) {
-
-		List<ArticleVo> list = sqlSession.selectList("mapper.article.listArticle2", vo);
-
 		HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		HttpServletResponse resp = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
 				.getResponse();
 		HttpSession session = req.getSession();
-		// TODO 입력 -> key, value, ttl, expire(옵셔널)
-		// 표준포맷 : "2019/08/09 23:59:59"
-
-		String key = "com.spring.study.board.dao.ArticleDAO.ListArticleTest" + "&page=" + vo.getPage() + "&pageSize="
-				+ vo.getPageSize();
-
 		
-		String date = fdf.format(new Date()); // TODO ttl 만큼 날짜 추가해줌	
-		String expireDate = (String) session.getAttribute("expire" + key);
-		String value = "";
-		ObjectMapper mapper = new ObjectMapper();
-		
-		boolean isExpire =  compareExpireDate(date,expireDate);
-		if(isExpire) {
-			String ttl = "3600"; // 1시간
-			int intDate = Integer.parseInt(date)+Integer.parseInt(ttl);
-			expireDate = Integer.toString(intDate);
-		
-			try {
-				value = mapper.writeValueAsString(list);
-			} catch (JsonProcessingException e) {
-				// TODO 로그남기기
-				e.printStackTrace();
+		{
+			Date curDate = new Date();
+			String key = ArticleDao.class.getName() + ".ListArticleTest" + "&page=" + vo.getPage() + "&pageSize=" + vo.getPageSize();
+			String expireDate = (String) session.getAttribute("expire" + key);
+			
+			if(!expiresDate(curDate,expireDate)) {
+				List<ArticleVo> list = (List<ArticleVo>) session.getAttribute(key);
+				return list;
 			}
-		
-			session.setAttribute("expire" + key, expireDate);
-			session.setAttribute(key, value);
 		}
+
+		List<ArticleVo> list = sqlSession.selectList("mapper.article.listArticle2", vo);
 		
-		expireDate = (String) session.getAttribute("expire" + key);
-		value = (String) session.getAttribute(key);
-		//직렬화?? 역직렬화??? stream.map으로??? ????
-		try {
-			list = mapper.readValue(value, List.class);
-		} catch (JsonParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} // TODO 테스트 필요
+		{
+			Date curDate = new Date();
+			String key = ArticleDao.class.getName() + ".ListArticleTest" + "&page=" + vo.getPage() + "&pageSize=" + vo.getPageSize();
+			String ttl = "3600"; // 1시간 // TODO 커스텀 ttl 만큼 날짜 추가해줌
+			Date expireTime = DateUtils.addSeconds(curDate, Integer.parseInt(ttl));
 		
+			String expireDate = fdf.format(expireTime);
+			session.setAttribute(key, list);
+			session.setAttribute("expire" + key, expireDate);
+		}
 
 		return list;
 	}
 	//util패키지를 만들어서 거기로 빼야하나???
-	private boolean compareExpireDate(String curDate, String expireDate) {
-		if(null == expireDate) { expireDate = "0"; }
+	private boolean expiresDate(Date curTime, String expireDate) {
+		if(null == expireDate) {
+			return true;
+		}
 		
-		long curTime = Integer.parseInt(curDate);
-		long expireTime = Integer.parseInt(expireDate);
+		try {
+			Date expireTime = DateUtils.parseDate(expireDate, fdf.getPattern());
+			
+			// 뒤날짜가 크면 -1 작으면 1
+			int expire = DateUtils.truncatedCompareTo(curTime, expireTime, Calendar.SECOND);
+			
+			if(expire > 0) {
+				return true;
+			}
+		} catch (ParseException e) {
+			return true;
+		}
 		
-		if(curTime < expireTime) { return false; }
-		else { return true; }
-		
+		return false;
 	}
 	
 

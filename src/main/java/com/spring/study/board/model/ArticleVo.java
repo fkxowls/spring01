@@ -117,11 +117,11 @@ public class ArticleVo {
 		this.writeDate = writeDate;
 	}
 
-	public String getwriteMemberId() {
+	public String getWriteMemberId() {
 		return writeMemberId;
 	}
 
-	public void setwriteMemberId(String writeMemberId) {
+	public void setWriteMemberId(String writeMemberId) {
 		this.writeMemberId = writeMemberId;
 	}
 

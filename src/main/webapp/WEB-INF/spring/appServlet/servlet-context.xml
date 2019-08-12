@@ -49,7 +49,6 @@
 
 	<!-- AOP -->
 	<aop:aspectj-autoproxy />
-	<beans:bean id="ArticleIdCheck" class="com.spring.study.common.aop.IdCheckAspect" />
 
 	<!-- 타일즈 -->
 	<beans:bean id="tilesViewResolver"

@@ -1,4 +1,4 @@
-package com.spring.study.comments.dao;
+package com.spring.study.comment.dao;
 
 import java.util.List;
 
@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.spring.study.board.controller.ArticleController;
-import com.spring.study.board.controller.OldAticleController;
 import com.spring.study.comment.model.CommentPageList;
 import com.spring.study.comment.model.CommentsRequestDto;
 import com.spring.study.comment.model.CommentsVo;

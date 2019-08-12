@@ -6,18 +6,19 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.spring.study.board.dao.ArticleDao;
-import com.spring.study.board.service.ArticleService;
+import com.spring.study.comment.dao.CommentDao;
 import com.spring.study.comment.model.CommentPageList;
 import com.spring.study.comment.model.CommentsRequestDto;
 import com.spring.study.comment.model.CommentsVo;
-import com.spring.study.comments.dao.CommentDao;
 import com.spring.study.common.model.CommonCode;
 import com.spring.study.member.model.Member;
 
 import javassist.NotFoundException;
 
+@Service
 public class CommentsService {
 	private static final Logger logger = LoggerFactory.getLogger(CommentsService.class);
 	private static final int commentPageSize = 10;

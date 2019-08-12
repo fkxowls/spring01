@@ -13,12 +13,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Lists;
 import com.spring.study.board.model.ArticleVo;
+import com.spring.study.comment.dao.CommentDao;
 import com.spring.study.comment.model.CommentPageList;
 import com.spring.study.comment.model.CommentsRequestDto;
 import com.spring.study.comment.model.CommentsVo;
-import com.spring.study.comments.dao.CommentDao;
 import com.spring.study.common.model.PageList;
 
 @Aspect

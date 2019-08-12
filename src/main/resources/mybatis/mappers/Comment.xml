@@ -14,7 +14,7 @@
         	   		  			SELECT   ROW_NUMBER() OVER(PARTITION BY ARTICLE_ID  ORDER BY REPLY_ID DESC) AS RANK_NUMBER
   	                  		   			, LEVEL AS LVL
         	   		  					, ARTICLE_ID
-            	        	   			, REPLY_ID
+            	        	   			, REPLY_IDser
 	                         	  		, PARENT_ID
                     		 	 	    , CONTENT
 	                         	  		, WRITE_MEMBER_ID

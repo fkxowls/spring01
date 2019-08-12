@@ -2,26 +2,18 @@ package com.spring.study.board.service;
 
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.spring.study.board.controller.OldAticleController;
 import com.spring.study.board.dao.ArticleDao;
 import com.spring.study.board.model.ArticleDto;
 import com.spring.study.board.model.ArticleVo;
-import com.spring.study.comment.dao.CommentDao;
-import com.spring.study.comment.model.CommentPageList;
-import com.spring.study.comment.model.CommentsRequestDto;
-import com.spring.study.comment.model.CommentsVo;
 import com.spring.study.common.model.CommonCode;
 import com.spring.study.common.model.CommonRequestDto;
 import com.spring.study.common.model.PageList;
@@ -163,8 +155,8 @@ public class ArticleService {
 	}
 
 	public List<ArticleVo> getArticleList(CommonRequestDto req) {
-		List<ArticleVo> list = articleDao.getListArticleAddComments(req);
-		//List<ArticleVo> list = articleDao.ListArticleTest(req);
+		//List<ArticleVo> list = articleDao.getListArticleAddComments(req);
+		List<ArticleVo> list = articleDao.ListArticleTest(req);
 		return list;
 	}
 
@@ -178,7 +170,7 @@ public class ArticleService {
 	 ****************************************************************************************************/
 	
 	public boolean isEqualsWriterId(ArticleVo articleVo, Member user) {
-		if(user.getMemberId().equals(articleVo.getwriteMemberId())) {
+		if(user.getMemberId().equals(articleVo.getWriteMemberId())) {
 			return true;
 		}	
 

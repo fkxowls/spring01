@@ -9,11 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import com.spring.study.board.controller.OldAticleController;
 import com.spring.study.member.model.Member;
 
 public class LoginSessionInterceptor extends HandlerInterceptorAdapter {
-	private static final Logger logger = LoggerFactory.getLogger(OldAticleController.class);
+	private static final Logger logger = LoggerFactory.getLogger(LoginSessionInterceptor.class);
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)

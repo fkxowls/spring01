@@ -1,5 +1,7 @@
 package com.spring.study.board.model;
 
+import com.spring.study.common.model.CommonRequestDto;
+
 //리퀘스용 DTO
 public class BoardRequestDto extends CommonRequestDto {
 	private String boardId;

@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.spring.study.board.model.CommonRequestDto;
+import com.spring.study.common.model.CommonRequestDto;
 import com.spring.study.common.model.PageList;
 
 public class BaseDao {
