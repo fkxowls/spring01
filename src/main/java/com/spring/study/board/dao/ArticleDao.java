@@ -28,7 +28,7 @@ import com.spring.study.board.model.ArticleDto;
 import com.spring.study.board.model.ArticleVo;
 import com.spring.study.board.model.NoticeArticleVo;
 import com.spring.study.common.aop.AddComments;
-import com.spring.study.common.model.CommonParamter;
+import com.spring.study.common.model.BaseParam;
 import com.spring.study.common.model.PageList;
 import com.spring.study.member.model.Member;
 
@@ -42,21 +42,21 @@ public class ArticleDao extends BaseDao {
 	SqlSession sqlSession;
 
 	@AddComments
-	public PageList<Article> getArticlePageListWithCountAddComments(CommonParamter vo) {
+	public PageList<Article> getArticlePageListWithCountAddComments(BaseParam vo) {
 		return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
 	}
 	
 	@AddComments
-	public List<ArticleVo> getListArticleAddComments(CommonParamter vo) {
+	public List<ArticleVo> getListArticleAddComments(BaseParam vo) {
 
 		return sqlSession.selectList(mapper + "listArticle2", vo);
 	}
 	
-	public PageList<ArticleVo> getArticlePageListWithCount(CommonParamter vo) {
+	public PageList<ArticleVo> getArticlePageListWithCount(BaseParam vo) {
 		return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
 	}
 
-	public PageList<ArticleVo> getArticlePageList(CommonParamter vo) {
+	public PageList<Article> getArticlePageList(BaseParam vo) {
 		return super.selectPageDto(mapper + "listArticle2", vo);
 	}
 	
@@ -161,7 +161,7 @@ public class ArticleDao extends BaseDao {
 
 	}
 	//TODO AOP로 분리 
-	public List<Article> ListArticleTest(CommonParamter vo) {
+	public List<Article> ListArticleTest(BaseParam vo) {
 		HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		HttpServletResponse resp = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
 				.getResponse();

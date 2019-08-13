@@ -26,7 +26,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.spring.study.board.model.Article;
 import com.spring.study.board.model.ArticleDto;
+import com.spring.study.board.model.ArticleParam;
 import com.spring.study.board.model.ArticleVo;
+import com.spring.study.board.model.BoardRequestDto;
 import com.spring.study.board.service.ArticleService;
 import com.spring.study.comment.model.CommentPageList;
 import com.spring.study.comment.model.CommentsRequestDto;
@@ -104,23 +106,21 @@ public class ArticleController {
 		ArticleVo articleVo = new ArticleVo();
 		Map<String, Object> resultState = new HashMap<>();
 		String returnURI = "";
-		
-		//view단에서 어떻게 받아야함???
+
 		try {
-			articleVo = articleService.getArticleContents(articleId, member);
+			//XXX 아래와 같은 경우에도 Parameter객체에 추가해서 보내야하는건지??
+			articleVo = articleService.getArticle(articleId, member);
 			resultState.put("code",HttpStatus.OK);
 			resultState.put("msg", "로그인 성공");	
 			
 			model.addAttribute("articleVo", articleVo);				
 			returnURI = "board/viewArticle";
 		} catch (SQLException e) {
-			//returnURI = "/board/listArticleForm";
 			resultState.put("code", HttpStatus.FORBIDDEN);
 			resultState.put("msg", e.getMessage());
 			resultState.put("redirect","/board/listArticleForm");
 			e.printStackTrace();
 		} catch (NotFoundException e) {
-			//returnURI = "reirect:/member/loginForm.do";
 			resultState.put("code", HttpStatus.UNAUTHORIZED);
 			resultState.put("msg", e.getMessage());
 			resultState.put("redirect","/member/loginForm.do");
@@ -132,7 +132,6 @@ public class ArticleController {
 			model.addAttribute("modificationForm","/board/modifyForm");
 			model.addAttribute("replyFormPath","/board/replyForm?articleId"+articleId);
 			model.addAttribute("articleDeletePath","/board/"+articleId);
-			//댓글리스트,댓글입력 주소도 여기서??
 		}
 		
 		return returnURI;
@@ -141,12 +140,10 @@ public class ArticleController {
 	@RequestMapping(value = {"/board/writeArticleForm", "/board/replyForm"})
 	public String moveWriteForm(@RequestParam(required = false) String articleId, Model model, Member user, HttpServletRequest req) {
 		ArticleVo returnVo = new ArticleVo();
-		
-		//if(!member.isLogin()) { return "redirect:/member/loginForm"; }
+
 		if(user == null) { return "redirect:/member/loginForm"; }
 		
 		if(req.getRequestURI().equals("/board/writeReplyForm")) {
-			//[답글]: ㅇㅇㅇㅇ 으로 제목을 지정하려면 db로 조회해서 ?? 아니면 파라미터로 제목만 보낸다?? 
 			returnVo.setArticleId(articleId);				
 			returnVo.setTitle("[Re]: ");
 			
@@ -163,13 +160,15 @@ public class ArticleController {
 	@RequestMapping(value = "/board/article", method = RequestMethod.POST)
 	public @ResponseBody Map<String, Object> writeArticle(@RequestBody ArticleDto articleDto, HttpServletRequest req){
 		Map<String, Object> resultMap = new HashMap<>();
-		
+		//XXX articleId를 파라미터 객체에 주입할 수 없음.... insert전에 articleId 시퀀스를 조회해서 vo로 보내고있음....
+		ArticleParam articleParam = new ArticleParam.Builder(articleDto.getTitle(), articleDto.getContent(), articleDto.getWriteMemberId(), articleDto.getArticleTypeCd())
+													.build();
 		try {
 			req.setCharacterEncoding("utf-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		//String articleId = articleService.giveArticleId();
+		
 		String writenArticleId = articleService.writeArticle(articleDto);
 	
 		resultMap.put("code", HttpStatus.OK);

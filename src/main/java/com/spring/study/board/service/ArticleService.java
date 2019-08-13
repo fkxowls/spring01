@@ -27,58 +27,51 @@ import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 public class ArticleService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ArticleService.class);
-	
+
 	@Autowired
 	private ArticleDao articleDao;
 
-	public ArticleVo getArticleContents(String articleId, Member member) throws Exception {
+	public ArticleVo getArticle(String articleId, Member member) throws Exception {
 		boolean isNoticeId = articleDao.isNoticeId(articleId);
+		// XXX 리턴객체가 Vo와 같을때엔 그냥 Vo로 리턴하는것이 가능한건가여
 		ArticleVo returnVo = null;
-
-		if (isNoticeId) {// 공지글 테이블에 글이있을 시
+		//공지글 - 일반회원은 접근 못함
+		if (isNoticeId) {
 			if (null == member) {
 				throw new NotFoundException("로그인 후 이용가능합니다");
 			}
 			String userLevel = member.getMemberLevel();
-			//userLevel = articleDao.getMemberLevel(member);
-			/*
-			 * if (0 == memberLevel) { throw new NotFoundException("로그인 후 이용가능합니다"); }
-			 */
+
 			if (CommonCode.USER_LEVEL_CD_NOMAL.getCode().equals(userLevel)) {
 				throw new SQLException("우수회원부터 접근 가능합니다");
 			} else {
 				returnVo = articleDao.viewArticle(articleId);
 			}
-
 		} else {
 			returnVo = articleDao.viewArticle(articleId);
 		}
 
-		/****************************************
-		 * 위 흐름을 쿼리로만 가능한가???????? 예외를 강제하는 건 잘못된게 아닌가??? 사용자 예외를 만들어 예외를 발생시 고려해야할
-		 * 부분??-런타임예외?? 체크예외??
-		 ****************************************/
 		return returnVo;
 	}
 
-	//여기서 일어날 오류??
 	@Transactional(rollbackFor = Exception.class)
 	public String writeArticle(ArticleDto articleDto) {
 		String articleId = this.giveArticleId();
 		articleDto.setArticleId(articleId);
-	
+
 		articleDao.insertArticle(articleDto);
 
-		// if - NOTICE_TABLE에 데이터 입력중에 ARTICLE테이블에 등록된 글 정보가 꺠진다면?
 		if (CommonCode.ARTICLE_TYPE_CD_NOTICE_N.getCode().equals(articleDto.getArticleTypeCd())) {
-			articleDao.registerNotice(articleDto);//articleDto은 다량의 필드를 가지고 있음 - 이 dto를 동시에 여러명이 접속하여 주고받을때 부하가 심하게 걸리지 않는지
+			articleDao.registerNotice(articleDto);
 		}
 
 		return articleId;
 	}
 
 	public void modifyArticle(ArticleVo articleVo, Member user) throws Exception {
-		if(user == null) {	throw new NullPointerException("로그인 세션 만료"); }
+		if (user == null) {
+			throw new NullPointerException("로그인 세션 만료");
+		}
 		String userId = user.getMemberId();
 		articleVo.setModifyMemberId(userId);
 
@@ -138,8 +131,6 @@ public class ArticleService {
 		return result;
 	}
 
-	
-
 	/*
 	 * public void insertReComment(CommentsVo replyVo) {
 	 * commentDAO.writeComment(replyVo); }
@@ -149,14 +140,14 @@ public class ArticleService {
 	 ****************************************************************************************************
 	 ****************************************************************************************************/
 	public PageList<Article> getArticlePageListWithCount(BaseParam req) {
-		//PageList<ArticleVo> pageList = articleDao.getArticlePageListWithCount(req);
-		//feed형으로 받을 시
+		// PageList<ArticleVo> pageList = articleDao.getArticlePageListWithCount(req);
+		// feed형으로 받을 시
 		PageList<Article> feedTypePageList = articleDao.getArticlePageListWithCountAddComments(req);
 		return feedTypePageList;
 	}
 
 	public List<Article> getArticleList(BaseParam req) {
-		//List<ArticleVo> list = articleDao.getListArticleAddComments(req);
+		// List<ArticleVo> list = articleDao.getListArticleAddComments(req);
 		List<Article> list = articleDao.ListArticleTest(req);
 		return list;
 	}
@@ -169,11 +160,11 @@ public class ArticleService {
 	/****************************************************************************************************
 	 ****************************************************************************************************
 	 ****************************************************************************************************/
-	
+
 	public boolean isEqualsWriterId(ArticleVo articleVo, Member user) {
-		if(user.getMemberId().equals(articleVo.getWriteMemberId())) {
+		if (user.getMemberId().equals(articleVo.getWriteMemberId())) {
 			return true;
-		}	
+		}
 
 		return false;
 	}
@@ -203,7 +194,5 @@ public class ArticleService {
 		List<ArticleVo> myArticleList = articleDao.getMyArticleList(userId);
 		return myArticleList;
 	}
-
-
 
 }
