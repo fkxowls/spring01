@@ -1,9 +1,9 @@
 package com.spring.study.board.model;
 
-import com.spring.study.common.model.CommonParamter;
+import com.spring.study.common.model.BaseParam;
 
 //리퀘스용 DTO -> Parameter객체(공통코드)
-public class BoardRequestDto extends CommonParamter {
+public class BoardRequestDto extends BaseParam {
 	private String boardId;
 
 	private BoardRequestDto(Builder builder) { // 리퀘스트 객체
@@ -11,7 +11,7 @@ public class BoardRequestDto extends CommonParamter {
 		this.boardId = builder.boardId;
 	}
 	
-	public static class Builder extends CommonParamter.Builder {
+	public static class Builder extends BaseParam.Builder {
 		private String boardId;
 		public Builder boardId(String boardId) {
 			this.boardId = boardId;

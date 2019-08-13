@@ -16,7 +16,7 @@ import com.spring.study.board.model.Article;
 import com.spring.study.board.model.ArticleDto;
 import com.spring.study.board.model.ArticleVo;
 import com.spring.study.common.model.CommonCode;
-import com.spring.study.common.model.CommonParamter;
+import com.spring.study.common.model.BaseParam;
 import com.spring.study.common.model.PageList;
 import com.spring.study.member.model.Member;
 
@@ -148,21 +148,21 @@ public class ArticleService {
 	/****************************************************************************************************
 	 ****************************************************************************************************
 	 ****************************************************************************************************/
-	public PageList<Article> getArticlePageListWithCount(CommonParamter req) {
+	public PageList<Article> getArticlePageListWithCount(BaseParam req) {
 		//PageList<ArticleVo> pageList = articleDao.getArticlePageListWithCount(req);
 		//feed형으로 받을 시
 		PageList<Article> feedTypePageList = articleDao.getArticlePageListWithCountAddComments(req);
 		return feedTypePageList;
 	}
 
-	public List<Article> getArticleList(CommonParamter req) {
+	public List<Article> getArticleList(BaseParam req) {
 		//List<ArticleVo> list = articleDao.getListArticleAddComments(req);
 		List<Article> list = articleDao.ListArticleTest(req);
 		return list;
 	}
 
-	public PageList<ArticleVo> getArticlePageList(CommonParamter req) {
-		PageList<ArticleVo> resp = articleDao.getArticlePageList(req);
+	public PageList<Article> getArticlePageList(BaseParam req) {
+		PageList<Article> resp = articleDao.getArticlePageList(req);
 		return resp;
 	}
 

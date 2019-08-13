@@ -5,7 +5,7 @@ import java.util.List;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.spring.study.common.model.CommonParamter;
+import com.spring.study.common.model.BaseParam;
 import com.spring.study.common.model.PageList;
 
 public class BaseDao {
@@ -13,11 +13,11 @@ public class BaseDao {
 	@Autowired
 	SqlSession sqlSession;
 
-	protected <E> PageList<E> selectPageDto(String statement, CommonParamter parameter) {
+	protected <E> PageList<E> selectPageDto(String statement, BaseParam parameter) {
 		return selectPageDto(statement, null, parameter);
 	}
 
-	protected <E> PageList<E> selectPageDto(String statement, String countStatement, CommonParamter parameter) {
+	protected <E> PageList<E> selectPageDto(String statement, String countStatement, BaseParam parameter) {
 		int totalCount = 0;
 		if (null != countStatement) {
 			totalCount = sqlSession.selectOne(countStatement);

@@ -1,7 +1,7 @@
 package com.spring.study.common.model;
 
 //리퀘스용 DTO -> Parameter객체
-public class CommonParamter {
+public class BaseParam {
 	private int startNum;
 	private int endNum;
 	private int page;
@@ -9,16 +9,16 @@ public class CommonParamter {
 	private boolean moreView;
 	//얘 지워야함  지금 Article부터 수정중임 얘 지우면 comment쪽에서 오류남 Article수정 완료되면 삭제 ㄱㄱ
 	private String writeMemberId;
-	private Object custom;
 	
-	public static class Builder {
+	
+	public static class Builder<T extends Builder<T>> {
 		private int page;
 		private int pageSize;
 		private int startNum;
 		private int endNum;
 		private boolean moreView;
 		private String writeMemberId;
-		private Object custom;
+		
 		
 		//필수 요소
 		public Builder() {
@@ -37,26 +37,18 @@ public class CommonParamter {
 			this.moreView = moreView;
 			return this;
 		}
-		public Builder custum(Object custom) {
-			this.custom = custom;
-			return this;
-		}
-		// XXX 질문내용
+	
 		public Builder setWriteMemberId(String writeMemberId) { // TODO 뺀다
 			this.writeMemberId = writeMemberId;
 			return this;
 		}
 		
-		public CommonParamter build() {
-			return new CommonParamter(this);
+		public BaseParam build() {
+			return new BaseParam(this);
 		}
 	}
-	
-	CommonParamter() {
-		
-	}
 
-	protected CommonParamter(Builder builder) { // 리퀘스트 객체
+	protected BaseParam(Builder builder) { // 리퀘스트 객체
 		if(0 == builder.startNum || 0 == builder.endNum) {
 			builder.startNum = (builder.page - 1) * builder.pageSize + 1;
 			builder.endNum = builder.page * builder.pageSize;
@@ -71,7 +63,6 @@ public class CommonParamter {
 		this.pageSize = builder.pageSize;
 		this.moreView = builder.moreView;
 		this.writeMemberId = builder.writeMemberId;
-		this.custom = builder.custom;
 	}
 	
 	public int getStartNum() {
@@ -98,9 +89,5 @@ public class CommonParamter {
 		return writeMemberId;
 	}
 
-	public Object getCustom() {
-		return custom;
-	}
-	
 	
 }
