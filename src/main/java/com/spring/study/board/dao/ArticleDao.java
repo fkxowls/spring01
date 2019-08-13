@@ -23,11 +23,12 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.spring.study.board.model.Article;
 import com.spring.study.board.model.ArticleDto;
 import com.spring.study.board.model.ArticleVo;
 import com.spring.study.board.model.NoticeArticleVo;
 import com.spring.study.common.aop.AddComments;
-import com.spring.study.common.model.CommonRequestDto;
+import com.spring.study.common.model.CommonParamter;
 import com.spring.study.common.model.PageList;
 import com.spring.study.member.model.Member;
 
@@ -41,21 +42,21 @@ public class ArticleDao extends BaseDao {
 	SqlSession sqlSession;
 
 	@AddComments
-	public PageList<ArticleVo> getArticlePageListWithCountAddComments(CommonRequestDto vo) {
+	public PageList<Article> getArticlePageListWithCountAddComments(CommonParamter vo) {
 		return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
 	}
 	
 	@AddComments
-	public List<ArticleVo> getListArticleAddComments(CommonRequestDto vo) {
+	public List<ArticleVo> getListArticleAddComments(CommonParamter vo) {
 
 		return sqlSession.selectList(mapper + "listArticle2", vo);
 	}
 	
-	public PageList<ArticleVo> getArticlePageListWithCount(CommonRequestDto vo) {
+	public PageList<ArticleVo> getArticlePageListWithCount(CommonParamter vo) {
 		return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
 	}
 
-	public PageList<ArticleVo> getArticlePageList(CommonRequestDto vo) {
+	public PageList<ArticleVo> getArticlePageList(CommonParamter vo) {
 		return super.selectPageDto(mapper + "listArticle2", vo);
 	}
 	
@@ -159,8 +160,8 @@ public class ArticleDao extends BaseDao {
 		return result;
 
 	}
-
-	public List<ArticleVo> ListArticleTest(CommonRequestDto vo) {
+	//TODO AOP로 분리 
+	public List<Article> ListArticleTest(CommonParamter vo) {
 		HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		HttpServletResponse resp = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
 				.getResponse();
@@ -172,12 +173,12 @@ public class ArticleDao extends BaseDao {
 			String expireDate = (String) session.getAttribute("expire" + key);
 			
 			if(!expiresDate(curDate,expireDate)) {
-				List<ArticleVo> list = (List<ArticleVo>) session.getAttribute(key);
+				List<Article> list = (List<Article>) session.getAttribute(key);
 				return list;
 			}
 		}
 
-		List<ArticleVo> list = sqlSession.selectList("mapper.article.listArticle2", vo);
+		List<Article> list = sqlSession.selectList("mapper.article.listArticle2", vo);
 		
 		{
 			Date curDate = new Date();
@@ -216,54 +217,3 @@ public class ArticleDao extends BaseDao {
 	
 
 }
-
-// TODO 넣을거 -> key+value, key+expire
-
-//
-//	List<ArticleVo> list;
-//	Cookie cookie = null;
-//	Cookie[] cookieArr = req.getCookies();
-//
-//	Date date = new Date();
-//	String curDateTime = dateFormat(date);
-//
-//	long timeSpent = -1;
-//
-//	System.out.println("쿠키목록확인");
-//	// TODO DTO캐싱 로직 구현 - 읽기 get
-//	if (cookieArr != null) {
-//		for (int i = 0; i < cookieArr.length; i++) {
-//			if (cookieArr[i].getName().equals("issueDate")) {
-//				cookie = cookieArr[i];
-//				String cookieDate = cookie.getValue();
-//				long pastDate = Long.parseLong(cookieDate);
-//				long curDate = Long.parseLong(curDateTime);
-//				timeSpent = (curDate - pastDate) / 60000;
-//				break;
-//			} else {
-//				cookie = new Cookie("issueDate", curDateTime);
-//				cookie.setComment("DTO쿠키 저장 시간");
-//				cookie.setMaxAge(60 * 10);
-//				resp.addCookie(cookie);
-//			}
-//		}
-//	} else {
-//		cookie = new Cookie("issueDate", curDateTime);
-//		cookie.setComment("DTO쿠키 저장 시간");
-//		cookie.setMaxAge(60 * 10);
-//		resp.addCookie(cookie);
-//	}
-//
-//	// TODO DTO캐싱 로직 구현 - 쓰기 set
-//	if (timeSpent > 10) {
-//		list = sqlSession.selectList("mapper.article.listArticle2", vo);
-//		session.setAttribute("sessionArticleList", list);
-//		cookie = new Cookie("issueDate", curDateTime);
-//		cookie.setMaxAge(60 * 10);
-//		resp.addCookie(cookie);
-//	} else if (timeSpent == -1) {
-//	list = sqlSession.selectList("mapper.article.listArticle2", vo);
-//		session.setAttribute("sessionArticleList", list);
-//	} else {
-//		list = (List<ArticleVo>) session.getAttribute("sessionArticleList");
-//	}

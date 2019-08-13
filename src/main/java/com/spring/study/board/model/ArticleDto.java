@@ -21,7 +21,15 @@ public class ArticleDto {
 	private Date displayEndDate;
 	private boolean isNotice;
 	private String articleTypeCd;
+	private String path;
 	
+	
+	protected String getPath() {
+		return path;
+	}
+	protected void setPath(String path) {
+		this.path = path;
+	}
 	public String getArticleTypeCd() {
 		return articleTypeCd;
 	}

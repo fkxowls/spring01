@@ -1,12 +1,13 @@
 package com.spring.study.common.model;
 
-//리퀘스용 DTO
-public class CommonRequestDto {
+//리퀘스용 DTO -> Parameter객체
+public class CommonParamter {
 	private int startNum;
 	private int endNum;
 	private int page;
 	private int pageSize;
 	private boolean moreView;
+	//얘 지워야함  지금 Article부터 수정중임 얘 지우면 comment쪽에서 오류남 Article수정 완료되면 삭제 ㄱㄱ
 	private String writeMemberId;
 	private Object custom;
 	
@@ -46,16 +47,16 @@ public class CommonRequestDto {
 			return this;
 		}
 		
-		public CommonRequestDto build() {
-			return new CommonRequestDto(this);
+		public CommonParamter build() {
+			return new CommonParamter(this);
 		}
 	}
 	
-	CommonRequestDto() {
+	CommonParamter() {
 		
 	}
 
-	protected CommonRequestDto(Builder builder) { // 리퀘스트 객체
+	protected CommonParamter(Builder builder) { // 리퀘스트 객체
 		if(0 == builder.startNum || 0 == builder.endNum) {
 			builder.startNum = (builder.page - 1) * builder.pageSize + 1;
 			builder.endNum = builder.page * builder.pageSize;

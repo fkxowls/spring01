@@ -12,10 +12,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.spring.study.board.dao.ArticleDao;
+import com.spring.study.board.model.Article;
 import com.spring.study.board.model.ArticleDto;
 import com.spring.study.board.model.ArticleVo;
 import com.spring.study.common.model.CommonCode;
-import com.spring.study.common.model.CommonRequestDto;
+import com.spring.study.common.model.CommonParamter;
 import com.spring.study.common.model.PageList;
 import com.spring.study.member.model.Member;
 
@@ -147,20 +148,20 @@ public class ArticleService {
 	/****************************************************************************************************
 	 ****************************************************************************************************
 	 ****************************************************************************************************/
-	public PageList<ArticleVo> getArticlePageListWithCount(CommonRequestDto req) {
+	public PageList<Article> getArticlePageListWithCount(CommonParamter req) {
 		//PageList<ArticleVo> pageList = articleDao.getArticlePageListWithCount(req);
 		//feed형으로 받을 시
-		PageList<ArticleVo> feedTypePageList = articleDao.getArticlePageListWithCountAddComments(req);
+		PageList<Article> feedTypePageList = articleDao.getArticlePageListWithCountAddComments(req);
 		return feedTypePageList;
 	}
 
-	public List<ArticleVo> getArticleList(CommonRequestDto req) {
+	public List<Article> getArticleList(CommonParamter req) {
 		//List<ArticleVo> list = articleDao.getListArticleAddComments(req);
-		List<ArticleVo> list = articleDao.ListArticleTest(req);
+		List<Article> list = articleDao.ListArticleTest(req);
 		return list;
 	}
 
-	public PageList<ArticleVo> getArticlePageList(CommonRequestDto req) {
+	public PageList<ArticleVo> getArticlePageList(CommonParamter req) {
 		PageList<ArticleVo> resp = articleDao.getArticlePageList(req);
 		return resp;
 	}
