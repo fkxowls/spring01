@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -23,19 +24,24 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.spring.study.board.model.Article;
 import com.spring.study.board.model.ArticleDto;
 import com.spring.study.board.model.ArticleVo;
 import com.spring.study.board.service.ArticleService;
 import com.spring.study.comment.model.CommentPageList;
 import com.spring.study.comment.model.CommentsRequestDto;
 import com.spring.study.comment.service.CommentsService;
-import com.spring.study.common.model.CommonRequestDto;
+import com.spring.study.common.model.BaseParam;
 import com.spring.study.common.model.PageList;
 import com.spring.study.member.model.Member;
 
 import javassist.NotFoundException;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 
+//TODO 파라미터-> Dto로 / Article객체, Comments객체 생성-> 해당하는 로직 작성
+//TODO 코멘트 비밀댓글 처리  -> db에서, 글작성자 db에서 가져온다(Oarcle 자체 세션으로 바로 재사용가능 함)
+//TODO 정렬(쿼리),CASE문 사용
+//TODO 대강 정했던 throw Exception을 구체적으로 Excption클래스 만들어서 던지기, Path코드 공통코드로 분리
 @Controller
 public class ArticleController {
 	private static final Logger logger = LoggerFactory.getLogger(ArticleController.class);
@@ -49,24 +55,26 @@ public class ArticleController {
 	// endPage restAPI
 	@RequestMapping(value = "/board/article/{page}/list")
 	
-	public String getARticleList(@PathVariable int page, Model model) {
-		//Map<String, Object> result = new HashMap<>();
-			
-		CommonRequestDto req = new CommonRequestDto.Builder(page, pageSize).build();
-			
+	public String getArticleList(@PathVariable int page, Model model) {			
+		BaseParam requestParam = new BaseParam.Builder(page, pageSize).build();
+		List<Article> articleList = null;
+		
 		if (1 == page) {
-			PageList<ArticleVo> articlePageDto = articleService.getArticlePageListWithCount(req);
-			model.addAttribute("totalPage", articlePageDto.getTotalPage());
-			model.addAttribute("articleList", articlePageDto.getList());
-			//여기서 글상세보기 주소는 article과 1:1관계임 즉 글상세보기uri는 dto에 있어야함?? 그럼 어떻게 처리를하는가..
+			PageList<Article> returnPageList = articleService.getArticlePageListWithCount(requestParam);
+			articleList = returnPageList.getList();
+			model.addAttribute("totalPage", returnPageList.getTotalPage());
 		} else {
-			List<ArticleVo> articleList = articleService.getArticleList(req);
+			articleList = articleService.getArticleList(requestParam);
 			//result.put("nextPage", "0");
 			//result.put("totalPage", "0");
 			//result.put("articleList", articleList);
-			model.addAttribute("articleList", articleList);
 		}
 		
+//		List<ArticleDto> articleHeader = articleList.stream()
+//		.map(Article::displayTitle)
+//		.collect(Collectors.toList());//XXX 여기서 캐스팅 오류가 나는 이유는 무엇일까여
+		
+		model.addAttribute("articleList", articleList);
 		model.addAttribute("writeArticleForm","/board/writeArticleForm");
 		
 		return "board/listArticle2";
@@ -75,13 +83,18 @@ public class ArticleController {
 	// hasNext
 	@RequestMapping(value = "/board/article2/{page}/list")
 	public @ResponseBody Map<String, Object> getArticleList(Model model, @PathVariable int page) {
-		CommonRequestDto req = new CommonRequestDto.Builder(page, pageSize).useMoreView(true).build();
+		BaseParam req = new BaseParam.Builder(page, pageSize).useMoreView(true).build();
 	
-		PageList<ArticleVo> articlePageDto = articleService.getArticlePageList(req);
-
+		PageList<Article> pageListDto = articleService.getArticlePageList(req);
+		List<Article> articleList = pageListDto.getList();
+		
+//		List<ArticleDto> articleHeader = articleList.stream()
+//										.map(Article::displayTitle)
+//										.collect(Collectors.toList());
+//		
 		Map<String, Object> result = new HashMap<>();
-		result.put("articleList", articlePageDto.getList());
-		result.put("hasNext", String.valueOf(articlePageDto.getHasNext()));
+		result.put("articleList", articleList);
+		result.put("hasNext", String.valueOf(pageListDto.getHasNext()));
 
 		return result;
 	}
