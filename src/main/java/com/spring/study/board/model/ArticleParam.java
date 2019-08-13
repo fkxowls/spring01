@@ -1,5 +1,6 @@
 package com.spring.study.board.model;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
@@ -16,6 +17,8 @@ public class ArticleParam extends BaseParam{
 	private String modifierId;
 	private Date modifyDate;
 	private String articleTypeCd;
+	private Date displayStartDate;
+	private Date displayEndDate;
 	
 	public static class Builder extends BaseParam.Builder<Builder>{
 		private String articleId;
@@ -26,6 +29,8 @@ public class ArticleParam extends BaseParam{
 		private Date writeDate;
 		private Date modifyDate;
 		private String articleTypeCd;
+		private Date displayStartDate;
+		private Date displayEndDate;
 		
 		public Builder(String articleId) {
 			super();
@@ -52,6 +57,15 @@ public class ArticleParam extends BaseParam{
 			this.articleTypeCd = articleTypeCd;
 			return this;
 		}
+		public Builder displayStartDate(Date displayStartDate) {
+			this.displayStartDate = displayStartDate;
+			return this;
+		}
+		public Builder displayEndDate(Date displayEndDate) {
+			this.displayEndDate = displayEndDate;
+			return this;
+		}
+		
 		public ArticleParam build() {
 			super.build();
 			return new ArticleParam(this);
@@ -65,48 +79,66 @@ public class ArticleParam extends BaseParam{
 		this.title = builder.title;
 		this.contents = builder.contents;
 		this.writerId = builder.writerId;
+		if(null != this.writerId) {
+			this.writeDate = new Date();
+		}
 		this.modifierId = builder.modifierId;
 		if(null != this.modifierId) {
 			this.modifyDate = new Date();
 		}
 		this.articleTypeCd = builder.articleTypeCd;
+		this.displayStartDate = displayStartDate;
+		this.displayEndDate = displayEndDate;
 		
 	}
 
 
-	protected String getArticleId() {
+	public String getArticleId() {
 		return articleId;
 	}
 
 
-	protected String getTitle() {
+	public String getTitle() {
 		return title;
 	}
 
 
-	protected String getContents() {
+	public String getContents() {
 		return contents;
 	}
 
 
-	protected String getWriterId() {
+	public String getWriterId() {
 		return writerId;
 	}
 
 
-	protected String getModifierId() {
+	public String getModifierId() {
 		return modifierId;
 	}
 
 
-	protected Date getModifyDate() {
+	public Date getModifyDate() {
 		return modifyDate;
 	}
 
 
-	protected String getArticleTypeCd() {
+	public String getArticleTypeCd() {
 		return articleTypeCd;
 	}
+
+
+	public Date getWriteDate() {
+		return writeDate;
+	}
+
+	public Date getDisplayStartDate() {
+		return displayStartDate;
+	}
+
+	public Date getDisplayEndDate() {
+		return displayEndDate;
+	}	
 	
 		
 

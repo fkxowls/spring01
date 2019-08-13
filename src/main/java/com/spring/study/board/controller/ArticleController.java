@@ -161,7 +161,10 @@ public class ArticleController {
 	public @ResponseBody Map<String, Object> writeArticle(@RequestBody ArticleDto articleDto, HttpServletRequest req){
 		Map<String, Object> resultMap = new HashMap<>();
 		//XXX articleId를 파라미터 객체에 주입할 수 없음.... insert전에 articleId 시퀀스를 조회해서 vo로 보내고있음....
+		//일단 articleId를 servie에서 파라미터객체와 따로 보냄..............
 		ArticleParam articleParam = new ArticleParam.Builder(articleDto.getTitle(), articleDto.getContent(), articleDto.getWriteMemberId(), articleDto.getArticleTypeCd())
+													.displayStartDate(articleDto.getDisplayStartDate())
+													.displayEndDate(articleDto.getDisplayEndDate())
 													.build();
 		try {
 			req.setCharacterEncoding("utf-8");
@@ -169,7 +172,7 @@ public class ArticleController {
 			e.printStackTrace();
 		}
 		
-		String writenArticleId = articleService.writeArticle(articleDto);
+		String writenArticleId = articleService.writeArticle(articleParam);
 	
 		resultMap.put("code", HttpStatus.OK);
 		resultMap.put("msg", "글 등록이 완료되었습니다.");

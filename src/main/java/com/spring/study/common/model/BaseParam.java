@@ -48,7 +48,7 @@ public class BaseParam {
 		}
 	}
 
-	protected BaseParam(Builder builder) { // 리퀘스트 객체
+	protected BaseParam(Builder<?> builder) { // 리퀘스트 객체
 		if(0 == builder.startNum || 0 == builder.endNum) {
 			builder.startNum = (builder.page - 1) * builder.pageSize + 1;
 			builder.endNum = builder.page * builder.pageSize;

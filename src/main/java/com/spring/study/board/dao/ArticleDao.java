@@ -25,6 +25,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.study.board.model.Article;
 import com.spring.study.board.model.ArticleDto;
+import com.spring.study.board.model.ArticleParam;
 import com.spring.study.board.model.ArticleVo;
 import com.spring.study.board.model.NoticeArticleVo;
 import com.spring.study.common.aop.AddComments;
@@ -78,13 +79,13 @@ public class ArticleDao extends BaseDao {
 
 	}
 	//여기서는 Vo로 해야할거같은데 Service단 수정 후 ㄱㄱㄱ
-	public void insertArticle(ArticleDto articleDto) {
+	public void insertArticle(String articleId, ArticleParam articleParam) {
 		ArticleVo articleVo = new ArticleVo();
-		articleVo.setArticleId(articleDto.getArticleId());
-		articleVo.setTitle(articleDto.getTitle());
-		articleVo.setContent(articleDto.getContent());
-		articleVo.setWriteMemberId(articleDto.getWriteMemberId());
-		articleVo.setWriteDate(new Date());
+		articleVo.setArticleId(articleId);
+		articleVo.setTitle(articleParam.getTitle());
+		articleVo.setContent(articleParam.getContents());
+		articleVo.setWriteMemberId(articleParam.getWriterId());
+		articleVo.setWriteDate(articleParam.getWriteDate());
 		
 		sqlSession.insert(mapper + "insertArticle", articleVo);
 
@@ -132,11 +133,11 @@ public class ArticleDao extends BaseDao {
 
 	}
 
-	public void registerNotice(ArticleDto articleDto) {
+	public void registerNotice(String articleId, ArticleParam articleParam) {
 		NoticeArticleVo noticeArticleVo = new NoticeArticleVo();
-		noticeArticleVo.setArticleId(articleDto.getArticleId());
-		noticeArticleVo.setDisplayStartDate(articleDto.getDisplayStartDate());
-		noticeArticleVo.setDisplayEndDate(articleDto.getDisplayEndDate());
+		noticeArticleVo.setArticleId(articleId);
+		noticeArticleVo.setDisplayStartDate(articleParam.getDisplayStartDate());
+		noticeArticleVo.setDisplayEndDate(articleParam.getDisplayEndDate());
 		
 		sqlSession.insert(mapper + "registerNotice", noticeArticleVo);
 	}

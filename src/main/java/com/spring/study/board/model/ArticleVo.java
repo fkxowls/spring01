@@ -14,14 +14,14 @@ public class ArticleVo {
 	private String parentId;
 	private String title;
 	private String content;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+9")
 	private Date writeDate;
 	private String writeMemberId;
 	//private int rnum;
 	//private boolean isNotice;
 	
 	private String modifyMemberId;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+9")
 	private Date modifyDate;
 	private List<CommentsVo> commentsList;
 	//TODO 여기 고민

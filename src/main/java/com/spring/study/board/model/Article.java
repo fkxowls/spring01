@@ -1,10 +1,10 @@
 package com.spring.study.board.model;
 
+import java.util.Date;
+
 import org.apache.commons.lang3.time.FastDateFormat;
 
 public class Article extends ArticleVo{
-	private static final FastDateFormat fdf = FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss");
-	
 	public ArticleDto displayTitle() {
 		ArticleDto articleDto= new ArticleDto();
 		articleDto.setArticleId(getArticleId());
@@ -15,5 +15,4 @@ public class Article extends ArticleVo{
 		//조회수 추가하기
 		return articleDto;
 	}
-	
 }

@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.spring.study.board.dao.ArticleDao;
 import com.spring.study.board.model.Article;
 import com.spring.study.board.model.ArticleDto;
+import com.spring.study.board.model.ArticleParam;
 import com.spring.study.board.model.ArticleVo;
 import com.spring.study.common.model.CommonCode;
 import com.spring.study.common.model.BaseParam;
@@ -55,14 +56,14 @@ public class ArticleService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public String writeArticle(ArticleDto articleDto) {
+	public String writeArticle(ArticleParam articleParam) {
 		String articleId = this.giveArticleId();
-		articleDto.setArticleId(articleId);
+		//articleParam.setArticleId(articleId);
 
-		articleDao.insertArticle(articleDto);
+		articleDao.insertArticle(articleId, articleParam);
 
-		if (CommonCode.ARTICLE_TYPE_CD_NOTICE_N.getCode().equals(articleDto.getArticleTypeCd())) {
-			articleDao.registerNotice(articleDto);
+		if (CommonCode.ARTICLE_TYPE_CD_NOTICE_N.getCode().equals(articleParam.getArticleTypeCd())) {
+			articleDao.registerNotice(articleId, articleParam);
 		}
 
 		return articleId;
