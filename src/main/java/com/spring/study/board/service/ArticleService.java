@@ -20,6 +20,8 @@ import com.spring.study.common.model.CommonCode;
 import com.spring.study.common.model.BaseParam;
 import com.spring.study.common.model.PageList;
 import com.spring.study.member.model.Member;
+import com.spring.study.member.model.User;
+import com.spring.study.member.model.UserVo;
 
 import javassist.NotFoundException;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
@@ -33,11 +35,11 @@ public class ArticleService {
 	private ArticleDao articleDao;
 	
 	//XXX 일반회원은 공지글을 못본다고 할 경우 아래 user등급 체크는 여기있는게 맞는지 아니면 컨트롤러에있는게 맞는지
-	public Article getArticle(String articleId, Member user) throws Exception {
+	public Article getArticle(String articleId, User user) throws Exception {
 		boolean isNoticeId = articleDao.isNoticeId(articleId);
 		Article returnArticle = null;
 		//공지글 - 일반회원은 접근 못함
-		if (isNoticeId) {
+		if (isNoticeId) {//XXX 이거에 대한 판단도 article객체가 해야하는건지???
 			if (null == user) {
 				throw new NotFoundException("로그인 후 이용가능합니다");
 			}
@@ -69,25 +71,17 @@ public class ArticleService {
 		return articleId;
 	}
 
-	public void modifyArticle(ArticleVo articleVo, Member user) throws Exception {
-		if (user == null) {
-			throw new NullPointerException("로그인 세션 만료");
-		}
+	public void modifyArticle(ArticleDto articleDto, UserVo user) throws Exception {
 		String userId = user.getMemberId();
-		articleVo.setModifyMemberId(userId);
+		articleDto.setModifyMemberId(userId);
 
-		boolean isExistsArticle = articleDao.isExistsArticle(articleVo.getArticleId());
+		boolean isExistsArticle = articleDao.isExistsArticle(articleDto.getArticleId());
 
 		if (!isExistsArticle) {
 			new NotFoundException("권한없는 접근입니다");
 		}
-
-		// 수정일자 입력
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Date curDate = new Date();
-
-		System.out.println(articleVo.getModifyDate() + "--====---=-=-=-=-=-===-=-=");
-		articleDao.updateArticle(articleVo, curDate);
+		
+		articleDao.updateArticle(articleDto);
 	}
 
 	public void deleteArticle(ArticleVo vo) throws Exception {
@@ -162,8 +156,8 @@ public class ArticleService {
 	 ****************************************************************************************************
 	 ****************************************************************************************************/
 
-	public boolean isEqualsWriterId(ArticleVo articleVo, Member user) {
-		if (user.getMemberId().equals(articleVo.getWriteMemberId())) {
+	public boolean isEqualsWriterId(String writerId, UserVo user) {
+		if (user.getMemberId().equals(writerId)) {
 			return true;
 		}
 
