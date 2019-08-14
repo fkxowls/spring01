@@ -2,6 +2,7 @@ package com.spring.study.board.controller;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,12 +37,13 @@ import com.spring.study.comment.service.CommentsService;
 import com.spring.study.common.model.BaseParam;
 import com.spring.study.common.model.PageList;
 import com.spring.study.member.model.Member;
+import com.spring.study.member.model.User;
 
 import javassist.NotFoundException;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 
 //TODO 파라미터-> Dto로 / Article객체, Comments객체 생성-> 해당하는 로직 작성
-//TODO 코멘트 비밀댓글 처리  -> db에서, 글작성자 db에서 가져온다(Oarcle 자체 세션으로 바로 재사용가능 함)
+//TODO 코멘트 비밀댓글 처리  -> db에서 case문사용, 글작성자 db에서 가져온다(Oarcle 자체 세션으로 바로 재사용가능 함)
 //TODO 정렬(쿼리),CASE문 사용
 //TODO 대강 정했던 throw Exception을 구체적으로 Excption클래스 만들어서 던지기, Path코드 공통코드로 분리
 @Controller
@@ -102,53 +104,58 @@ public class ArticleController {
 	}
 	
 	@RequestMapping(value = "/board/{articleId}", method = RequestMethod.GET)
-	public String viewArticle(Model model, @PathVariable String articleId, Member member) {
-		ArticleVo articleVo = new ArticleVo();
+	public String viewArticle(Model model, @PathVariable String articleId, User user) {
 		Map<String, Object> resultState = new HashMap<>();
-		String returnURI = "";
 
-		try {
-			//XXX 아래와 같은 경우에도 Parameter객체에 추가해서 보내야하는건지??
-			articleVo = articleService.getArticle(articleId, member);
-			resultState.put("code",HttpStatus.OK);
-			resultState.put("msg", "로그인 성공");	
-			
-			model.addAttribute("articleVo", articleVo);				
-			returnURI = "board/viewArticle";
-		} catch (SQLException e) {
-			resultState.put("code", HttpStatus.FORBIDDEN);
-			resultState.put("msg", e.getMessage());
-			resultState.put("redirect","/board/listArticleForm");
-			e.printStackTrace();
-		} catch (NotFoundException e) {
-			resultState.put("code", HttpStatus.UNAUTHORIZED);
-			resultState.put("msg", e.getMessage());
-			resultState.put("redirect","/member/loginForm.do");
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			model.addAttribute("resultState", resultState);
-			model.addAttribute("modificationForm","/board/modifyForm");
-			model.addAttribute("replyFormPath","/board/replyForm?articleId"+articleId);
-			model.addAttribute("articleDeletePath","/board/"+articleId);
+		Article article = null;
+		boolean isNotice = articleService.isNoticeArticle(articleId);
+		if(isNotice) {
+			try {
+				article = articleService.getNoticeArticle(articleId, user);
+			} catch (SQLException e) {
+				resultState.put("code", HttpStatus.FORBIDDEN);
+				resultState.put("msg", e.getMessage());
+				resultState.put("redirect","/board/listArticleForm");
+				e.printStackTrace();
+			} catch (NotFoundException e) {
+				resultState.put("code", HttpStatus.UNAUTHORIZED);
+				resultState.put("msg", e.getMessage());
+				resultState.put("redirect","/member/loginForm.do");
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				model.addAttribute("resultState", resultState);			
+			}
+		}else {
+			article = articleService.getArticle2(articleId);
 		}
 		
-		return returnURI;
+		model.addAttribute("modificationForm","/board/"+articleId+"/modifyForm");
+		model.addAttribute("replyFormPath","/board/replyForm?articleId"+articleId);
+		model.addAttribute("articleDeletePath","/board/"+articleId);
+				
+		return "board/viewArticle";
 	}
 	
 	@RequestMapping(value = {"/board/writeArticleForm", "/board/replyForm"})
-	public String moveWriteForm(@RequestParam(required = false) String articleId, Model model, Member user, HttpServletRequest req) {
-		ArticleVo returnVo = new ArticleVo();
-
-		if(user == null) { return "redirect:/member/loginForm"; }
+	public String moveWriteForm(@RequestParam(required = false) String articleId, Model model, User user, HttpServletRequest req) {
+		Article article = null;
 		
+		if(user == null) { return "redirect:/member/loginForm"; }
+		//글 권한체크 질문 해결 후 여기 수정
 		if(req.getRequestURI().equals("/board/writeReplyForm")) {
-			returnVo.setArticleId(articleId);				
-			returnVo.setTitle("[Re]: ");
+			try {
+				article = articleService.getArticle(articleId, user);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			article.setArticleId(articleId);				
+			article.setTitle("[Re]: ");
 			
-			model.addAttribute("returnVo", returnVo);
-			model.addAttribute("path", "/board/"+articleId+"reply");
+			model.addAttribute("returnVo", article);
+			model.addAttribute("path", "/board/"+articleId+"/reply");
 		}else {
 			model.addAttribute("path","/board/article");
 		}
@@ -161,6 +168,7 @@ public class ArticleController {
 	public @ResponseBody Map<String, Object> writeArticle(@RequestBody ArticleDto articleDto, HttpServletRequest req){
 		Map<String, Object> resultMap = new HashMap<>();
 		//XXX insert와 update같은 애들도 파라미터 객체로 보내서 하는게 맞는건지????? 아니면 컨트롤러로 들어오는 파라미터성격에 애들만 파라미터 객체로 만들어서 사용하는건지???? 
+		//얘네는 파라미터 객체로 보낼게 아닌듯함 다시 dto로 보내기
 		ArticleParam articleParam = new ArticleParam.Builder(articleDto.getTitle(), articleDto.getContent(), articleDto.getWriteMemberId(), articleDto.getArticleTypeCd())
 													.displayStartDate(articleDto.getDisplayStartDate())
 													.displayEndDate(articleDto.getDisplayEndDate())
@@ -212,52 +220,66 @@ public class ArticleController {
 		return result;
 	}
 	
-	@RequestMapping(value = "/board/modifyForm")
-	public String moveModificationForm(@ModelAttribute ArticleDto articleDto, Model model, Member user) {
-		if(null == user) {
-			articleService.isEqualsWriterId(articleDto, user);
-			model.addAttribute("articleVo", articleDto);
+	@RequestMapping(value = "/board/{articleId}/modifyForm")//글번호만 가져오고 내용은 db에서 가져오는걸고 바꾸기
+	public String moveModificationForm(@PathVariable String articleId, Model model, User user) {
+		if(null == user) { return "redirect:/member/loginForm"; }
+		Article article = null;
+		try {
+			article = articleService.getArticle(articleId, user);
+		} catch (Exception e) {
+			e.getMessage();
+			e.printStackTrace();
+		}
+		String returnUri = "";
+		
+		boolean isEqualsWriterId = articleService.isEqualsWriterId(article.getWriteMemberId(), user);
+		if(isEqualsWriterId) {
+			//권한체크 해결되면 여기서 글번호로 해당 게시물 내용 조회해서 가져오기
+			model.addAttribute("articleVo", article);
+			returnUri = "board/modifyForm";
 		}else {
-			return "redirect:/member/loginForm";
+			returnUri = "/board/"+articleId;
 		}
 		
-		return "board/modifyForm";
+		return returnUri;
 	}
 	
 	@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.PUT)
-	public @ResponseBody Map<String, Object> modifyArticle(@RequestBody ArticleVo articleVo,
-			@PathVariable String articleNo, Member member) {
+	public @ResponseBody Map<String, Object> modifyArticle(@RequestBody ArticleDto articleDto,
+			@PathVariable String articleNo, User user) {
 		Map<String, Object> resultState = new HashMap<>();
-
+	
+		if(!user.isLogon()) {
+			resultState.put("msg", "로그인 세션 만료");
+			resultState.put("code", HttpStatus.FORBIDDEN);
+			return resultState;
+		}
+		
 		try {
-			articleService.modifyArticle(articleVo, member);
+			articleService.modifyArticle(articleDto, user);
 			resultState.put("code",HttpStatus.OK);
 		} catch (NotFoundException e) {
 			resultState.put("msg", e.getMessage());
 			resultState.put("code", HttpStatus.NOT_FOUND);
-			e.printStackTrace();
-		} catch (NullPointerException e) {
-			resultState.put("msg", e.getMessage());
-			resultState.put("code", HttpStatus.FORBIDDEN);
 			e.printStackTrace();
 		} catch (Exception e) {
 			resultState.put("msg", e.getMessage());
 			resultState.put("code", HttpStatus.SERVICE_UNAVAILABLE);
 			e.printStackTrace();
 		}  finally {
-			resultState.put("redirect", "/board/viewArticle.do?articleId=" + articleVo.getArticleId());
+			resultState.put("redirect", "/board/" + articleDto.getArticleId());
 		}
 
 		return resultState;
 	}
 	
 	@RequestMapping(value = "/board/{articleNo}/comments", method = RequestMethod.POST)
-	public @ResponseBody Map<String, Object> writeComment(@RequestBody CommentsRequestDto commentsRequestDto, Member member) {
+	public @ResponseBody Map<String, Object> writeComment(@RequestBody CommentsRequestDto commentsRequestDto, User user) {
 		Map<String, Object> returnMap = new HashMap<>();
 
-		System.out.println(member.getMemberId());
+		System.out.println(user.getMemberId());
 		try {
-			String msg = commentsService.writeComment(commentsRequestDto, member);
+			String msg = commentsService.writeComment(commentsRequestDto, user);
 			returnMap.put("code",HttpStatus.OK);
 			returnMap.put("msg",msg);
 		} catch (NotFoundException e) {
@@ -273,7 +295,7 @@ public class ArticleController {
 	}
 	//글작성자를 어떻게 보내야 하는가..... 해당 글번호로 조회해서 글작성자 아이디를 가져온다?? 
 	@RequestMapping(value = "/board/{articleId}/comments/{commentsPage}")
-	public @ResponseBody CommentPageList getCommentsList(@RequestParam("writeMemberId") String articleWriterId, @PathVariable("articleId") String articleId, @PathVariable("commentsPage") int commentsPage, Member user) {
+	public @ResponseBody CommentPageList getCommentsList(@RequestParam("writeMemberId") String articleWriterId, @PathVariable("articleId") String articleId, @PathVariable("commentsPage") int commentsPage, User user) {
 		CommentPageList commentPageList = new CommentPageList();
 		String userId;
 		

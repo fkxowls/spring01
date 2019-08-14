@@ -34,7 +34,34 @@ public class ArticleService {
 	@Autowired
 	private ArticleDao articleDao;
 	
+	public boolean isNoticeArticle(String articleId) {
+		return articleDao.isNoticeId(articleId);
+	}
+
+	public Article getNoticeArticle(String articleId, User user) throws Exception{
+		Article returnArticle = null;
+		if (null == user) {
+			throw new NotFoundException("로그인 후 이용가능합니다");
+		}
+		String userLevel = user.getMemberLevel();
+
+		if (CommonCode.USER_LEVEL_CD_NOMAL.getCode().equals(userLevel)) {
+			throw new SQLException("우수회원부터 접근 가능합니다");
+		} else {
+			returnArticle = articleDao.viewArticle(articleId);//공지글만 조회하는 쿼리로 바꿀예정
+		}
+		return returnArticle;
+	}
+
+	public Article getArticle2(String articleId) {
+		Article returnArticle = articleDao.viewArticle(articleId);
+
+		return returnArticle;
+	}
+
 	//XXX 일반회원은 공지글을 못본다고 할 경우 아래 user등급 체크는 여기있는게 맞는지 아니면 컨트롤러에있는게 맞는지
+	//추가 user등급 체크는 user객체에 있는게 맞다고 봄 그러나 아래 메서드에서는 공지글일 경우라는 사전조건이 있어서 컨트롤러에서 판단을 하여 
+	//보낼 수 없음. 
 	public Article getArticle(String articleId, User user) throws Exception {
 		boolean isNoticeId = articleDao.isNoticeId(articleId);
 		Article returnArticle = null;
@@ -60,14 +87,13 @@ public class ArticleService {
 	@Transactional(rollbackFor = Exception.class)
 	public String writeArticle(ArticleParam articleParam) {
 		String articleId = this.giveArticleId();
-		//articleParam.setArticleId(articleId);
 
 		articleDao.insertArticle(articleId, articleParam);
 
-		if (CommonCode.ARTICLE_TYPE_CD_NOTICE_N.getCode().equals(articleParam.getArticleTypeCd())) {
+		if (CommonCode.ARTICLE_TYPE_CD_NOTICE_Y.getCode().equals(articleParam.getArticleTypeCd())) {
 			articleDao.registerNotice(articleId, articleParam);
 		}
-
+		
 		return articleId;
 	}
 
@@ -80,7 +106,7 @@ public class ArticleService {
 		if (!isExistsArticle) {
 			new NotFoundException("권한없는 접근입니다");
 		}
-		
+		//이거에 대한 결과값 리턴하기
 		articleDao.updateArticle(articleDto);
 	}
 
@@ -156,6 +182,7 @@ public class ArticleService {
 	 ****************************************************************************************************
 	 ****************************************************************************************************/
 
+	
 	public boolean isEqualsWriterId(String writerId, UserVo user) {
 		if (user.getMemberId().equals(writerId)) {
 			return true;
