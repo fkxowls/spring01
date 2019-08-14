@@ -53,7 +53,7 @@ public class ArticleService {
 		return returnArticle;
 	}
 
-	public Article getArticle2(String articleId) {
+	public Article getArticle(String articleId) {
 		Article returnArticle = articleDao.viewArticle(articleId);
 
 		return returnArticle;

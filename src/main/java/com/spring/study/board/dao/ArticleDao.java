@@ -73,8 +73,8 @@ public class ArticleDao extends BaseDao {
 		return false;
 	}
 
-	@AddComments
-	public ArticleVo viewArticle(String aritcleNo) {
+	//@AddComments
+	public Article viewArticle(String aritcleNo) {
 		return sqlSession.selectOne(mapper + "viewArticle", aritcleNo);
 
 	}
@@ -91,9 +91,15 @@ public class ArticleDao extends BaseDao {
 
 	}
 
-	public void updateArticle(ArticleVo articleVo, Date curDate) {
-		articleVo.setModifyDate(curDate);
-		sqlSession.update(mapper + "updateArticle", articleVo);
+	public void updateArticle(ArticleDto articleDto) {
+		ArticleVo articleVo = new ArticleVo();
+		articleVo.setArticleId(articleDto.getArticleId());
+		articleVo.setWriteMemberId(articleDto.getWriteMemberId());
+		articleVo.setTitle(articleDto.getTitle());
+		articleVo.setContent(articleDto.getContent());
+		articleVo.setModifyMemberId(articleDto.getModifyMemberId());
+		
+		sqlSession.update(mapper + "updateArticle", articleDto);
 	}
 
 	public int getTotalArticles() {
@@ -216,5 +222,8 @@ public class ArticleDao extends BaseDao {
 		return false;
 	}
 	
+	public void test() {
+		System.out.println("테스트용");
+	}
 
 }

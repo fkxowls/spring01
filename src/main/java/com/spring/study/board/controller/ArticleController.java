@@ -128,9 +128,9 @@ public class ArticleController {
 				model.addAttribute("resultState", resultState);			
 			}
 		}else {
-			article = articleService.getArticle2(articleId);
+			article = articleService.getArticle(articleId);
 		}
-		
+		model.addAttribute("articleVo", article.showArticle());
 		model.addAttribute("modificationForm","/board/"+articleId+"/modifyForm");
 		model.addAttribute("replyFormPath","/board/replyForm?articleId"+articleId);
 		model.addAttribute("articleDeletePath","/board/"+articleId);
@@ -140,19 +140,17 @@ public class ArticleController {
 	
 	@RequestMapping(value = {"/board/writeArticleForm", "/board/replyForm"})
 	public String moveWriteForm(@RequestParam(required = false) String articleId, Model model, User user, HttpServletRequest req) {
-		Article article = null;
-		
-		if(user == null) { return "redirect:/member/loginForm"; }
+		ArticleDto article = user.getUserInfo();
+		//user객체에서 판단
+		if(!user.isLogon()) { return "redirect:/member/loginForm"; }
 		//글 권한체크 질문 해결 후 여기 수정
 		if(req.getRequestURI().equals("/board/writeReplyForm")) {
-			try {
-				article = articleService.getArticle(articleId, user);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			article.setArticleId(articleId);				
-			article.setTitle("[Re]: ");
+			//XXX 공지글은 답글을 못달게 하고싶은데 어떻게 팅겨내야 할까여
+			Article parentArticleInfo = articleService.getArticle(articleId);
+			ArticleDto parentArticleDto = parentArticleInfo.showArticle();
+			
+			article.setArticleId(parentArticleDto.getArticleId());				
+			article.setTitle("[Re]: " + parentArticleDto.getTitle());
 			
 			model.addAttribute("returnVo", article);
 			model.addAttribute("path", "/board/"+articleId+"/reply");
