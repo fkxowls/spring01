@@ -160,8 +160,7 @@ public class ArticleController {
 	@RequestMapping(value = "/board/article", method = RequestMethod.POST)
 	public @ResponseBody Map<String, Object> writeArticle(@RequestBody ArticleDto articleDto, HttpServletRequest req){
 		Map<String, Object> resultMap = new HashMap<>();
-		//XXX articleId를 파라미터 객체에 주입할 수 없음.... insert전에 articleId 시퀀스를 조회해서 vo로 보내고있음....
-		//일단 articleId를 servie에서 파라미터객체와 따로 보냄..............
+		//XXX insert와 update같은 애들도 파라미터 객체로 보내서 하는게 맞는건지????? 아니면 컨트롤러로 들어오는 파라미터성격에 애들만 파라미터 객체로 만들어서 사용하는건지???? 
 		ArticleParam articleParam = new ArticleParam.Builder(articleDto.getTitle(), articleDto.getContent(), articleDto.getWriteMemberId(), articleDto.getArticleTypeCd())
 													.displayStartDate(articleDto.getDisplayStartDate())
 													.displayEndDate(articleDto.getDisplayEndDate())
@@ -214,11 +213,10 @@ public class ArticleController {
 	}
 	
 	@RequestMapping(value = "/board/modifyForm")
-	public String moveModificationForm(@ModelAttribute ArticleVo articleVo, Model model, Member user) {
-		
+	public String moveModificationForm(@ModelAttribute ArticleDto articleDto, Model model, Member user) {
 		if(null == user) {
-			articleService.isEqualsWriterId(articleVo, user);
-			model.addAttribute("articleVo", articleVo);
+			articleService.isEqualsWriterId(articleDto, user);
+			model.addAttribute("articleVo", articleDto);
 		}else {
 			return "redirect:/member/loginForm";
 		}
