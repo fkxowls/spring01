@@ -31,28 +31,28 @@ public class ArticleService {
 
 	@Autowired
 	private ArticleDao articleDao;
-
-	public ArticleVo getArticle(String articleId, Member member) throws Exception {
+	
+	//XXX 일반회원은 공지글을 못본다고 할 경우 아래 user등급 체크는 여기있는게 맞는지 아니면 컨트롤러에있는게 맞는지
+	public Article getArticle(String articleId, Member user) throws Exception {
 		boolean isNoticeId = articleDao.isNoticeId(articleId);
-		// XXX 리턴객체가 Vo와 같을때엔 그냥 Vo로 리턴하는것이 가능한건가여
-		ArticleVo returnVo = null;
+		Article returnArticle = null;
 		//공지글 - 일반회원은 접근 못함
 		if (isNoticeId) {
-			if (null == member) {
+			if (null == user) {
 				throw new NotFoundException("로그인 후 이용가능합니다");
 			}
-			String userLevel = member.getMemberLevel();
+			String userLevel = user.getMemberLevel();
 
 			if (CommonCode.USER_LEVEL_CD_NOMAL.getCode().equals(userLevel)) {
 				throw new SQLException("우수회원부터 접근 가능합니다");
 			} else {
-				returnVo = articleDao.viewArticle(articleId);
+				returnArticle = articleDao.viewArticle(articleId);
 			}
 		} else {
-			returnVo = articleDao.viewArticle(articleId);
+			returnArticle = articleDao.viewArticle(articleId);
 		}
 
-		return returnVo;
+		return returnArticle;
 	}
 
 	@Transactional(rollbackFor = Exception.class)
