@@ -5,34 +5,37 @@
 
 <mapper namespace="mapper.comment">
 	<select id="listComment" parameterType="articleReplyVo" resultType="articleReplyVo">
-		<![CDATA[
-		SELECT	 A.*
-		FROM      (
-  	                  SELECT	
-        	                    B.*
-    	             FROM     (
-        	   		  			SELECT   ROW_NUMBER() OVER(PARTITION BY ARTICLE_ID  ORDER BY REPLY_ID DESC) AS RANK_NUMBER
-  	                  		   			, LEVEL AS LVL
-        	   		  					, ARTICLE_ID
-            	        	   			, REPLY_IDser
-	                         	  		, PARENT_ID
-                    		 	 	    , CONTENT
-	                         	  		, WRITE_MEMBER_ID
-	                          			, SECRET_TYPE_CD
-	                          	FROM     ARTICLE_REPLY
-       				 			WHERE    ARTICLE_ID in (
-	       													SELECT regexp_substr(#{articleId}, '[^,]+', 1, LEVEL)
-															FROM DUAL
-															CONNECT BY LEVEL >= length(regexp_replace(#{articleId}, '[^,]+', '')) + 1
-       			 						     			) 
-            					CONNECT BY
-            	    		  			 PRIOR ARTICLE_ID   = PARENT_ID 
-        	   				  ) B
-					WHERE  B.RANK_NUMBER <= #{endNum}
-        	   				  
-       			 ) A	
-		WHERE  A.RANK_NUMBER >= #{startNum}
-	 ]]>
+		SELECT   A.*
+        FROM      (
+                      SELECT    
+                                B.*
+                     FROM     (
+                                SELECT   ROW_NUMBER() OVER(PARTITION BY C.ARTICLE_ID  ORDER BY C.REPLY_ID DESC) AS RANK_NUMBER
+                                        , LEVEL AS LVL
+                                        , C.ARTICLE_ID
+                                        , C.REPLY_ID
+                                        , C.PARENT_ID
+                                        , C.WRITE_MEMBER_ID
+                                        , C.SECRET_TYPE_CD
+                                        ,CASE    WHEN (C.WRITE_MEMBER_ID != #{userId} AND  D.WRITE_MEMBER_ID != #{userId})  AND SECRET_TYPE_CD = 10 THEN '비밀댓글'
+                                        ELSE     C.CONTENT
+                                        END
+                                FROM           ARTICLE_REPLY C
+                                INNER   JOIN   ARTICLE D
+                                ON C.ARTICLE_ID = D.ARTICLE_ID
+                                WHERE    C.ARTICLE_ID in (
+                                                            SELECT regexp_substr(#{articleId}, '[^,]+', 1, LEVEL)
+                                                            FROM DUAL
+                                                            CONNECT BY LEVEL &lt;= length(regexp_replace(#{articleId}, '[^,]+', '')) + 1
+                                                        ) 
+                                CONNECT BY
+                                         PRIOR C.ARTICLE_ID   = C.PARENT_ID 
+                              ) B
+                    WHERE  B.RANK_NUMBER &lt;= #{endNum}
+                              
+                 ) A    
+        WHERE  A.RANK_NUMBER &gt;= #{startNum}
+	
 	
 	</select>
 	<!-- 페이징 전 쿼리 -->

@@ -9,14 +9,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.spring.study.board.controller.ArticleController;
+import com.spring.study.board.dao.BaseDao;
 import com.spring.study.comment.model.CommentPageList;
-import com.spring.study.comment.model.CommentsRequestDto;
+import com.spring.study.comment.model.CommentsDto;
+import com.spring.study.comment.model.CommentsParam;
 import com.spring.study.comment.model.CommentsVo;
+import com.spring.study.common.model.PageList;
 import com.spring.study.member.model.Member;
+import com.spring.study.member.model.User;
 
 
 @Repository("commentDAO")
-public class CommentDao {
+public class CommentDao  extends BaseDao{
 	private static final Logger logger = LoggerFactory.getLogger(ArticleController.class);
 	private static String mapper = "mapper.article";
 	
@@ -29,19 +33,13 @@ public class CommentDao {
 		return false;
 	}
 	
-	public CommentPageList commentsList(CommentsRequestDto commentDto) {
-		CommentsVo vo = new CommentsVo(commentDto.getCommentsPage());
-		vo.setArticleId(commentDto.getArticleId());
-		vo.setStartNum(commentDto.getStartNum());
-		vo.setEndNum(commentDto.getEndNum());
-				
-		List<CommentsVo> commentList = sqlSession.selectList("mapper.comment.listComment", vo);
-		return new CommentPageList(commentDto.getCommentsPage(), commentDto.getPageSize(), commentList); 
+	public PageList<CommentsVo> commentsList(CommentsParam commentsParam) {
+		return super.selectPageDto("mapper.comment.listComment", commentsParam);
 	}
 		
-	public int writeComment(CommentsRequestDto crd,  Member member) {
+	public int writeComment(CommentsDto crd, User user) {
 		CommentsVo vo = new CommentsVo();	
-		vo.setWriteMemberId(member.getMemberId());
+		vo.setWriteMemberId(user.getMemberId());
 		vo.setArticleId(crd.getArticleId());
 		vo.setParentId(crd.getParentId());
 		vo.setContent(crd.getContent());
@@ -52,7 +50,7 @@ public class CommentDao {
 	}
 	
 	public String getWriterOfArticle(String articleId) {
-		// TODO 글작성자 가져오는 쿼리 날리기
+		// 글작성자 가져오는 쿼리 날리기
 		return null;
 	}
 	

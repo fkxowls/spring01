@@ -33,7 +33,9 @@ import com.spring.study.board.model.ArticleDto;
 import com.spring.study.board.model.BoardRequestDto;
 import com.spring.study.board.service.ArticleService;
 import com.spring.study.comment.model.CommentPageList;
-import com.spring.study.comment.model.CommentsRequestDto;
+import com.spring.study.comment.model.CommentsDto;
+import com.spring.study.comment.model.CommentsParam;
+import com.spring.study.comment.model.CommentsVo;
 import com.spring.study.comment.service.CommentsService;
 import com.spring.study.common.model.BaseParam;
 import com.spring.study.common.model.PageList;
@@ -55,7 +57,7 @@ import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 public class ArticleController {
 	private static final Logger logger = LoggerFactory.getLogger(ArticleController.class);
 	private static final int pageSize = 10;
-
+	private static final int commentPageSize = 10;
 	@Autowired
 	private ArticleService articleService;
 	@Autowired
@@ -288,12 +290,11 @@ public class ArticleController {
 	}
 	
 	@RequestMapping(value = "/board/{articleNo}/comments", method = RequestMethod.POST)
-	public @ResponseBody Map<String, Object> writeComment(@RequestBody CommentsRequestDto commentsRequestDto, User user) {
+	public @ResponseBody Map<String, Object> writeComment(@RequestBody CommentsDto commentsDto, User user) {
 		Map<String, Object> returnMap = new HashMap<>();
 
-		System.out.println(user.getMemberId());
 		try {
-			String msg = commentsService.writeComment(commentsRequestDto, user);
+			String msg = commentsService.writeComment(commentsDto, user);
 			returnMap.put("code",HttpStatus.OK);
 			returnMap.put("msg",msg);
 		} catch (NotFoundException e) {
@@ -307,23 +308,24 @@ public class ArticleController {
 		}
 			return returnMap;
 	}
-	//글작성자를 어떻게 보내야 하는가..... 해당 글번호로 조회해서 글작성자 아이디를 가져온다?? 
+	
 	@RequestMapping(value = "/board/{articleId}/comments/{commentsPage}")
-	public @ResponseBody CommentPageList getCommentsList(@RequestParam("writeMemberId") String articleWriterId, @PathVariable("articleId") String articleId, @PathVariable("commentsPage") int commentsPage, User user) {
-		CommentPageList commentPageList = new CommentPageList();
+	public @ResponseBody Map<String, Object> getCommentsList(@RequestParam("writeMemberId") String articleWriterId, @PathVariable("articleId") String articleId, @PathVariable("commentsPage") int commentsPage, User user) {
+		Map<String, Object> returnMap = new HashMap<>();
 		String userId;
-		
-		if(null != user) {
+		if(user.isLogon()) {
 			userId = user.getMemberId();
-			commentPageList = commentsService.getCommentsPageList(articleId, commentsPage, userId, articleWriterId);
-		}else {//여기 수정해야함
-			System.out.println("aaaa");
-			userId ="";
-			commentPageList = commentsService.getCommentsPageList(articleId, commentsPage, userId, articleWriterId);
+		}else {
+			userId = "";
 		}
-		
-		
-		return commentPageList;
+		CommentsParam commentsParam = new CommentsParam.Builder(commentsPage, commentPageSize,articleId)
+										 .writeMemberId(articleWriterId)
+										 .userId(userId).build();
+		PageList<CommentsVo> commentsPageList = commentsService.getCommentsPageList(commentsParam);
+	
+		returnMap.put("commentsList", commentsPageList.getList());
+		returnMap.put("totalPage", commentsPageList.getTotalPage());
+		return returnMap;
 	}
 
 	@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.DELETE)

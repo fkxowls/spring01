@@ -2,6 +2,8 @@ package com.spring.study.comment.model;
 
 import java.util.List;
 
+
+
 public class CommentPageList {
 	private List<CommentsVo> commentsList;
 	private int page;

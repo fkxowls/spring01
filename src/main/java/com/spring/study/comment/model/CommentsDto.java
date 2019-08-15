@@ -1,6 +1,6 @@
 package com.spring.study.comment.model;
 
-public class CommentsRequestDto {
+public class CommentsDto {
 	private String articleId;
 	private int pageSize;
 	private int commentsPage;
@@ -13,23 +13,23 @@ public class CommentsRequestDto {
 	private String replyId;
 	
 
-	public CommentsRequestDto() {
+	public CommentsDto() {
 	
 	}
 
-	public CommentsRequestDto(String articleId, String content, String secretTypeCd) {
+	public CommentsDto(String articleId, String content, String secretTypeCd) {
 		this.articleId    = articleId;
 		this.content	  = content;//?? 여기에 왜 갑분컨???
 		this.secretTypeCd =secretTypeCd;
 	}
 	
-	public CommentsRequestDto(String articleId, int commentsPage, int pageSize) {
+	public CommentsDto(String articleId, int commentsPage, int pageSize) {
 		this.articleId 	  = articleId;
 		this.pageSize 	  = pageSize;
 		this.commentsPage = commentsPage;
 	}
 
-	public CommentsRequestDto(String articleId, int commentsPage, int pageSize, String writeMemberId) {
+	public CommentsDto(String articleId, int commentsPage, int pageSize, String writeMemberId) {
 		this.articleId 	      = articleId;
 		this.commentsPage 	  = commentsPage;
 		this.writeMemberId 	  = writeMemberId;
