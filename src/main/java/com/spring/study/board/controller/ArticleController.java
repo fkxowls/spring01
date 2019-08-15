@@ -42,10 +42,14 @@ import com.spring.study.member.model.User;
 import javassist.NotFoundException;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 
+
+
 //TODO 파라미터-> Dto로 / Article객체, Comments객체 생성-> 해당하는 로직 작성
 //TODO 코멘트 비밀댓글 처리  -> db에서 case문사용, 글작성자 db에서 가져온다(Oarcle 자체 세션으로 바로 재사용가능 함)
 //TODO 정렬(쿼리),CASE문 사용
 //TODO 대강 정했던 throw Exception을 구체적으로 Excption클래스 만들어서 던지기, Path코드 공통코드로 분리
+
+//TODO 목요일 할거 코멘트 비밀댓글 처리, 코멘트 객체만들기
 @Controller
 public class ArticleController {
 	private static final Logger logger = LoggerFactory.getLogger(ArticleController.class);
@@ -140,19 +144,19 @@ public class ArticleController {
 	
 	@RequestMapping(value = {"/board/writeArticleForm", "/board/replyForm"})
 	public String moveWriteForm(@RequestParam(required = false) String articleId, Model model, User user, HttpServletRequest req) {
-		ArticleDto article = user.getUserInfo();
-		//user객체에서 판단
+		ArticleDto articleDto = user.getUserInfo();
+		
 		if(!user.isLogon()) { return "redirect:/member/loginForm"; }
-		//글 권한체크 질문 해결 후 여기 수정
+		
 		if(req.getRequestURI().equals("/board/writeReplyForm")) {
 			//XXX 공지글은 답글을 못달게 하고싶은데 어떻게 팅겨내야 할까여
 			Article parentArticleInfo = articleService.getArticle(articleId);
 			ArticleDto parentArticleDto = parentArticleInfo.showArticle();
 			
-			article.setArticleId(parentArticleDto.getArticleId());				
-			article.setTitle("[Re]: " + parentArticleDto.getTitle());
+			articleDto.setArticleId(parentArticleDto.getArticleId());				
+			articleDto.setTitle("[Re]: " + parentArticleDto.getTitle());
 			
-			model.addAttribute("returnVo", article);
+			model.addAttribute("articleDto", articleDto);
 			model.addAttribute("path", "/board/"+articleId+"/reply");
 		}else {
 			model.addAttribute("path","/board/article");
@@ -164,7 +168,7 @@ public class ArticleController {
 	
 	@RequestMapping(value = "/board/article", method = RequestMethod.POST)
 	public @ResponseBody Map<String, Object> writeArticle(@RequestBody ArticleDto articleDto, HttpServletRequest req){
-		Map<String, Object> resultMap = new HashMap<>();
+		Map<String, Object> resultState = new HashMap<>();
 		//XXX insert와 update같은 애들도 파라미터 객체로 보내서 하는게 맞는건지????? 아니면 컨트롤러로 들어오는 파라미터성격에 애들만 파라미터 객체로 만들어서 사용하는건지???? 
 		//얘네는 파라미터 객체로 보낼게 아닌듯함 다시 dto로 보내기
 		ArticleParam articleParam = new ArticleParam.Builder(articleDto.getTitle(), articleDto.getContent(), articleDto.getWriteMemberId(), articleDto.getArticleTypeCd())
@@ -177,13 +181,24 @@ public class ArticleController {
 			e.printStackTrace();
 		}
 		
-		String writenArticleId = articleService.writeArticle(articleParam);
+		String writenArticleId = "";
+		try {
+			writenArticleId = articleService.writeArticle(articleParam);
+		} catch (SQLException e) {
+			resultState.put("code", HttpStatus.INTERNAL_SERVER_ERROR);
+			resultState.put("msg",e.getMessage());
+			e.printStackTrace();
+		} catch (Exception e) {
+			resultState.put("code", HttpStatus.SERVICE_UNAVAILABLE);
+			resultState.put("msg","알 수 없는 오류 발생");
+			e.printStackTrace();
+		}
 	
-		resultMap.put("code", HttpStatus.OK);
-		resultMap.put("msg", "글 등록이 완료되었습니다.");
-		resultMap.put("redirect", "/board/" + writenArticleId);
+		resultState.put("code", HttpStatus.OK);
+		resultState.put("msg", "글 등록이 완료되었습니다.");
+		resultState.put("redirect", "/board/" + writenArticleId);
 		
-		return resultMap;
+		return resultState;
 	}
 	
 	@RequestMapping(value = "/board/{parentId}/reply", method = RequestMethod.POST)

@@ -85,13 +85,15 @@ public class ArticleService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public String writeArticle(ArticleParam articleParam) {
+	public String writeArticle(ArticleParam articleParam) throws SQLException {
 		String articleId = this.giveArticleId();
 
-		articleDao.insertArticle(articleId, articleParam);
-
+		int result = articleDao.insertArticle(articleId, articleParam);
+		if(1 != result) { throw new SQLException(" 글 등록중 오류가 발생하였습니다. "); }
+		
 		if (CommonCode.ARTICLE_TYPE_CD_NOTICE_Y.getCode().equals(articleParam.getArticleTypeCd())) {
-			articleDao.registerNotice(articleId, articleParam);
+			result = articleDao.registerNotice(articleId, articleParam);
+			if(1 != result) { throw new SQLException(" 글 등록중 오류가 발생하였습니다. "); }
 		}
 		
 		return articleId;
