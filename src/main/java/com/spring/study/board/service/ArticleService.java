@@ -59,14 +59,11 @@ public class ArticleService {
 		return returnArticle;
 	}
 
-	//XXX 일반회원은 공지글을 못본다고 할 경우 아래 user등급 체크는 여기있는게 맞는지 아니면 컨트롤러에있는게 맞는지
-	//추가 user등급 체크는 user객체에 있는게 맞다고 봄 그러나 아래 메서드에서는 공지글일 경우라는 사전조건이 있어서 컨트롤러에서 판단을 하여 
-	//보낼 수 없음. 
 	public Article getArticle(String articleId, User user) throws Exception {
 		boolean isNoticeId = articleDao.isNoticeId(articleId);
 		Article returnArticle = null;
 		//공지글 - 일반회원은 접근 못함
-		if (isNoticeId) {//XXX 이거에 대한 판단도 article객체가 해야하는건지???
+		if (isNoticeId) {//XXX 이거에 대한 판단도 article객체가 해야하는건지??? 그렇다면 article객체에 dao를 주입해서 써도 되는지???
 			if (null == user) {
 				throw new NotFoundException("로그인 후 이용가능합니다");
 			}
@@ -86,7 +83,7 @@ public class ArticleService {
 
 	@Transactional(rollbackFor = Exception.class)
 	public String writeArticle(ArticleParam articleParam) throws SQLException {
-		String articleId = this.giveArticleId();
+		String articleId = this.getArticleIdNextSeq();
 
 		int result = articleDao.insertArticle(articleId, articleParam);
 		if(1 != result) { throw new SQLException(" 글 등록중 오류가 발생하였습니다. "); }
@@ -123,21 +120,19 @@ public class ArticleService {
 	}
 
 	// transaction
-	public String writeReply(ArticleVo articleVo) throws Exception {
+	public String writeReply(ArticleDto articleDto) throws Exception {
 		// 답글쓰기전 부모글 체크
-		boolean isExistsArticle = articleDao.isExistsArticle(articleVo.getArticleId());
+		boolean isExistsArticle = articleDao.isExistsArticle(articleDto.getParentId());
 		if (!isExistsArticle) {
 			throw new NotFoundException("답변하려는 글이 존재하지 않습니다.");
 		}
 
-		articleVo.setArticleId(this.giveArticleId());
-
-		int result = articleDao.replyArticle(articleVo);
+		int result = articleDao.replyArticle(articleDto);
 		if (0 == result) {
 			throw new InternalException("서버 오류입니다. 다시 시도해주세요.");
 		}
 
-		isExistsArticle = articleDao.isExistsArticle(articleVo.getArticleId());
+		isExistsArticle = articleDao.isExistsArticle(articleDto.getParentId());
 		if (!isExistsArticle) {
 			throw new NotFoundException("답변하려는 글이 존재하지 않습니다.");
 		}
@@ -149,7 +144,7 @@ public class ArticleService {
 	/****************************
 	 * 답글말고 일반 글쓰기에서 현재 시퀀스 조회후 + 1 을 하는건 좋지 않은 방법인가??
 	 ****************************/
-	public String giveArticleId() {
+	public String getArticleIdNextSeq() {
 		String result = articleDao.getNextArticleId();
 		return result;
 	}

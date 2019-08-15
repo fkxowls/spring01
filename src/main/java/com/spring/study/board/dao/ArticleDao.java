@@ -79,7 +79,7 @@ public class ArticleDao extends BaseDao {
 
 	}
 	//여기서는 Vo로 해야할거같은데 Service단 수정 후 ㄱㄱㄱ
-	public void insertArticle(String articleId, ArticleParam articleParam) {
+	public int insertArticle(String articleId, ArticleParam articleParam) {
 		ArticleVo articleVo = new ArticleVo();
 		articleVo.setArticleId(articleId);
 		articleVo.setTitle(articleParam.getTitle());
@@ -87,7 +87,7 @@ public class ArticleDao extends BaseDao {
 		articleVo.setWriteMemberId(articleParam.getWriterId());
 		articleVo.setWriteDate(articleParam.getWriteDate());
 		
-		sqlSession.insert(mapper + "insertArticle", articleVo);
+		return sqlSession.insert(mapper + "insertArticle", articleVo);
 
 	}
 
@@ -117,7 +117,14 @@ public class ArticleDao extends BaseDao {
 
 	}
 
-	public int replyArticle(ArticleVo articleVo) {
+	public int replyArticle(ArticleDto articleDto) {
+		ArticleVo articleVo = new ArticleVo();
+		articleVo.setArticleId(this.getNextArticleId());
+		articleVo.setParentId(articleDto.getParentId());
+		articleVo.setTitle(articleDto.getTitle());
+		articleVo.setContent(articleDto.getContent());
+		articleVo.setWriteMemberId(articleDto.getWriteMemberId());
+		
 		return sqlSession.insert(mapper + "insertReply", articleVo);
 	}
 
@@ -139,13 +146,13 @@ public class ArticleDao extends BaseDao {
 
 	}
 
-	public void registerNotice(String articleId, ArticleParam articleParam) {
+	public int registerNotice(String articleId, ArticleParam articleParam) {
 		NoticeArticleVo noticeArticleVo = new NoticeArticleVo();
 		noticeArticleVo.setArticleId(articleId);
 		noticeArticleVo.setDisplayStartDate(articleParam.getDisplayStartDate());
 		noticeArticleVo.setDisplayEndDate(articleParam.getDisplayEndDate());
 		
-		sqlSession.insert(mapper + "registerNotice", noticeArticleVo);
+		return sqlSession.insert(mapper + "registerNotice", noticeArticleVo);
 	}
 
 	public List<ArticleVo> getMyArticleList(String userId) {

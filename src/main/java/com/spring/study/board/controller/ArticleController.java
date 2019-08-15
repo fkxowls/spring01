@@ -28,7 +28,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.spring.study.board.model.Article;
 import com.spring.study.board.model.ArticleDto;
 import com.spring.study.board.model.ArticleParam;
-import com.spring.study.board.model.ArticleVo;
+import com.spring.study.board.model.ArticleParam2;
+import com.spring.study.board.model.ArticleDto;
 import com.spring.study.board.model.BoardRequestDto;
 import com.spring.study.board.service.ArticleService;
 import com.spring.study.comment.model.CommentPageList;
@@ -107,6 +108,7 @@ public class ArticleController {
 		return result;
 	}
 	
+	//XXX 1 viewArticle 로직을 한번 봐주시면 감사하겠습니다
 	@RequestMapping(value = "/board/{articleId}", method = RequestMethod.GET)
 	public String viewArticle(Model model, @PathVariable String articleId, User user) {
 		Map<String, Object> resultState = new HashMap<>();
@@ -136,28 +138,28 @@ public class ArticleController {
 		}
 		model.addAttribute("articleVo", article.showArticle());
 		model.addAttribute("modificationForm","/board/"+articleId+"/modifyForm");
-		model.addAttribute("replyFormPath","/board/replyForm?articleId"+articleId);
+		model.addAttribute("replyFormPath","/board/"+ articleId +"/replyForm");
 		model.addAttribute("articleDeletePath","/board/"+articleId);
 				
 		return "board/viewArticle";
 	}
-	
-	@RequestMapping(value = {"/board/writeArticleForm", "/board/replyForm"})
-	public String moveWriteForm(@RequestParam(required = false) String articleId, Model model, User user, HttpServletRequest req) {
+														
+	@RequestMapping(value = {"/board/writeArticleForm", "/board/{parentId}/replyForm"})
+	public String moveWriteForm(@PathVariable String parentId, Model model, User user, HttpServletRequest req) {
 		ArticleDto articleDto = user.getUserInfo();
 		
 		if(!user.isLogon()) { return "redirect:/member/loginForm"; }
 		
-		if(req.getRequestURI().equals("/board/writeReplyForm")) {
-			//XXX 공지글은 답글을 못달게 하고싶은데 어떻게 팅겨내야 할까여
-			Article parentArticleInfo = articleService.getArticle(articleId);
+		if(req.getRequestURI().equals("/board/"+parentId+"/replyForm")) {
+			//XXX 공지글 답글달기 클릭시 팅겨내고 싶은데 그럴려면 이 메서드에 리턴값을 map으로 해서 해야하는지(= 폼이동에서 리턴값을 String이 아니라 map으로도 해도 되는건지 궁굼
+			Article parentArticleInfo = articleService.getArticle(parentId);
 			ArticleDto parentArticleDto = parentArticleInfo.showArticle();
 			
 			articleDto.setArticleId(parentArticleDto.getArticleId());				
 			articleDto.setTitle("[Re]: " + parentArticleDto.getTitle());
 			
 			model.addAttribute("articleDto", articleDto);
-			model.addAttribute("path", "/board/"+articleId+"/reply");
+			model.addAttribute("path", "/board/"+parentId+"/reply");
 		}else {
 			model.addAttribute("path","/board/article");
 		}
@@ -200,20 +202,19 @@ public class ArticleController {
 		
 		return resultState;
 	}
-	
+	//XXX 이런 상황에서 파라미터객체를 쓰는것인지??
 	@RequestMapping(value = "/board/{parentId}/reply", method = RequestMethod.POST)
-	public @ResponseBody Map<String,Object> writeReply(@RequestBody ArticleVo articleVo, @PathVariable String parentId) {
+	public @ResponseBody Map<String,Object> writeReply(@RequestBody ArticleDto articleDto, @PathVariable String parentId) {
 		Map<String, Object> result = new HashMap<>();
-
+	
 		if(5 != parentId.length()) { 
 			result.put("code", HttpStatus.BAD_REQUEST);
 			result.put("msg", "입력 값이 올바르지 않습니다. 다시 확인 해주세요.");
 			return result;
-		}
-		articleVo.setParentId(parentId);
+		}		
 		
 		try {
-			String msg = articleService.writeReply(articleVo);
+			String msg = articleService.writeReply(articleDto);
 			result.put("code",HttpStatus.OK);
 			result.put("msg", msg);
 		} catch (NotFoundException e) {
@@ -326,7 +327,7 @@ public class ArticleController {
 	}
 
 	@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.DELETE)
-	public @ResponseBody Map<String, Object> deleteArticle(@RequestBody ArticleVo articleVo) {
+	public @ResponseBody Map<String, Object> deleteArticle(@RequestBody ArticleDto articleVo) {
 		Map<String, Object> resultState = new HashMap<>();
 
 		try {
