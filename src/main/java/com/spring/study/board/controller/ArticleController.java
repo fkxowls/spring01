@@ -83,7 +83,7 @@ public class ArticleController {
 		
 //		List<ArticleDto> articleHeader = articleList.stream()
 //		.map(Article::displayTitle)
-//		.collect(Collectors.toList());//XXX 여기서 캐스팅 오류가 나는 이유는 무엇일까여
+//		.collect(Collectors.toList());//XXX 3 여기서 캐스팅 오류가 나는 이유는 무엇일까여
 		
 		model.addAttribute("articleList", articleList);
 		model.addAttribute("writeArticleForm","/board/writeArticleForm");
@@ -309,6 +309,7 @@ public class ArticleController {
 			return returnMap;
 	}
 	
+	//XXX 2 비밀댓글일시 content 필드에 담지를 못함....
 	@RequestMapping(value = "/board/{articleId}/comments/{commentsPage}")
 	public @ResponseBody Map<String, Object> getCommentsList(@RequestParam("writeMemberId") String articleWriterId, @PathVariable("articleId") String articleId, @PathVariable("commentsPage") int commentsPage, User user) {
 		Map<String, Object> returnMap = new HashMap<>();
@@ -319,10 +320,10 @@ public class ArticleController {
 			userId = "";
 		}
 		CommentsParam commentsParam = new CommentsParam.Builder(commentsPage, commentPageSize,articleId)
-										 .writeMemberId(articleWriterId)
+										 .writeMemberId(articleWriterId)//쿼리에서 처리하므로 글작성자는 주입 받을 필요가 없어짐 쿼리 검토 후 이상없으면 삭제
 										 .userId(userId).build();
 		PageList<CommentsVo> commentsPageList = commentsService.getCommentsPageList(commentsParam);
-	
+		
 		returnMap.put("commentsList", commentsPageList.getList());
 		returnMap.put("totalPage", commentsPageList.getTotalPage());
 		return returnMap;
