@@ -17,9 +17,11 @@
                                         , C.PARENT_ID
                                         , C.WRITE_MEMBER_ID
                                         , C.SECRET_TYPE_CD
-                                        ,CASE    WHEN (C.WRITE_MEMBER_ID != #{userId} AND  D.WRITE_MEMBER_ID != #{userId})  AND SECRET_TYPE_CD = 10 THEN '비밀댓글'
-                                        ELSE     C.CONTENT
-                                        END
+                                        ,CASE   
+                                             WHEN C.WRITE_MEMBER_ID = #{userId}  AND SECRET_TYPE_CD = 10 THEN C.CONTENT 
+                                             WHEN D.WRITE_MEMBER_ID = #{userId}  AND SECRET_TYPE_CD = 10 THEN C.CONTENT
+                                             ELSE     '비밀댓글'
+                                         END AS CONTENT
                                 FROM           ARTICLE_REPLY C
                                 INNER   JOIN   ARTICLE D
                                 ON C.ARTICLE_ID = D.ARTICLE_ID
