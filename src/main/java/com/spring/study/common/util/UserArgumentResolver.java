@@ -9,7 +9,9 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import com.spring.study.member.model.Member;
+import com.spring.study.model.member.Member;
+import com.spring.study.model.member.User;
+import com.spring.study.model.member.UserVo;
 
 public class UserArgumentResolver implements HandlerMethodArgumentResolver{
 
@@ -17,7 +19,7 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver{
 	public boolean supportsParameter(MethodParameter parameter) {
 		System.out.println(parameter.getParameterType());
 		System.out.println(Member.class.getClass().getTypeName());
-		return Member.class.isAssignableFrom(parameter.getParameterType());
+		return User.class.isAssignableFrom(parameter.getParameterType());
 	}
 
 	@Override
@@ -25,8 +27,8 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver{
 			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
 		HttpServletRequest requset = (HttpServletRequest) webRequest.getNativeRequest();
 		HttpSession session = requset.getSession();
-		Member member = (Member) session.getAttribute("memberSession");
-		return member;
+		User user = (User) session.getAttribute("memberSession");
+		return user;
 	}
 
 }

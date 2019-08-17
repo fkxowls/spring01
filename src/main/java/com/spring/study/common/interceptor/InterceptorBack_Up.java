@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
-import com.spring.study.member.model.Member;
+import com.spring.study.model.member.Member;
 
 public class InterceptorBack_Up extends HandlerInterceptorAdapter {
 	private static final Logger logger = LoggerFactory.getLogger(InterceptorBack_Up.class);

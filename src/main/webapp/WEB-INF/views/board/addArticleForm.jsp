@@ -25,19 +25,19 @@
 
 	     <tr>
 			   <td align="right">글제목: </td>
-			   <c:if test="${null == returnVo }">
+			   <c:if test="${null == articleDto }">
 			   <td colspan="2"><input type="text" size="67"  maxlength="500" id="title" name="title"/></td>
 		      </c:if>
-		      <c:if test="${null != returnVo }">
-               <td colspan="2"><input type="text" size="67"  maxlength="500" id="title" name="title" value="${returnVo.title }"/></td>
+		      <c:if test="${null != articleDto }">
+               <td colspan="2"><input type="text" size="67"  maxlength="500" data-article-id="${articleDto.articleId }" id="title" name="title" value="${articleDto.title }"/></td>
               </c:if>
 		 </tr>
-		 <c:if test="${null == returnVo}">
+		 <c:if test="${null == articleDto}">
 		 <tr>
 			   <td align="right">공지글 여부 </td>
 			   <td colspan="2">
-			   		<input type="radio" name="isNotice" value="true">공지글
-			   		<input type="radio" name="isNotice" value="false">일반글
+			   		<input type="radio" name="articleTypeCd" value="10">공지글
+			   		<input type="radio" name="articleTypeCd" value="20">일반글
 			   </td>
 		 </tr>
 		 </c:if>
@@ -61,19 +61,19 @@
 		var title = $('input[name=title]').val();
 		var content = $('textarea[name=content]').val();
 		var writeMemberId = $('input[name=writeMemberId]').val();
-		var isNotice = $('input[name=noticeChkFlag]').val();
-		var enforcementDate = new Date("2019-08-17T09:38:51.249Z");
-		var expirationDate = new Date("2019-09-10T09:38:51.249Z");
+		var articleTypeCd = $('input[name=articleTypeCd]').val();
+		var displayStartDate = new Date("2019-08-17T09:38:51.249Z");
+		var displayEndDate = new Date("2019-09-10T09:38:51.249Z");
 		var data = {};
-		
+		alert(articleTypeCd)
 		data.title = title;
 		data.writeMemberId = writeMemberId;
-		data.isNotice = isNotice;
+		data.articleTypeCd = articleTypeCd;
 		data.content = content;
 		
 		var noticeArticle = {}
-		noticeArticle.enforcementDate = enforcementDate;
-		noticeArticle.expirationDate = expirationDate;
+		data.displayStartDate = displayStartDate;
+		data.displayEndDate = displayEndDate;
 		
 		data.noticeArticle = noticeArticle;
 		

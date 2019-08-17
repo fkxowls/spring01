@@ -42,7 +42,7 @@
 
 			<tr id="tr_btn">
 				<td colspan="2" align="center">
-					<input type="submit" value="수정하기" <%-- onClick="fn_modifyForm('${articleVo.articleId}','${articleVo.writeMemberId }')" --%>>
+					<input type="submit" value="수정하기" <%-- href="${modificationForm }" --%>>
 					<input type="button" value="삭제하기" onClick="fn_delete('${articleVo.articleId}','${memberSession.memberId }')"> 
 					<input type=button value="리스트로 돌아가기">
 					<input type=button value="답글쓰기" onClick="fn_reply('${replyFormPath}')">

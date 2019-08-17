@@ -51,19 +51,29 @@
 					SELECT  
 					        A.*   
 					FROM    ( 
-			                   SELECT  /*+ INDEX_DESC(A ARTICLE_PK)*/
+			                   SELECT 
+                                       <if test="#{sort == 'old'}">
+			                           /*+ INDEX_DESC(A ARTICLE_PK)*/
                                        ROW_NUMBER() OVER(ORDER BY A.ARTICLE_ID DESC) AS RNUM
-                                       /*ROW_NUMBER() OVER(ORDER BY ) AS RNUM
-                                       ROW_NUMBER() OVER(ORDER BY ) AS RNUM
-                                       ROW_NUMBER() OVER(ORDER BY ) AS RNUM
-                                       ROW_NUMBER() OVER(ORDER BY ) AS RNUM*/
+                                       </if>
+                                       <if test="#{sort == new}">
+                                       /*+ INDEX_DESC(A ARTICLE_PK)*/
+                                       ROW_NUMBER() OVER(ORDER BY A.ARTICLE_ID ASC) AS RNUM
+                                       </if>
+                                       <if test="#{sort == title}">
+                                        /*+ INDEX_DESC(A ARTICLE_PK)*/
+                                       ROW_NUMBER() OVER(ORDER BY A.ARTICLE_ID ASC) AS RNUM
+                                       </if>
+                                       
                                       , A.ARTICLE_ID
                                       , A.PARENT_ID
                                       , A.TITLE
                                       , A.CONTENT
                                       , A.WRITE_MEMBER_ID
+                                      , A.WRITE_DATE
                                 FROM    ARTICLE A
                                 WHERE   1                   = 1
+                                <!-- case문 -->
                                 <if test="writeMemberId != null">
                                 AND     A.WRITE_MEMBER_ID = #{writeMemberId}
                                </if>
@@ -124,9 +134,13 @@
        		
 	</select>
 	
-	<select id="viewArticle" parameterType="String" resultType="articleVo">
+	<select id="viewArticle" parameterType="String" resultType="com.spring.study.board.model.Article">
 		SELECT 
-				* 
+				ARTICLE_ID
+				,TITLE
+				,CONTENT
+				,WRITE_MEMBER_ID
+				,WRITE_DATE
 		FROM 	ARTICLE 
 		WHERE 	ARTICLE_ID = #{articleId}
 	</select>
@@ -148,7 +162,7 @@
 			,#{title}
 			,#{content}
 			,#{writeMemberId}
-			,#{writeDate}
+			,sysdate
 		)
 	</insert>
 	
@@ -158,7 +172,7 @@
 				TITLE			  = #{title}
 				,CONTENT		  = #{content}
 				,MODIFY_MEMBER_ID = #{modifyMemberId}
-				,MODIFY_DATE 	  = #{modifyDate}
+				,MODIFY_DATE 	  = sysdate
 			
 		WHERE
 				ARTICLE_ID	      = #{articleId}
@@ -199,6 +213,7 @@
 				,TITLE
 				,CONTENT
 				,WRITE_MEMBER_ID
+				,WRITE_DATE
 			)
 			VALUES
 			(
@@ -207,6 +222,7 @@
 				,#{title}
 				,#{content}
 				,#{writeMemberId}
+				,sysdate
 			)
 	</insert>
 	
@@ -253,7 +269,7 @@
 				T1.ARTICLE_ID = T2.ARTICLE_ID
 	</select>
 	
-	<insert id="registerNotice" parameterType="articleVo">
+	<insert id="registerNotice" parameterType="articleVo" >
 		<selectKey keyProperty="noticeId" resultType="String" order="BEFORE">
 			SELECT NOTICE_ID_SEQ.NEXTVAL FROM DUAL
 		</selectKey>
@@ -261,15 +277,15 @@
 		(
 			NOTICE_ID
 			,ARTICLE_ID
-			,ENFORCEMENT_DATE
-			,EXPIRATION_DATE
+			,DISPLAY_START_DATE
+			,DISPLAY_END_DATE
 		)
 		VALUES
 		(
 			#{noticeId}
 			,#{articleId}
-			,#{enforcementDate}
-			,#{expirationDate}
+			,#{displayStartDate}
+			,#{displayEndDate}
 		)
 	</insert>
 	
@@ -293,6 +309,8 @@
 									ARTICLE_ID = #{articleId}
 				)
 	</select>
+	
+	
 	
 	<select id="chkMemberLevel" parameterType="memberVo" resultType="int">
 		SELECT	member_level

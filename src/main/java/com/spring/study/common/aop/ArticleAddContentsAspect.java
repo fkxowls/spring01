@@ -13,12 +13,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.spring.study.board.model.ArticleVo;
-import com.spring.study.comment.dao.CommentDao;
-import com.spring.study.comment.model.CommentPageList;
-import com.spring.study.comment.model.CommentsRequestDto;
-import com.spring.study.comment.model.CommentsVo;
 import com.spring.study.common.model.PageList;
+import com.spring.study.dao.CommentDao;
+import com.spring.study.model.article.ArticleVo;
+import com.spring.study.model.comments.CommentsDto;
+import com.spring.study.model.comments.CommentsVo;
 
 @Aspect
 @Component
@@ -58,8 +57,8 @@ public class ArticleAddContentsAspect {
 				.collect(Collectors.joining(","));
 		
 		//코멘트 페이징 정보까지 담는 이유가 코멘트리스트를 페이지 사이즈만큼 가져오려는건가?? 아니면 return에 페이지정보가 있어야하는건가?? 
-		CommentsRequestDto req = new CommentsRequestDto(articleNumbers, 1, 10);
-		CommentPageList commentsPageDto = commentDAO.commentsList(req);
+		CommentsDto req = new CommentsDto(articleNumbers, 1, 10);
+		PageList<CommentsVo> commentsPageDto = commentDAO.commentsList(req);//TODO 여기 오류 해결
 		
 //		for(ArticleVo ArticleVo : returnList) {
 //			String key = ArticleVo.getArticleNo();

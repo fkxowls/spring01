@@ -20,9 +20,9 @@ public class BaseParam {
 		private String writeMemberId;
 		
 		
-		//필수 요소
 		public Builder() {
 		}
+		//필수 요소
 		public Builder(int page, int pageSize) {
 			this.page     = page;
 			this.pageSize = pageSize;

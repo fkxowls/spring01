@@ -11,7 +11,6 @@ public class PageList<E> {
 	private int startNum;
 	private int endNum;
 	private List<E> list;
-	private String path;
 	
 	public PageList() {}
 	
@@ -59,16 +58,5 @@ public class PageList<E> {
 	public int getEndNum() {
 		return endNum;
 	}
+}
 
-	public String getPath() {
-		return path;
-	}
-	
-	public void setPath(String path) {
-		this.path = path;
-	}
-	/*
-	 * public void setStartNum(int startNum) { this.startNum = startNum; }
-	 * 
-	 * public void setEndNum(int endNum) { this.endNum = endNum; }
-	 */}

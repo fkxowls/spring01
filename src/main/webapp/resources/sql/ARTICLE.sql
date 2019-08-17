@@ -1,8 +1,8 @@
 ALTER TABLE ARTICLE ADD CONSTRAINT WRITE_MEMBER_FK FOREIGN KEY(WRITE_MEMBER_ID) REFERENCES MEMBER(MEMBER_ID)
 DROP TABLE ARTICLE
-delete from article where article_Id = '10092'
+delete from article where article_Id = '10087'
 ALTER TABLE ARTICLE ADD(NOTICE_CHK_FLAG NUMBER(1));
-SELECT * FROM NOTICE_ARTICLE where article_Id = '10087'
+SELECT * FROM NOTICE_ARTICLE where article_Id = '10083'
 ALTER TABLE ARTICLE MODIFY (WRITE_DATE DEFAULT null);
 SELECT * FROM USER_CONSTRAINTS WHERE TABLE_NAME = 'ARTICLE'
 ALTER TABLE ARTICLE DROP CONSTRAINT SYS_C008213;
@@ -264,3 +264,32 @@ SELECT   X.*
              WHERE ROWNUM <= #{endNum}
           ) X
      WHERE   X.RNUM >= #{startNum}     
+
+  
+                                       ROW_NUMBER() OVER(PARTITION BY B.ARTICLE_ID ORDER BY  COUNT(B.REPLY_ID) ASC) AS RNUM                                      
+     SELECT  X.*
+        FROM    (
+                    SELECT  
+                            A.*   
+                    FROM    ( 
+                                    
+                               SELECT  /*+ INDEX_DESC(A ARTICLE_PK)*/
+                                      ROW_NUMBER() OVER( ORDER COUNT(ARTICLE_ID) DESC) AS RNUM 
+                                      , C.ARTICLE_ID
+                                      , C.PARENT_ID
+                                      , C.TITLE
+                                      , C.CONTENT
+                                      , C.WRITE_MEMBER_ID
+                                      , C.WRITE_DATE
+                                FROM    ARTICLE C, ARTICLE_REPLY B
+                                WHERE   1                   = 1
+                            ) A
+                    WHERE   A.RNUM         <= 80
+                ) X
+         WHERE  X.RNUM      >= 1
+        
+         SELECT COUNT(ARTICLE_ID) FROM ARTICLE_REPLY GROUP BY ARTICLE_ID
+         SELECT COUNT(REPLY_ID)  OVER(PARTITION BY ARTICLE_ID) , ARTICLE_ID FROM ARTICLE_REPLY
+         SELECT COUNT(ARTICLE_ID) OVER(PARTITION BY ARTICLE_ID ORDER BY REPLY_ID DESC), ARTICLE_ID FROM ARTICLE_REPLY
+         
+         
