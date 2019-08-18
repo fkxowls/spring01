@@ -6,10 +6,7 @@ public class BaseParam {
 	private int endNum;
 	private int page;
 	private int pageSize;
-	private boolean moreView;
-	//얘 지워야함  지금 Article부터 수정중임 얘 지우면 comment쪽에서 오류남 Article수정 완료되면 삭제 ㄱㄱ
-	private String writeMemberId;
-	
+	private boolean moreView;	
 	
 	public static class Builder<T extends Builder<T>> {
 		private int page;
@@ -17,7 +14,6 @@ public class BaseParam {
 		private int startNum;
 		private int endNum;
 		private boolean moreView;
-		private String writeMemberId;
 		
 		
 		public Builder() {
@@ -35,11 +31,6 @@ public class BaseParam {
 		}
 		public Builder useMoreView(boolean moreView) {
 			this.moreView = moreView;
-			return this;
-		}
-	
-		public Builder setWriteMemberId(String writeMemberId) { // TODO 뺀다
-			this.writeMemberId = writeMemberId;
 			return this;
 		}
 		
@@ -62,7 +53,6 @@ public class BaseParam {
 		this.page = builder.page;
 		this.pageSize = builder.pageSize;
 		this.moreView = builder.moreView;
-		this.writeMemberId = builder.writeMemberId;
 	}
 	
 	public int getStartNum() {
@@ -85,9 +75,6 @@ public class BaseParam {
 		return pageSize;
 	}
 
-	public String getWriteMemberId() {
-		return writeMemberId;
-	}
 
 	
 }
