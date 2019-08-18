@@ -11,7 +11,7 @@ import com.spring.study.dao.CommentDao;
 import com.spring.study.model.comments.CommentsDto;
 import com.spring.study.model.comments.CommentsParam;
 import com.spring.study.model.comments.CommentsVo;
-import com.spring.study.model.member.User;
+import com.spring.study.model.user.User;
 
 import javassist.NotFoundException;
 
@@ -61,11 +61,11 @@ public class CommentsService{
 	public String writeComment(CommentsDto commentsRequestDto, User user) throws Exception {
 		
 		boolean isExistsArticle = articleDao.isExistsArticle(commentsRequestDto.getArticleId());
-		//XXX Article객체로 보내야하는건지??
+		//XXX 4-2 Article객체로 보내야하는건지??
 		if (!isExistsArticle) {
 			throw new NotFoundException("글이 존재하지 않습니다.");
 		}
-		//XXX Comments 객체에서 해야하는건지???
+		//XXX 4-3 Comments 객체에서 해야하는건지???
 		if (commentsRequestDto.getParentId() != 0) {
 			boolean isExistsComment = commentDao.isExistsComment(commentsRequestDto.getReplyId());
 			if (!isExistsComment) {

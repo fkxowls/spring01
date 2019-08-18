@@ -12,7 +12,7 @@ import com.spring.study.controller.ArticleController;
 import com.spring.study.model.comments.CommentsDto;
 import com.spring.study.model.comments.CommentsParam;
 import com.spring.study.model.comments.CommentsVo;
-import com.spring.study.model.member.User;
+import com.spring.study.model.user.User;
 
 
 @Repository("commentDAO")
