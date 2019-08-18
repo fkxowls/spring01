@@ -40,7 +40,7 @@ import javassist.NotFoundException;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 
 
-//TODO union,정렬쿼리,addCommentAspect오류, 
+//TODO 1 union,정렬쿼리,addCommentAspect오류, 
 @Controller
 public class ArticleController {
 	private static final Logger logger = LoggerFactory.getLogger(ArticleController.class);
@@ -53,10 +53,10 @@ public class ArticleController {
 	
 	
 	@RequestMapping(value = "/board/article/{page}/list")
-	public String getArticleList(@PathVariable int page, Model model,@RequestParam(required = false, defaultValue = "old") String sort) {			
-		//BaseParam requestParam = new BaseParam.Builder(page, pageSize).build();
-		ArticleParam2 reqParam = new ArticleParam2.Builder(page, pageSize).sort("old").build();
-		List<Article> articleList = null;
+	public String getArticleList(@PathVariable int page, Model model,@RequestParam(required = false, defaultValue = "old") String sort, User user) {			
+		//BaseParam requestParam = new BaseParam.Builder(page, pageSize).build();																					
+		ArticleParam2 reqParam = new ArticleParam2.Builder(page, pageSize).sort("old").userId(user.getMemberId()).build();//XXX articleParam에 userId가 있어도 되는건가요?
+		List<Article> articleList = null;		
 		
 		if (1 == page) {
 			PageList<Article> returnPageList = articleService.getArticlePageListWithCount(reqParam);
@@ -305,13 +305,12 @@ public class ArticleController {
 	}
 	
 	@RequestMapping(value = "/board/{articleId}/comments/{commentsPage}")
-	public @ResponseBody Map<String, Object> getCommentsList(@RequestParam("writeMemberId") String articleWriterId, @PathVariable("articleId") String articleId, @PathVariable("commentsPage") int commentsPage, User user) {
+	public @ResponseBody Map<String, Object> getCommentsList(@RequestParam String articleWriterId, @PathVariable String articleId, @PathVariable int commentsPage, User user) {
 		Map<String, Object> returnMap = new HashMap<>();
 		String userId = user.getMemberId();
 		if(!user.isLogon()) { userId = ""; }
 		
 		CommentsParam commentsParam = new CommentsParam.Builder(commentsPage, commentPageSize,articleId)
-										 .writeMemberId(articleWriterId)//쿼리에서 처리하므로 글작성자는 주입 받을 필요가 없어짐 쿼리 검토 후 이상없으면 삭제
 										 .userId(userId).build();
 		PageList<CommentsVo> commentsPageList = commentsService.getCommentsPageList(commentsParam);
 		

@@ -30,6 +30,7 @@ import com.spring.study.common.model.PageList;
 import com.spring.study.model.article.Article;
 import com.spring.study.model.article.ArticleDto;
 import com.spring.study.model.article.ArticleParam;
+import com.spring.study.model.article.ArticleParam2;
 import com.spring.study.model.article.ArticleVo;
 import com.spring.study.model.article.NoticeArticleVo;
 import com.spring.study.model.user.Member;
@@ -44,7 +45,7 @@ public class ArticleDao extends BaseDao {
 	SqlSession sqlSession;
 
 	//@AddComments
-	public PageList<Article> getArticlePageListWithCountAddComments(BaseParam vo) {
+	public PageList<Article> getArticlePageListWithCountAddComments(ArticleParam2 vo) {
 		return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
 	}
 	
@@ -79,13 +80,13 @@ public class ArticleDao extends BaseDao {
 		return sqlSession.selectOne(mapper + "viewArticle", aritcleNo);
 
 	}
-	//여기서는 Vo로 해야할거같은데 Service단 수정 후 ㄱㄱㄱ
+
 	public int insertArticle(String articleId, ArticleParam articleParam) {
 		ArticleVo articleVo = new ArticleVo();
 		articleVo.setArticleId(articleId);
 		articleVo.setTitle(articleParam.getTitle());
 		articleVo.setContent(articleParam.getContents());
-		articleVo.setWriteMemberId(articleParam.getWriterId());
+		articleVo.setWriteMemberId(articleParam.getWriteMemberId());
 		articleVo.setWriteDate(articleParam.getWriteDate());
 		
 		return sqlSession.insert(mapper + "insertArticle", articleVo);

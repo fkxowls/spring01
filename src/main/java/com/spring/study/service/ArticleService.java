@@ -18,6 +18,7 @@ import com.spring.study.dao.ArticleDao;
 import com.spring.study.model.article.Article;
 import com.spring.study.model.article.ArticleDto;
 import com.spring.study.model.article.ArticleParam;
+import com.spring.study.model.article.ArticleParam2;
 import com.spring.study.model.article.ArticleVo;
 import com.spring.study.model.user.Member;
 import com.spring.study.model.user.User;
@@ -157,7 +158,7 @@ public class ArticleService {
 	/****************************************************************************************************
 	 ****************************************************************************************************
 	 ****************************************************************************************************/
-	public PageList<Article> getArticlePageListWithCount(BaseParam req) {
+	public PageList<Article> getArticlePageListWithCount(ArticleParam2 req) {
 		// PageList<ArticleVo> pageList = articleDao.getArticlePageListWithCount(req);
 		// feed형으로 받을 시
 		PageList<Article> feedTypePageList = articleDao.getArticlePageListWithCountAddComments(req);

@@ -12,7 +12,7 @@ public class ArticleParam extends BaseParam{
 	private String articleId;
 	private String title;
 	private String contents;
-	private String writerId;
+	private String writeMemberId;
 	private Date writeDate;
 	private String modifierId;
 	private Date modifyDate;
@@ -24,7 +24,7 @@ public class ArticleParam extends BaseParam{
 		private String articleId;
 		private String title;
 		private String contents;
-		private String writerId;
+		private String writeMemberId;
 		private String modifierId;
 		private Date writeDate;
 		private Date modifyDate;
@@ -41,7 +41,7 @@ public class ArticleParam extends BaseParam{
 			super();
 			this.title = title;
 			this.contents = contents;
-			this.writerId = writerId;
+			this.writeMemberId = writeMemberId;
 			this.articleTypeCd = articleTypeCd;
 		}
 		
@@ -78,7 +78,7 @@ public class ArticleParam extends BaseParam{
 		this.articleId = builder.articleId;
 		this.title = builder.title;
 		this.contents = builder.contents;
-		this.writerId = builder.writerId;
+		this.writeMemberId = builder.writeMemberId;
 		this.modifierId = builder.modifierId;
 		this.articleTypeCd = builder.articleTypeCd;
 		this.displayStartDate = builder.displayStartDate;
@@ -102,8 +102,8 @@ public class ArticleParam extends BaseParam{
 	}
 
 
-	public String getWriterId() {
-		return writerId;
+	public String getWriteMemberId() {
+		return writeMemberId;
 	}
 
 

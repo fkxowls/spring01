@@ -17,6 +17,7 @@ import com.spring.study.common.model.PageList;
 import com.spring.study.dao.CommentDao;
 import com.spring.study.model.article.ArticleVo;
 import com.spring.study.model.comments.CommentsDto;
+import com.spring.study.model.comments.CommentsParam;
 import com.spring.study.model.comments.CommentsVo;
 
 @Aspect
@@ -45,7 +46,7 @@ public class ArticleAddContentsAspect {
 		} else {
 			return returnObj;
 		}
-		
+
 //		List<String> articleNumberList = new ArrayList<String>();
 //		for(ArticleVo vo : returnList) {
 //			articleNumberList.add(vo.getArticleNo());
@@ -56,8 +57,13 @@ public class ArticleAddContentsAspect {
 				.map(ArticleVo::getArticleId)
 				.collect(Collectors.joining(","));
 		
-		//코멘트 페이징 정보까지 담는 이유가 코멘트리스트를 페이지 사이즈만큼 가져오려는건가?? 아니면 return에 페이지정보가 있어야하는건가?? 
+		//ArticleController getArticleList()에서 aop사용
+		//XXX 리턴값을 PageList로 받는 이유가 무엇인가요
 		CommentsDto req = new CommentsDto(articleNumbers, 1, 10);
+		//XXX 5 commentsList는 코멘트파라미터객체를 주입받아야하는데 여기서 어떻게 주입을 해야할까요?? 페이지 정보도 어떻게 받아야할까여, 현재 접속한 유저정보를 어떻게 받아야할까요..
+		//현재 접속한 유저아이디를 어떻게 가져와야할까여...
+		CommentsParam commentsParam = new CommentsParam.Builder(1, 10,articleNumbers)
+				 .userId().build();
 		PageList<CommentsVo> commentsPageDto = commentDAO.commentsList(req);//TODO 여기 오류 해결
 		
 //		for(ArticleVo ArticleVo : returnList) {
