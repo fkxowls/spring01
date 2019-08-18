@@ -32,7 +32,7 @@ import com.spring.study.model.article.ArticleDto;
 import com.spring.study.model.article.ArticleParam;
 import com.spring.study.model.article.ArticleVo;
 import com.spring.study.model.article.NoticeArticleVo;
-import com.spring.study.model.member.Member;
+import com.spring.study.model.user.Member;
 
 @Repository("articleDAO")
 public class ArticleDao extends BaseDao {
@@ -113,7 +113,7 @@ public class ArticleDao extends BaseDao {
 		return sqlSession.selectOne(mapper + "getSequence");
 	}
 
-	public void deleteArticle(ArticleVo vo) {
+	public void deleteArticle(ArticleDto vo) {
 		sqlSession.delete(mapper + "deleteArticle", vo);
 
 	}
@@ -129,8 +129,8 @@ public class ArticleDao extends BaseDao {
 		return sqlSession.insert(mapper + "insertReply", articleVo);
 	}
 
-	public boolean equalsWriterId(ArticleVo vo) {
-		String result = sqlSession.selectOne(mapper + "equalsWriterId", vo);
+	public boolean equalsWriterId(ArticleDto article) {
+		String result = sqlSession.selectOne(mapper + "equalsWriterId", article);
 		if (result.equals("Y")) {
 			return true;
 		}

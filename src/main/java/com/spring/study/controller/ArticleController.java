@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.google.common.base.Optional;
 import com.spring.study.common.model.BaseParam;
 import com.spring.study.common.model.PageList;
 import com.spring.study.model.article.Article;
@@ -31,7 +32,7 @@ import com.spring.study.model.article.ArticleParam2;
 import com.spring.study.model.comments.CommentsDto;
 import com.spring.study.model.comments.CommentsParam;
 import com.spring.study.model.comments.CommentsVo;
-import com.spring.study.model.member.User;
+import com.spring.study.model.user.User;
 import com.spring.study.service.ArticleService;
 import com.spring.study.service.CommentsService;
 
@@ -39,13 +40,7 @@ import javassist.NotFoundException;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 
 
-
-//TODO 파라미터-> Dto로 / Article객체, Comments객체 생성-> 해당하는 로직 작성
-//TODO 코멘트 비밀댓글 처리  -> db에서 case문사용, 글작성자 db에서 가져온다(Oarcle 자체 세션으로 바로 재사용가능 함)
-//TODO 정렬(쿼리),CASE문 사용
-//TODO 대강 정했던 throw Exception을 구체적으로 Excption클래스 만들어서 던지기, Path코드 공통코드로 분리
-
-//TODO 목요일 할거 코멘트 비밀댓글 처리, 코멘트 객체만들기
+//TODO union,정렬쿼리,addCommentAspect오류, 
 @Controller
 public class ArticleController {
 	private static final Logger logger = LoggerFactory.getLogger(ArticleController.class);
@@ -56,9 +51,8 @@ public class ArticleController {
 	@Autowired
 	private CommentsService commentsService;
 	
-	// endPage restAPI
-	@RequestMapping(value = "/board/article/{page}/list")
 	
+	@RequestMapping(value = "/board/article/{page}/list")
 	public String getArticleList(@PathVariable int page, Model model,@RequestParam(required = false, defaultValue = "old") String sort) {			
 		//BaseParam requestParam = new BaseParam.Builder(page, pageSize).build();
 		ArticleParam2 reqParam = new ArticleParam2.Builder(page, pageSize).sort("old").build();
@@ -139,13 +133,15 @@ public class ArticleController {
 	}
 														
 	@RequestMapping(value = {"/board/writeArticleForm", "/board/{parentId}/replyForm"})
-	public String moveWriteForm(@PathVariable String parentId, Model model, User user, HttpServletRequest req) {
+								//XXX 7 PathVariable를 선택적 요소로 사용해도 문제가 없는건가요???
+	public String moveWriteForm(@PathVariable(required = false) String parentId, Model model, User user, HttpServletRequest req) {
 		ArticleDto articleDto = user.getUserInfo();
 		
 		if(!user.isLogon()) { return "redirect:/member/loginForm"; }
 		
 		if(req.getRequestURI().equals("/board/"+parentId+"/replyForm")) {
-			//XXX 공지글 답글달기 클릭시 팅겨내고 싶은데 그럴려면 이 메서드에 리턴값을 map으로 해서 해야하는지(= 폼이동에서 리턴값을 String이 아니라 map으로도 해도 되는건지 궁굼
+			//XXX 5  공지글에 답글달기 클릭시 팅겨내고 싶은데  boolean isNotice = articleService.isNoticeArticle(articleId); < 조건문으로 이 결과값으로 팅겨내는것말고 다른 방법은 없을까요??
+			//혹은 boolean isNotice = articleService.isNoticeArticle(articleId);이 여러 메소드에서 반복적으로 나타나고 있는데 따로 분리하여 처리가능할까요???
 			Article parentArticleInfo = articleService.getArticle(parentId);
 			ArticleDto parentArticleDto = parentArticleInfo.showArticle();
 			
@@ -154,7 +150,9 @@ public class ArticleController {
 			
 			model.addAttribute("articleDto", articleDto);
 			model.addAttribute("path", "/board/"+parentId+"/reply");
-		}else {
+		}
+		
+		if(req.getRequestURI().equals("/board/writeArticleForm")) {
 			model.addAttribute("path","/board/article");
 		}
 		
@@ -196,12 +194,12 @@ public class ArticleController {
 		
 		return resultState;
 	}
-	//XXX 이런 상황에서 파라미터객체를 쓰는것인지??
+	
 	@RequestMapping(value = "/board/{parentId}/reply", method = RequestMethod.POST)
 	public @ResponseBody Map<String,Object> writeReply(@RequestBody ArticleDto articleDto, @PathVariable String parentId) {
 		Map<String, Object> result = new HashMap<>();
-	
-		if(5 != parentId.length()) { //Article객체로 
+		Article article = new Article();
+		if(article.isAvailableArticleSeq(parentId)) { 
 			result.put("code", HttpStatus.BAD_REQUEST);
 			result.put("msg", "입력 값이 올바르지 않습니다. 다시 확인 해주세요.");
 			return result;
@@ -228,35 +226,43 @@ public class ArticleController {
 		return result;
 	}
 	
-	@RequestMapping(value = "/board/{articleId}/modifyForm")//글번호만 가져오고 내용은 db에서 가져오는걸고 바꾸기
+	@RequestMapping(value = "/board/{articleId}/modifyForm")
 	public String moveModificationForm(@PathVariable String articleId, Model model, User user) {
 		if(!user.isLogon()) { return "redirect:/member/loginForm"; }
 		
-		String writerId = articleService.getWriterId(articleId);
-		boolean isEqualsWriterId = user.isEqualsUserId(writerId);
-		
 		String returnPath ="";
-		if(isEqualsWriterId) {
+		Map<String, Object> resultState = new HashMap<>();
+		String writerId = articleService.getWriterId(articleId);
+		
+		if(user.isEqualsUserId(writerId)) {
 			Article article = articleService.getArticle(articleId);
-			model.addAttribute("articleVo", article);
+			//XXX 폼이동은 get방식이라 주소창에 해당 내용물이 노출되는데 이것을 막을 방법은 없나요?
+		    model.addAttribute("articleVo", article);
 			returnPath = "board/modifyForm";
 		}else {
+			resultState.put("msg","해당작성자만 가능합니다");
+			resultState.put("code", HttpStatus.BAD_REQUEST);
 			model.addAttribute("msg", "해당 작성자만 가능합니다");
-			model.addAttribute("code", HttpStatus.BAD_REQUEST);
 			returnPath = "redirect:/board/"+articleId;
 		}
-
+		
 		return returnPath;
 	}
 	
 	@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.PUT)
-	public @ResponseBody Map<String, Object> modifyArticle(@RequestBody ArticleDto articleDto,
-			@PathVariable String articleNo, User user) {
+	public @ResponseBody Map<String, Object> modifyArticle(@RequestBody ArticleDto articleDto, @PathVariable String articleId, User user) {
 		Map<String, Object> resultState = new HashMap<>();
-	
+		Article article = new Article();
+		
 		if(!user.isLogon()) {
 			resultState.put("msg", "로그인 세션 만료");
 			resultState.put("code", HttpStatus.FORBIDDEN);
+			return resultState;
+		}
+		
+		if(article.isAvailableArticleSeq(articleId)) { 
+			resultState.put("code", HttpStatus.BAD_REQUEST);
+			resultState.put("msg", "잘못된 요청입니다.");
 			return resultState;
 		}
 		
@@ -283,7 +289,7 @@ public class ArticleController {
 		Map<String, Object> returnMap = new HashMap<>();
 
 		try {
-			String msg = commentsService.writeComment(commentsDto, user);
+			String msg = commentsService.writeComment(commentsDto, user);//XXX 8 User나 Article객체를 dao까지 끌고 가지말고 파라미터객체로 주고받아야하는지 그렇다면 dto,user에있는 필드를 전부 선언해야하는건가여?
 			returnMap.put("code",HttpStatus.OK);
 			returnMap.put("msg",msg);
 		} catch (NotFoundException e) {

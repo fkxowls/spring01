@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.spring.study.dao.ArticleDao;
 
 public class Article extends ArticleVo{
+	static final int articleSeqLength = 5;
 	
 	@Autowired
 	ArticleDao dao;
@@ -38,5 +39,9 @@ public class Article extends ArticleVo{
 			return true;
 		}
 		return false;
+	}
+	
+	public boolean isAvailableArticleSeq(String articleId) {
+		return articleId.length() == articleSeqLength;
 	}
 }
