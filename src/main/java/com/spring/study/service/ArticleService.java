@@ -19,9 +19,9 @@ import com.spring.study.model.article.Article;
 import com.spring.study.model.article.ArticleDto;
 import com.spring.study.model.article.ArticleParam;
 import com.spring.study.model.article.ArticleVo;
-import com.spring.study.model.member.Member;
-import com.spring.study.model.member.User;
-import com.spring.study.model.member.UserVo;
+import com.spring.study.model.user.Member;
+import com.spring.study.model.user.User;
+import com.spring.study.model.user.UserVo;
 
 import javassist.NotFoundException;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
@@ -37,10 +37,10 @@ public class ArticleService {
 	public boolean isNoticeArticle(String articleId) {
 		return articleDao.isNoticeId(articleId);
 	}
-
+	//XXX 2 User, Article같은 객체를 서비스단까지 끌어와서 사용해도 되는건가요?
 	public Article getNoticeArticle(String articleId, User user) throws Exception{
 		Article returnArticle = null;
-		if (!user.isLogon()) {
+		if (!user.isLogon()) {//XXX 6 비로그인일경우 아래 예외를 던져서 메세지를 출력하고싶은데 그러지않고 NullException으로 바로 가는 이유가 있나요?? 
 			throw new NotFoundException("로그인 후 이용가능합니다");
 		}
 		String userLevel = user.getMemberLevel();
@@ -63,7 +63,7 @@ public class ArticleService {
 		boolean isNoticeId = articleDao.isNoticeId(articleId);
 		Article returnArticle = null;
 		//공지글 - 일반회원은 접근 못함
-		if (isNoticeId) {//XXX 이거에 대한 판단도 article객체가 해야하는건지??? 그렇다면 article객체에 dao를 주입해서 써도 되는지???
+		if (isNoticeId) {//XXX 4-1 이거에 대한 판단도 article객체가 해야하는건지??? 그렇다면 article객체에 dao를 주입해서 써도 되는지???
 			if (!user.isLogon()) {
 				throw new NotFoundException("로그인 후 이용가능합니다");
 			}
@@ -108,14 +108,14 @@ public class ArticleService {
 		int result = articleDao.updateArticle(articleDto);
 	}
 
-	public void deleteArticle(ArticleVo vo) throws Exception {
-		boolean result = articleDao.equalsWriterId(vo);
+	public void deleteArticle(ArticleDto article) throws Exception {
+		boolean result = articleDao.equalsWriterId(article);
 
 		if (!result) {
 			throw new NotFoundException("권한없는 접근입니다");
 		}
 
-		articleDao.deleteArticle(vo);
+		articleDao.deleteArticle(article);
 	}
 
 	// transaction
