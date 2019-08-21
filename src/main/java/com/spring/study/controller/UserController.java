@@ -14,19 +14,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 
-import com.spring.study.model.member.Member;
-import com.spring.study.model.member.User;
-import com.spring.study.model.member.UserVo;
-import com.spring.study.service.MemberService;
+import com.spring.study.model.user.Member;
+import com.spring.study.model.user.User;
+import com.spring.study.model.user.UserVo;
+import com.spring.study.service.UserService;
 
 //UserController도 완전히 갈아엎어야함
 @Controller
 @SessionAttributes("memberSession")
-public class MemberController {
-	private static final Logger logger = LoggerFactory.getLogger(MemberController.class);
+public class UserController {
+	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
 	@Autowired
-	MemberService memberService;
+	UserService memberService;
 
 	@RequestMapping(value = "/member/loginForm", method = { RequestMethod.GET, RequestMethod.POST })
 	public String loginForm() {

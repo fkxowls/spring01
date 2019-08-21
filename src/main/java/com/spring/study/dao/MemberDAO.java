@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.spring.study.model.member.User;
-import com.spring.study.model.member.UserVo;
+import com.spring.study.model.user.User;
+import com.spring.study.model.user.UserVo;
 
 @Repository("MemberDAO")
 public class MemberDAO {

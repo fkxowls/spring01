@@ -1,8 +1,6 @@
 package com.spring.study.service;
 
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -10,9 +8,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
-import com.spring.study.common.model.CommonCode;
 import com.spring.study.common.model.BaseParam;
+import com.spring.study.common.model.CommonCode;
 import com.spring.study.common.model.PageList;
 import com.spring.study.dao.ArticleDao;
 import com.spring.study.model.article.Article;
@@ -35,51 +34,23 @@ public class ArticleService {
 	@Autowired
 	private ArticleDao articleDao;
 	
-	public boolean isNoticeArticle(String articleId) {
+	public boolean isNotice(String articleId) {
 		return articleDao.isNoticeId(articleId);
 	}
 	//XXX 2 User, Article같은 객체를 서비스단까지 끌어와서 사용해도 되는건가요?
-	public Article getNoticeArticle(String articleId, User user) throws Exception{
-		Article returnArticle = null;
-		if (!user.isLogon()) {//XXX 6 비로그인일경우 아래 예외를 던져서 메세지를 출력하고싶은데 그러지않고 NullException으로 바로 가는 이유가 있나요?? 
-			throw new NotFoundException("로그인 후 이용가능합니다");
-		}
-		String userLevel = user.getMemberLevel();
 
-		if (user.isAccessRestriction(CommonCode.USER_LEVEL_CD_NOMAL.getCode())) {
-			throw new SQLException("우수회원부터 접근 가능합니다");
-		} else {
-			returnArticle = articleDao.viewArticle(articleId);//공지글만 조회하는 쿼리로 바꿀예정
-		}
-		return returnArticle;
-	}
-
-	public Article getArticle(String articleId) {
-		Article returnArticle = articleDao.viewArticle(articleId);
-
-		return returnArticle;
-	}
-
-	public Article getArticle(String articleId, User user) throws Exception {
+	public Article getArticle(String articleId, User user) throws RuntimeException {
 		boolean isNoticeId = articleDao.isNoticeId(articleId);
-		Article returnArticle = null;
-		//공지글 - 일반회원은 접근 못함
-		if (isNoticeId) {//XXX 4-1 이거에 대한 판단도 article객체가 해야하는건지??? 그렇다면 article객체에 dao를 주입해서 써도 되는지???
-			if (!user.isLogon()) {
-				throw new NotFoundException("로그인 후 이용가능합니다");
-			}
-			String userLevel = user.getMemberLevel();
-			//CommonCode.USER_LEVEL_CD_NOMAL.getCode().equals(userLevel)
-			if (user.isAccessRestriction(userLevel)) {
-				throw new SQLException("우수회원부터 접근 가능합니다");
-			} else {
-				returnArticle = articleDao.viewArticle(articleId);
-			}
-		} else {
-			returnArticle = articleDao.viewArticle(articleId);
+		if(isNoticeId && !user.isLogon()) {
+			throw new RuntimeException("로그인 후 이용가능합니다");
 		}
-
-		return returnArticle;
+		
+		Article article = articleDao.viewArticle(articleId);
+		if(article.checkAccessLevel(user)) {
+			throw new RuntimeException("접근 권한이 없습니다");
+		}
+		
+		return article;
 	}
 
 	@Transactional(rollbackFor = Exception.class)

@@ -6,13 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.spring.study.dao.MemberDAO;
-import com.spring.study.model.member.Member;
-import com.spring.study.model.member.User;
-import com.spring.study.model.member.UserVo;
+import com.spring.study.model.user.Member;
+import com.spring.study.model.user.User;
+import com.spring.study.model.user.UserVo;
 
 @Service("memberService")
-public class MemberService {
-	private static final Logger logger = LoggerFactory.getLogger(MemberService.class);
+public class UserService {
+	private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 	
 	@Autowired
 	MemberDAO memberDAO;

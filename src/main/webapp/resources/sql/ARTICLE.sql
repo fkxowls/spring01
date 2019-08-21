@@ -248,7 +248,7 @@ SELECT   X.*
 SELECT   X.*
              
     FROM (
-            SELECT  /*+ INDEX_DESC(ARTICLE ARTICLE_NO)*/
+            SELECT  /*+ INDEX_DESC(ARTICLE ARTICLE_ID)*/
                     ROWNUM AS RNUM
                     , A.*      
              FROM (
@@ -261,35 +261,54 @@ SELECT   X.*
                     FROM ARTICLE
                     ORDER BY ARTICLE_ID DESC
                   ) A
-             WHERE ROWNUM <= #{endNum}
+             WHERE ROWNUM <= 80
           ) X
-     WHERE   X.RNUM >= #{startNum}     
+     WHERE   X.RNUM >=1    
 
   
-                                       ROW_NUMBER() OVER(PARTITION BY B.ARTICLE_ID ORDER BY  COUNT(B.REPLY_ID) ASC) AS RNUM                                      
+                                       ROW_NUMBER() OVER(PARTITION BY B.ARTICLE_ID ORDER BY  COUNT(B.REPLY_ID) ASC) AS RNUM
+                                       
+                                       
      SELECT  X.*
         FROM    (
                     SELECT  
                             A.*   
                     FROM    ( 
                                     
-                               SELECT  /*+ INDEX_DESC(A ARTICLE_PK)*/
-                                      ROW_NUMBER() OVER( ORDER COUNT(ARTICLE_ID) DESC) AS RNUM 
-                                      , C.ARTICLE_ID
-                                      , C.PARENT_ID
-                                      , C.TITLE
-                                      , C.CONTENT
-                                      , C.WRITE_MEMBER_ID
-                                      , C.WRITE_DATE
-                                FROM    ARTICLE C, ARTICLE_REPLY B
-                                WHERE   1                   = 1
+                               SELECT  /*+ INDEX_DESC(B ARTICLE_ID)*/
+                                      ROWNUM AS RNUM 
+                                      , B.ARTICLE_ID
+                                      , B.PARENT_ID
+                                      , B.TITLE
+                                      , B.CONTENT
+                                      , B.WRITE_MEMBER_ID
+                                      , B.WRITE_DATE
+                                FROM    ARTICLE B
+                                WHERE   ARTICLE_ID > 0
+                                START WITH
+                                        PARENT_ID           = 0 
+                                CONNECT BY
+                                        PRIOR ARTICLE_ID    = B.PARENT_ID 
+                                ORDER SIBLINGS BY
+--                                                (
+--                                                SELECT COUNT(REPLY_ID)
+--                                                FROM   ARTICLE_REPLY
+--                                                WHERE  ARTICLE_ID = B.ARTICLE_ID
+--                                                )DESC
+                                                  (
+                                                  SELECT ARTICLE_COUNT
+                                                  FROM ARTICLE_ORDER
+                                                  )DESC
+                                
                             ) A
                     WHERE   A.RNUM         <= 80
                 ) X
          WHERE  X.RNUM      >= 1
+         
+         SELECT COUNT(REPLY_ID)  OVER(PARTITION BY ARTICLE_ID) , ARTICLE_ID FROM ARTICLE_REPLY
         
          SELECT COUNT(ARTICLE_ID) FROM ARTICLE_REPLY GROUP BY ARTICLE_ID
          SELECT COUNT(REPLY_ID)  OVER(PARTITION BY ARTICLE_ID) , ARTICLE_ID FROM ARTICLE_REPLY
          SELECT COUNT(ARTICLE_ID) OVER(PARTITION BY ARTICLE_ID ORDER BY REPLY_ID DESC), ARTICLE_ID FROM ARTICLE_REPLY
          
-         
+        

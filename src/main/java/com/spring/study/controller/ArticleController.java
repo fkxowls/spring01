@@ -2,9 +2,11 @@ package com.spring.study.controller;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -22,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.google.common.base.Optional;
 import com.spring.study.common.model.BaseParam;
 import com.spring.study.common.model.PageList;
 import com.spring.study.model.article.Article;
@@ -53,7 +54,7 @@ public class ArticleController {
 	
 	
 	@RequestMapping(value = "/board/article/{page}/list")
-	public String getArticleList(@PathVariable int page, Model model,@RequestParam(required = false, defaultValue = "old") String sort, User user) {			
+	public @ResponseBody List<ArticleDto> getArticleList(@PathVariable int page, Model model,@RequestParam(required = false, defaultValue = "old") String sort, User user) {			
 		//BaseParam requestParam = new BaseParam.Builder(page, pageSize).build();																					
 		ArticleParam2 reqParam = new ArticleParam2.Builder(page, pageSize).sort("old").build();//XXX articleParam에 userId가 있어도 되는건가요?
 		List<Article> articleList = null;		
@@ -64,17 +65,13 @@ public class ArticleController {
 			model.addAttribute("totalPage", returnPageList.getTotalPage());
 		} else {
 			articleList = articleService.getArticleList(reqParam);
-			
 		}
 		
-//		List<ArticleDto> articleHeader = articleList.stream()
-//		.map(Article::displayTitle)
-//		.collect(Collectors.toList());//XXX 3 여기서 캐스팅 오류가 나는 이유는 무엇일까여
+		List<ArticleDto> articleHeader = articleList.stream()
+		.map(Article::displayTitle)
+		.collect(Collectors.toList());//XXX 3 여기서 캐스팅 오류가 나는 이유는 무엇일까여
 		
-		model.addAttribute("articleList", articleList);
-		model.addAttribute("writeArticleForm","/board/writeArticleForm");
-		
-		return "board/listArticle2";
+		return articleHeader;
 	}
 		
 	// hasNext
@@ -95,44 +92,26 @@ public class ArticleController {
 
 		return result;
 	}
-	
-	//XXX 1 viewArticle 로직을 한번 봐주시면 감사하겠습니다
-	@RequestMapping(value = "/board/{articleId}", method = RequestMethod.GET)
-	public String viewArticle(Model model, @PathVariable String articleId, User user) {
-		Map<String, Object> resultState = new HashMap<>();
+	// 기준
+	@RequestMapping(value = "/board/{articleId}/detail", method = RequestMethod.GET)
+	public @ResponseBody Map<String, Object> viewArticle(@PathVariable String articleId, User user) {
+		Map<String, Object> resultMap = new HashMap<>();
 
-		Article article = null;
-		boolean isNotice = articleService.isNoticeArticle(articleId);
-		if(isNotice) {
-			try {
-				article = articleService.getNoticeArticle(articleId, user);
-			} catch (SQLException e) {
-				resultState.put("code", HttpStatus.FORBIDDEN);
-				resultState.put("msg", e.getMessage());
-				resultState.put("redirect","/board/listArticleForm");
-				e.printStackTrace();
-			} catch (NotFoundException e) {
-				resultState.put("code", HttpStatus.UNAUTHORIZED);
-				resultState.put("msg", e.getMessage());
-				resultState.put("redirect","/member/loginForm.do");
-				e.printStackTrace();
-			} catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				model.addAttribute("resultState", resultState);			
-			}
-		}else {
-			article = articleService.getArticle(articleId);
+		try {
+			Article article = articleService.getArticle(articleId, user);
+			resultMap.put("code", HttpStatus.OK.value());
+			resultMap.put("msg", HttpStatus.OK.getReasonPhrase());
+			resultMap.put("article", article.showArticle());
+		} catch (RuntimeException e) {
+			resultMap.put("code", HttpStatus.FORBIDDEN.value());
+			resultMap.put("msg", e.getMessage());
+			resultMap.put("article", Collections.EMPTY_MAP);
 		}
-		model.addAttribute("articleVo", article.showArticle());
-		model.addAttribute("modificationForm","/board/"+articleId+"/modifyForm");
-		model.addAttribute("replyFormPath","/board/"+ articleId +"/replyForm");
-		model.addAttribute("articleDeletePath","/board/"+articleId);
 				
-		return "board/viewArticle";
+		return resultMap;
 	}
 														
-	@RequestMapping(value = {"/board/writeArticleForm", "/board/{parentId}/replyForm"})
+	@RequestMapping(value = {"/board/writeArticleForm", "/board/{parentId}/"})
 								//XXX 7 PathVariable를 선택적 요소로 사용해도 문제가 없는건가요???
 	public String moveWriteForm(@PathVariable(required = false) String parentId, Model model, User user, HttpServletRequest req) {
 		ArticleDto articleDto = user.getUserInfo();
@@ -198,8 +177,8 @@ public class ArticleController {
 	@RequestMapping(value = "/board/{parentId}/reply", method = RequestMethod.POST)
 	public @ResponseBody Map<String,Object> writeReply(@RequestBody ArticleDto articleDto, @PathVariable String parentId) {
 		Map<String, Object> result = new HashMap<>();
-		Article article = new Article();
-		if(article.isAvailableArticleSeq(parentId)) { 
+		
+		if(Article.checkId(parentId)) { 
 			result.put("code", HttpStatus.BAD_REQUEST);
 			result.put("msg", "입력 값이 올바르지 않습니다. 다시 확인 해주세요.");
 			return result;
@@ -252,7 +231,6 @@ public class ArticleController {
 	@RequestMapping(value = "/board/{articleNo}", method = RequestMethod.PUT)
 	public @ResponseBody Map<String, Object> modifyArticle(@RequestBody ArticleDto articleDto, @PathVariable String articleId, User user) {
 		Map<String, Object> resultState = new HashMap<>();
-		Article article = new Article();
 		
 		if(!user.isLogon()) {
 			resultState.put("msg", "로그인 세션 만료");
@@ -260,7 +238,7 @@ public class ArticleController {
 			return resultState;
 		}
 		
-		if(article.isAvailableArticleSeq(articleId)) { 
+		if(Article.checkId(articleId)) { 
 			resultState.put("code", HttpStatus.BAD_REQUEST);
 			resultState.put("msg", "잘못된 요청입니다.");
 			return resultState;

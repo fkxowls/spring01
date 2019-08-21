@@ -44,7 +44,7 @@ public class ArticleDao extends BaseDao {
 	@Autowired
 	SqlSession sqlSession;
 
-	//@AddComments
+	@AddComments
 	public PageList<Article> getArticlePageListWithCountAddComments(ArticleParam2 vo) {
 		return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
 	}

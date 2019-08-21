@@ -10,9 +10,9 @@ public enum CommonCode {
 	ARTICLE_TYPE_CD_NOTICE_N("20"),
 	
 	USER_LEVEL_CD_UNKNOW("00"),
-	USER_LEVEL_CD_NOMAL("30"),
+	USER_LEVER_CD_ADMIN("10"),
 	USER_LEVER_CD_GOLD("20"),
-	USER_LEVER_CD_ADMIN("10");
+	USER_LEVEL_CD_NOMAL("30");
 	
 	private String code;
 	

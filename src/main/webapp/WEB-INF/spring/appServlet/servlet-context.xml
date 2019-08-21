@@ -31,7 +31,7 @@
 
 	<aop:config proxy-target-class="true">
 		<aop:pointcut id="deletePoint"
-			expression="execution(* com.spring.study.board.service.ArticleService.*(..))" />
+			expression="execution(* com.spring.study.service.ArticleService.*(..))" />
 		<aop:advisor advice-ref="deleteAdvice"
 			pointcut-ref="deletePoint" />
 	</aop:config>

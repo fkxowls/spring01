@@ -23,6 +23,7 @@ public class ArticleVo {
 	private String modifyMemberId;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+9")
 	private Date modifyDate;
+	
 	private List<CommentsVo> commentsList;
 	//TODO 여기 고민
 	private NoticeArticleVo noticeArticle;

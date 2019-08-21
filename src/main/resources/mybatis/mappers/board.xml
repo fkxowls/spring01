@@ -51,32 +51,45 @@
 					SELECT  
 					        A.*   
 					FROM    ( 
-			                   SELECT 
+			                   SELECT  /*+ INDEX_DESC(A ARTICLE_ID)*/
+                                       ROWNUM AS RNUM
+                                     , A.ARTICLE_ID
+                                     , A.PARENT_ID
+                                     , A.TITLE
+                                     , A.CONTENT
+                                     , A.WRITE_MEMBER_ID
+                                     , A.WRITE_DATE
+                                FROM   ARTICLE A
+                                WHERE  1                   = 1
+                                AND     (#{writeMemberId} IS NULL OR A.WRITE_MEMBER_ID = #{writeMemberId})
+                               -- WHERE   ARTICLE_ID > 0
+                                START WITH
+                                        PARENT_ID           = 0 
+                                CONNECT BY
+                                        PRIOR ARTICLE_ID    = B.PARENT_ID 
+                                ORDER SIBLINGS BY
                                        <if test="#{sort == 'old'}">
-			                           /*+ INDEX_DESC(A ARTICLE_PK)*/
-                                       ROW_NUMBER() OVER(ORDER BY A.ARTICLE_ID DESC) AS RNUM
+                                       A.ARTICLE_ID
                                        </if>
                                        <if test="#{sort == new}">
-                                       /*+ INDEX_DESC(A ARTICLE_PK)*/
-                                       ROW_NUMBER() OVER(ORDER BY A.ARTICLE_ID ASC) AS RNUM
+                                       A.ARTICLE_ID DESC
                                        </if>
                                        <if test="#{sort == title}">
-                                        /*+ INDEX_DESC(A ARTICLE_PK)*/
-                                       ROW_NUMBER() OVER(ORDER BY A.ARTICLE_ID ASC) AS RNUM
+                                       A.TITLE
                                        </if>
-                                       
-                                      , A.ARTICLE_ID
-                                      , A.PARENT_ID
-                                      , A.TITLE
-                                      , A.CONTENT
-                                      , A.WRITE_MEMBER_ID
-                                      , A.WRITE_DATE
-                                FROM    ARTICLE A
-                                WHERE   1                   = 1
-                                <!-- case문 -->
-                                <if test="writeMemberId != null">
-                                AND     A.WRITE_MEMBER_ID = #{writeMemberId}
-                               </if>
+                                       <if test="#{sort == 'commentCnt'}">
+                                       (
+	                                       SELECT COUNT(REPLY_ID)
+	                                       FROM   ARTICLE_REPLY
+	                                       WHERE  ARTICLE_ID = B.ARTICLE_ID
+                                       ) DESC
+                                       </if>
+                                       <if test="#{sort == 'viewCnt'}">
+                                       (
+	                                       SELECT ARTICLE_COUNT
+	                                       FROM ARTICLE_COUNT_TB
+                                       ) DESC
+                                       </if>
 					        ) A
 		<![CDATA[
 					WHERE   A.RNUM         <= #{endNum}
@@ -134,7 +147,7 @@
        		
 	</select>
 	
-	<select id="viewArticle" parameterType="String" resultType="com.spring.study.board.model.Article">
+	<select id="viewArticle" parameterType="String" resultType="com.spring.study.model.article.Article">
 		SELECT 
 				ARTICLE_ID
 				,TITLE
@@ -300,7 +313,6 @@
 		SELECT  NVL(MIN('Y'), 'N')
 		FROM 	DUAL
 		WHERE	1			= 1
-		AND		EXISTS
 				(
 						SELECT 
 									1

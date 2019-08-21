@@ -1,4 +1,4 @@
-package com.spring.study.model.member;
+package com.spring.study.model.user;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -22,9 +22,5 @@ public class User extends UserVo{
 		articleDto.setWriteMemberId(super.getMemberId());
 		
 		return articleDto;
-	}
-	
-	public boolean isAccessRestriction(String userLevel) {
-		return super.getMemberLevel().equals(userLevel);
 	}
 }

@@ -37,7 +37,7 @@ public class ArticleParam extends BaseParam{
 			this.articleId = articleId;
 		}
 		
-		public Builder(String title, String contents, String writerId, String articleTypeCd) {
+		public Builder(String title, String contents, String writeMemberId, String articleTypeCd) {
 			super();
 			this.title = title;
 			this.contents = contents;

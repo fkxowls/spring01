@@ -21,7 +21,6 @@ public class ArticleDto {
 	private Date displayEndDate;
 	private boolean isNotice;
 	private String articleTypeCd;
-	private String userId;
 	private String path;
 	
 	

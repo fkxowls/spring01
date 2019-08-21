@@ -1,4 +1,4 @@
-package com.spring.study.model.member;
+package com.spring.study.model.user;
 
 import org.apache.commons.lang3.StringUtils;
 

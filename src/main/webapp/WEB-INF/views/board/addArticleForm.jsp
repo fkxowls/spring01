@@ -36,8 +36,8 @@
 		 <tr>
 			   <td align="right">공지글 여부 </td>
 			   <td colspan="2">
-			   		<input type="radio" name="articleTypeCd" value="10">공지글
 			   		<input type="radio" name="articleTypeCd" value="20">일반글
+			   		<input type="radio" name="articleTypeCd" value="10">공지글
 			   </td>
 		 </tr>
 		 </c:if>
