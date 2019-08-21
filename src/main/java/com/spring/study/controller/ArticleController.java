@@ -55,7 +55,7 @@ public class ArticleController {
 	@RequestMapping(value = "/board/article/{page}/list")
 	public String getArticleList(@PathVariable int page, Model model,@RequestParam(required = false, defaultValue = "old") String sort, User user) {			
 		//BaseParam requestParam = new BaseParam.Builder(page, pageSize).build();																					
-		ArticleParam2 reqParam = new ArticleParam2.Builder(page, pageSize).sort("old").userId(user.getMemberId()).build();//XXX articleParam에 userId가 있어도 되는건가요?
+		ArticleParam2 reqParam = new ArticleParam2.Builder(page, pageSize).sort("old").build();//XXX articleParam에 userId가 있어도 되는건가요?
 		List<Article> articleList = null;		
 		
 		if (1 == page) {
@@ -161,11 +161,11 @@ public class ArticleController {
 	}
 	
 	@RequestMapping(value = "/board/article", method = RequestMethod.POST)
-	public @ResponseBody Map<String, Object> writeArticle(@RequestBody ArticleDto articleDto, HttpServletRequest req){
+	public @ResponseBody Map<String, Object> writeArticle(@RequestBody ArticleDto articleDto, HttpServletRequest req, User user){
 		Map<String, Object> resultState = new HashMap<>();
 		//XXX insert와 update같은 애들도 파라미터 객체로 보내서 하는게 맞는건지????? 아니면 컨트롤러로 들어오는 파라미터성격에 애들만 파라미터 객체로 만들어서 사용하는건지???
 		//얘네는 파라미터 객체로 보낼게 아닌듯함 다시 dto로 보내기
-		ArticleParam articleParam = new ArticleParam.Builder(articleDto.getTitle(), articleDto.getContent(), articleDto.getWriteMemberId(), articleDto.getArticleTypeCd())
+		ArticleParam articleParam = new ArticleParam.Builder(articleDto.getTitle(), articleDto.getContent(), user.getMemberId(), articleDto.getArticleTypeCd())
 													.displayStartDate(articleDto.getDisplayStartDate())
 													.displayEndDate(articleDto.getDisplayEndDate())
 													.build();
@@ -305,7 +305,7 @@ public class ArticleController {
 	}
 	
 	@RequestMapping(value = "/board/{articleId}/comments/{commentsPage}")
-	public @ResponseBody Map<String, Object> getCommentsList(@RequestParam String articleWriterId, @PathVariable String articleId, @PathVariable int commentsPage, User user) {
+	public @ResponseBody Map<String, Object> getCommentsList(@PathVariable String articleId, @PathVariable int commentsPage, User user) {
 		Map<String, Object> returnMap = new HashMap<>();
 		String userId = user.getMemberId();
 		if(!user.isLogon()) { userId = ""; }
