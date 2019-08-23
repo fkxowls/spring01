@@ -31,13 +31,12 @@ public class ArticleAddContentsAspect {
 	
 	@Around("@annotation(com.spring.study.common.aop.AddComments)")
 	public Object addComments(ProceedingJoinPoint joinPoint) {
-		//System.out.println("aspect");
-		//System.out.println(user.getMemberId());
 		Object returnObj = null;
 		try {
 			returnObj = joinPoint.proceed();
 		} catch (Throwable e) {	e.printStackTrace(); }
 		
+		//XXX 여기서 Article과 Dto중 뭘로 받아야할까요?
 		List<ArticleVo> returnList = new LinkedList<ArticleVo>();
 		if (returnObj instanceof PageList) {
 			returnList = ((PageList<ArticleVo>) returnObj).getList();
@@ -59,10 +58,11 @@ public class ArticleAddContentsAspect {
 				.map(ArticleVo::getArticleId)
 				.collect(Collectors.joining(","));
 		
+		//아래 아직 수정 중
 		//ArticleController getArticleList()에서 aop사용
-		//XXX 리턴값을 PageList로 받는 이유가 무엇인가요
+		//리턴값을 PageList로 받는 이유가 무엇인가요
 		CommentsDto req = new CommentsDto(articleNumbers, 1, 10);
-		//XXX 5 commentsList는 코멘트파라미터객체를 주입받아야하는데 여기서 어떻게 주입을 해야할까요?? 페이지 정보도 어떻게 받아야할까여, 현재 접속한 유저정보를 어떻게 받아야할까요..
+		//commentsList는 코멘트파라미터객체를 주입받아야하는데 여기서 어떻게 주입을 해야할까요?? 페이지 정보도 어떻게 받아야할까여, 현재 접속한 유저정보를 어떻게 받아야할까요..
 		//현재 접속한 유저아이디를 어떻게 가져와야할까여...
 		CommentsParam commentsParam = new CommentsParam.Builder(1, 10,articleNumbers)
 				.build();

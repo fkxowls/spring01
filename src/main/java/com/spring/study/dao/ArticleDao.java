@@ -29,11 +29,12 @@ import com.spring.study.common.model.BaseParam;
 import com.spring.study.common.model.PageList;
 import com.spring.study.model.article.Article;
 import com.spring.study.model.article.ArticleDto;
-import com.spring.study.model.article.ArticleParam;
+import com.spring.study.model.article.ArticleParam2;
 import com.spring.study.model.article.ArticleParam2;
 import com.spring.study.model.article.ArticleVo;
 import com.spring.study.model.article.NoticeArticleVo;
 import com.spring.study.model.user.Member;
+import com.spring.study.model.user.User;
 
 @Repository("articleDAO")
 public class ArticleDao extends BaseDao {
@@ -81,13 +82,13 @@ public class ArticleDao extends BaseDao {
 
 	}
 
-	public int insertArticle(String articleId, ArticleParam articleParam) {
+	public int insertArticle(String articleId, ArticleDto articleDto, User user) {
 		ArticleVo articleVo = new ArticleVo();
 		articleVo.setArticleId(articleId);
-		articleVo.setTitle(articleParam.getTitle());
-		articleVo.setContent(articleParam.getContents());
-		articleVo.setWriteMemberId(articleParam.getWriteMemberId());
-		articleVo.setWriteDate(articleParam.getWriteDate());
+		articleVo.setWriteMemberId(user.getMemberId());
+		articleVo.setTitle(articleDto.getTitle());
+		articleVo.setContent(articleDto.getContent());
+		articleVo.setWriteMemberId(articleDto.getWriteMemberId());
 		
 		return sqlSession.insert(mapper + "insertArticle", articleVo);
 
@@ -138,9 +139,9 @@ public class ArticleDao extends BaseDao {
 		return false;
 	}
 
-	public String getWriterId(String articleId) {
-		return "admin";
-		//return sqlSession.selectOne(mapper+"writerId", articleId);
+	public Article getWriterId(String articleId) {
+		//return "admin";
+		return sqlSession.selectOne(mapper+"getWriterId", articleId);
 	}
 	
 	public String getNextArticleId() {
@@ -153,11 +154,11 @@ public class ArticleDao extends BaseDao {
 
 	}
 
-	public int registerNotice(String articleId, ArticleParam articleParam) {
+	public int registerNotice(String articleId, ArticleDto articleDto) {
 		NoticeArticleVo noticeArticleVo = new NoticeArticleVo();
 		noticeArticleVo.setArticleId(articleId);
-		noticeArticleVo.setDisplayStartDate(articleParam.getDisplayStartDate());
-		noticeArticleVo.setDisplayEndDate(articleParam.getDisplayEndDate());
+		noticeArticleVo.setDisplayStartDate(articleDto.getDisplayStartDate());
+		noticeArticleVo.setDisplayEndDate(articleDto.getDisplayEndDate());
 		
 		return sqlSession.insert(mapper + "registerNotice", noticeArticleVo);
 	}

@@ -63,5 +63,6 @@ public class ArticleParam2 extends BaseParam{
 		return userId;
 	}
 	
+		
 
 }

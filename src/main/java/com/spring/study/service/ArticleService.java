@@ -16,7 +16,7 @@ import com.spring.study.common.model.PageList;
 import com.spring.study.dao.ArticleDao;
 import com.spring.study.model.article.Article;
 import com.spring.study.model.article.ArticleDto;
-import com.spring.study.model.article.ArticleParam;
+import com.spring.study.model.article.ArticleParam2;
 import com.spring.study.model.article.ArticleParam2;
 import com.spring.study.model.article.ArticleVo;
 import com.spring.study.model.user.Member;
@@ -46,6 +46,7 @@ public class ArticleService {
 		}
 		
 		Article article = articleDao.viewArticle(articleId);
+		
 		if(article.checkAccessLevel(user)) {
 			throw new RuntimeException("접근 권한이 없습니다");
 		}
@@ -54,21 +55,20 @@ public class ArticleService {
 	}
 
 	@Transactional(rollbackFor = Exception.class)
-	public String writeArticle(ArticleParam articleParam) throws SQLException {
+	public void writeArticle(ArticleDto articleDto, User user) throws SQLException {
 		String articleId = this.getArticleIdNextSeq();
 
-		int result = articleDao.insertArticle(articleId, articleParam);
+		int result = articleDao.insertArticle(articleId, articleDto, user);
 		if(1 != result) { throw new SQLException(" 글 등록중 오류가 발생하였습니다. "); }
 		
-		if (CommonCode.ARTICLE_TYPE_CD_NOTICE_Y.getCode().equals(articleParam.getArticleTypeCd())) {
-			result = articleDao.registerNotice(articleId, articleParam);
+		if (CommonCode.ARTICLE_TYPE_CD_NOTICE_Y.getCode().equals(articleDto.getArticleTypeCd())) {
+			result = articleDao.registerNotice(articleId, articleDto);
 			if(1 != result) { throw new SQLException(" 글 등록중 오류가 발생하였습니다. "); }
 		}
 		
-		return articleId;
 	}
 
-	public void modifyArticle(ArticleDto articleDto, UserVo user) throws Exception {
+	public void modifyArticle(ArticleDto articleDto, UserVo user) throws NotFoundException, SQLException {
 		articleDto.setModifyMemberId(user.getMemberId());
 
 		boolean isExistsArticle = articleDao.isExistsArticle(articleDto.getArticleId());
@@ -76,8 +76,12 @@ public class ArticleService {
 		if (!isExistsArticle) {
 			new NotFoundException("권한없는 접근입니다");
 		}
-		//이거에 대한 결과값 리턴하기
+		
 		int result = articleDao.updateArticle(articleDto);
+		if(-1 == result) {
+			throw new SQLException("글 수정중 오류가 발생하였습니다.");
+		}
+		
 	}
 
 	public void deleteArticle(ArticleDto article) throws Exception {
@@ -89,9 +93,9 @@ public class ArticleService {
 
 		articleDao.deleteArticle(article);
 	}
-
+	
 	// transaction
-	public String writeReply(ArticleDto articleDto) throws Exception {
+	public void writeReply(ArticleDto articleDto) throws NotFoundException, SQLException {
 		// 답글쓰기전 부모글 체크
 		boolean isExistsArticle = articleDao.isExistsArticle(articleDto.getParentId());
 		if (!isExistsArticle) {
@@ -100,7 +104,7 @@ public class ArticleService {
 
 		int result = articleDao.replyArticle(articleDto);
 		if (0 == result) {
-			throw new InternalException("서버 오류입니다. 다시 시도해주세요.");
+			throw new SQLException("답글 쓰기중에 오류가 발생하였습니다. 잠시후 다시 시도해주세요");
 		}
 
 		isExistsArticle = articleDao.isExistsArticle(articleDto.getParentId());
@@ -108,7 +112,6 @@ public class ArticleService {
 			throw new NotFoundException("답변하려는 글이 존재하지 않습니다.");
 		}
 
-		return "답글 작성에 성공 했습니다.";
 	}
 
 	// 글 번호 조회
@@ -117,7 +120,7 @@ public class ArticleService {
 		return result;
 	}
 	
-	public String getWriterId(String articleId) {
+	public Article getWriterId(String articleId) {
 		return articleDao.getWriterId(articleId);
 	}
 

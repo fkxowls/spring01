@@ -14,18 +14,13 @@ public class ArticleVo {
 	private String parentId;
 	private String title;
 	private String content;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+9")
 	private Date writeDate;
 	private String writeMemberId;
-	//private int rnum;
-	//private boolean isNotice;
-	
 	private String modifyMemberId;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+9")
 	private Date modifyDate;
-	
+
+	//Article로 옮기기 Vo는 컬럼과 1:1매칭
 	private List<CommentsVo> commentsList;
-	//TODO 여기 고민
 	private NoticeArticleVo noticeArticle;
 
 	public NoticeArticleVo getNoticeArticle() {

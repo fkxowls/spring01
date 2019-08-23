@@ -17,7 +17,6 @@ public class Article extends ArticleVo {
 		if(articleIdLength != articleId.length()) {
 			return false;
 		}
-		
 		return true;
 	}
 	
@@ -40,6 +39,7 @@ public class Article extends ArticleVo {
 	public ArticleDto showArticle() {
 		ArticleDto articleDto = new ArticleDto();
 		articleDto.setArticleId(getArticleId());
+		articleDto.setParentId(getParentId());//오라클 충돌로 현재 확인 못해봄
 		articleDto.setTitle(getTitle());
 		articleDto.setContent(getContent());
 		articleDto.setWriteMemberId(getWriteMemberId());

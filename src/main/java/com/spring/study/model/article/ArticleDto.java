@@ -11,6 +11,7 @@ public class ArticleDto {
 	private String content;
 	private String writeMemberId;
 	private String modifyMemberId;
+	private String articleTypeCd;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
 	private Date writeDate;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
@@ -19,15 +20,13 @@ public class ArticleDto {
 	private Date displayStartDate;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
 	private Date displayEndDate;
-	private boolean isNotice;
-	private String articleTypeCd;
 	private String path;
 	
 	
-	protected String getPath() {
+	public String getPath() {
 		return path;
 	}
-	protected void setPath(String path) {
+	public void setPath(String path) {
 		this.path = path;
 	}
 	public String getArticleTypeCd() {
@@ -96,13 +95,6 @@ public class ArticleDto {
 	}
 	public void setDisplayEndDate(Date displayEndDate) {
 		this.displayEndDate = displayEndDate;
-	}
-	public boolean isNotice() {
-		return isNotice;
-	}
-	
-	public void setNotice(boolean isNotice) {
-		this.isNotice = isNotice;
 	}
 	
 
