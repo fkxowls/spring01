@@ -16,8 +16,8 @@ import com.spring.study.common.model.PageList;
 import com.spring.study.dao.ArticleDao;
 import com.spring.study.model.article.Article;
 import com.spring.study.model.article.ArticleDto;
-import com.spring.study.model.article.ArticleParam2;
-import com.spring.study.model.article.ArticleParam2;
+import com.spring.study.model.article.ArticleParam;
+import com.spring.study.model.article.ArticleParam;
 import com.spring.study.model.article.ArticleVo;
 import com.spring.study.model.user.Member;
 import com.spring.study.model.user.User;
@@ -37,7 +37,6 @@ public class ArticleService {
 	public boolean isNotice(String articleId) {
 		return articleDao.isNoticeId(articleId);
 	}
-	//XXX 2 User, Article같은 객체를 서비스단까지 끌어와서 사용해도 되는건가요?
 
 	public Article getArticle(String articleId, User user) throws RuntimeException {
 		boolean isNoticeId = articleDao.isNoticeId(articleId);
@@ -68,30 +67,28 @@ public class ArticleService {
 		
 	}
 
-	public void modifyArticle(ArticleDto articleDto, UserVo user) throws NotFoundException, SQLException {
-		articleDto.setModifyMemberId(user.getMemberId());
-
+	public void modifyArticle(ArticleDto articleDto, User user) throws NotFoundException, SQLException {
 		boolean isExistsArticle = articleDao.isExistsArticle(articleDto.getArticleId());
 
 		if (!isExistsArticle) {
-			new NotFoundException("권한없는 접근입니다");
+			new NotFoundException("해당 글이 존재하지 않습니다.");
 		}
 		
-		int result = articleDao.updateArticle(articleDto);
-		if(-1 == result) {
-			throw new SQLException("글 수정중 오류가 발생하였습니다.");
+		int result = articleDao.updateArticle(articleDto, user);
+		if(1 != result) {
+			throw new SQLException("글 수정 중 오류가 발생하였습니다.");
 		}
 		
 	}
 
-	public void deleteArticle(ArticleDto article) throws Exception {
-		boolean result = articleDao.equalsWriterId(article);
-
-		if (!result) {
-			throw new NotFoundException("권한없는 접근입니다");
+	public void deleteArticle(String articleid) throws Exception {
+		boolean isEquals = articleDao.equalsWriterId(articleid);
+		if (!isEquals) {
+			throw new IllegalAccessException("작성자만 삭제할 수 있습니다.");
 		}
-
-		articleDao.deleteArticle(article);
+		
+		int result = articleDao.deleteArticle(articleid);
+		if(1 != result) { throw new SQLException(" 오류가 발생하였습니다. "); }
 	}
 	
 	// transaction
@@ -132,7 +129,7 @@ public class ArticleService {
 	/****************************************************************************************************
 	 ****************************************************************************************************
 	 ****************************************************************************************************/
-	public PageList<Article> getArticlePageListWithCount(ArticleParam2 req) {
+	public PageList<Article> getArticlePageListWithCount(ArticleParam req) {
 		// PageList<ArticleVo> pageList = articleDao.getArticlePageListWithCount(req);
 		// feed형으로 받을 시
 		PageList<Article> feedTypePageList = articleDao.getArticlePageListWithCountAddComments(req);
@@ -156,7 +153,7 @@ public class ArticleService {
 
 	//아래 메서드 삭제
 	public boolean isEqualsWriterId(String writerId, UserVo user) {
-		if (user.getMemberId().equals(writerId)) {
+		if (user.getUserId().equals(writerId)) {
 			return true;
 		}
 

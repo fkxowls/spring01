@@ -2,14 +2,14 @@ package com.spring.study.model.article;
 
 import com.spring.study.common.model.BaseParam;
 
-public class ArticleParam2 extends BaseParam{
-	private String writerId;
+public class ArticleParam extends BaseParam{
+	private String writeMemberId;
 	private String articleId;
 	private String userId;
 	private String sort;
 	
 	public static class Builder extends BaseParam.Builder<Builder>{
-		private String writerId;
+		private String writeMemberId;
 		private String articleId;
 		private String userId;
 		private String sort;
@@ -32,17 +32,17 @@ public class ArticleParam2 extends BaseParam{
 			return this;
 		}
 		
-		public ArticleParam2 build() {
+		public ArticleParam build() {
 			super.build();
-			return new ArticleParam2(this);
+			return new ArticleParam(this);
 		}
 		
 	}
 
-	public ArticleParam2(Builder builder) {
+	public ArticleParam(Builder builder) {
 		super(builder);
 		this.articleId = builder.articleId;
-		this.writerId = builder.writerId;
+		this.writeMemberId = builder.writeMemberId;
 		this.userId = builder.userId;
 		this.sort = builder.sort;
 	}
@@ -51,8 +51,8 @@ public class ArticleParam2 extends BaseParam{
 		return articleId;
 	}
 
-	public final String getWriterMemberId() {
-		return writerId;
+	public final String getWriteMemberId() {
+		return writeMemberId;
 	}
 
 	public final String getSort() {

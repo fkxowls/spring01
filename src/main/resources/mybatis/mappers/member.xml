@@ -6,9 +6,17 @@
 <mapper namespace="mapper.member">
 	<select id="checkMember" parameterType="memberVo" resultType="memberVo">
 		SELECT	
-				 MEMBER_ID
-				 ,MEMBER_LEVEL
-		FROM	 MEMBER
-		WHERE	 MEMBER_ID		= #{memberId}
+				 USER_ID
+				 ,USER_LEVEL
+		FROM	 USER_TB
+		WHERE	 USER_ID		= #{userId}
 	</select>
+	
+    <select id="chkMemberLevel" parameterType="memberVo" resultType="int">
+        SELECT  member_level
+        FROM    USER_TB
+        WHERE
+                USER_ID      = #{userId}
+        AND     USER_LEVEL = #{userLevel}
+    </select>
 </mapper>

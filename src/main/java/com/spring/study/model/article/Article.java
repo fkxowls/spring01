@@ -20,31 +20,27 @@ public class Article extends ArticleVo {
 		return true;
 	}
 	
-	@Autowired
-	ArticleDao dao;
-	
 	private List<String> accessLevelList; // Board의 하위테이블에 적재된 데이터
 	
 	public ArticleDto displayTitle() {
 		ArticleDto articleDto= new ArticleDto();
 		articleDto.setArticleId(getArticleId());
 		articleDto.setTitle(getTitle());
-		articleDto.setWriteMemberId(getWriteMemberId());//writer로 이름 바꾸기
+		articleDto.setWriteMemberId(getWriteMemberId());
 		articleDto.setWriteDate(getWriteDate());
 		articleDto.setPath("/board/"+super.getArticleId());
-		//조회수 추가하기
+		//TODO 조회수 추가하기
 		return articleDto;
 	}
 	
 	public ArticleDto showArticle() {
 		ArticleDto articleDto = new ArticleDto();
 		articleDto.setArticleId(getArticleId());
-		articleDto.setParentId(getParentId());//오라클 충돌로 현재 확인 못해봄
+		articleDto.setParentId(getParentId());
 		articleDto.setTitle(getTitle());
 		articleDto.setContent(getContent());
 		articleDto.setWriteMemberId(getWriteMemberId());
 		articleDto.setWriteDate(getWriteDate());
-		//dao.viewArticle("10150");
 		
 		return articleDto;
 	}
@@ -70,7 +66,7 @@ public class Article extends ArticleVo {
 	}
 	
 	public boolean checkAccessLevel(User user) {
-		if(this.getAccessLevelList().contains(user.getMemberLevel())) {
+		if(this.getAccessLevelList().contains(user.getUserLevel())) {
 			return true;
 		}
 		

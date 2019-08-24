@@ -4,16 +4,16 @@
    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="mapper.comment">
-	<select id="listComment" parameterType="articleReplyVo" resultType="articleReplyVo">
+	<select id="listComment" parameterType="com.spring.study.model.comments.CommentParam" resultType="com.spring.study.model.comments.Comment">
 		SELECT   A.*
         FROM      (
                       SELECT    
                                 B.*
                      FROM     (
-                                SELECT   ROW_NUMBER() OVER(PARTITION BY C.ARTICLE_ID  ORDER BY C.REPLY_ID DESC) AS RANK_NUMBER
+                                SELECT   ROW_NUMBER() OVER(PARTITION BY C.ARTICLE_ID  ORDER BY C.COMMENT_ID DESC) AS RANK_NUMBER
                                         , LEVEL AS LVL
                                         , C.ARTICLE_ID
-                                        , C.REPLY_ID
+                                        , C.COMMENT_ID
                                         , C.PARENT_ID
                                         , C.WRITE_MEMBER_ID
                                         , C.SECRET_TYPE_CD
@@ -47,7 +47,7 @@
 		FROM      (
   	                  SELECT	 LEVEL AS LVL
         	                   , ARTICLE_ID
-            	        	   , REPLY_ID
+            	        	   , COMMENT_ID
 	                           , PARENT_ID
                     		   , CONTENT
 	                           , WRITE_MEMBER_ID
@@ -78,7 +78,7 @@
   	          SELECT	ROWNUM as rNum
     	                ,LEVEL AS LVL
         	            , ARTICLE_ID
-            	        , REPLY_ID
+            	        , COMMENT_ID
                 	    , PARENT_ID
                     	, CONTENT
 	                    , WRITE_MEMBER_ID
@@ -105,14 +105,14 @@
 							1
 					FROM	ARTICLE_REPLY
 					WHERE	
-							REPLY_ID = #{replyId}
+							COMMENT_ID = #{commentId}
 				)
 	</insert>
 	
 	<insert id="insertComment" parameterType="articleReplyVo">
 		INSERT INTO ARTICLE_REPLY
 		(
-			REPLY_ID
+			COMMENT_ID
 			,ARTICLE_ID
 			,PARENT_ID
 			,CONTENT

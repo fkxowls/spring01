@@ -11,7 +11,7 @@
 	<typeAliases>		
 		<typeAlias type="com.spring.study.model.user.UserVo" alias="memberVo" /> 
 		<typeAlias type="com.spring.study.model.article.ArticleVo" alias="articleVo" />
-		<typeAlias type="com.spring.study.model.comments.CommentsVo" alias="articleReplyVo" />
+		<typeAlias type="com.spring.study.model.comments.CommentVo" alias="articleReplyVo" />
 	</typeAliases>
 </configuration>
 

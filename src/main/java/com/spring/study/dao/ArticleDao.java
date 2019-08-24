@@ -29,8 +29,8 @@ import com.spring.study.common.model.BaseParam;
 import com.spring.study.common.model.PageList;
 import com.spring.study.model.article.Article;
 import com.spring.study.model.article.ArticleDto;
-import com.spring.study.model.article.ArticleParam2;
-import com.spring.study.model.article.ArticleParam2;
+import com.spring.study.model.article.ArticleParam;
+import com.spring.study.model.article.ArticleParam;
 import com.spring.study.model.article.ArticleVo;
 import com.spring.study.model.article.NoticeArticleVo;
 import com.spring.study.model.user.Member;
@@ -45,8 +45,8 @@ public class ArticleDao extends BaseDao {
 	@Autowired
 	SqlSession sqlSession;
 
-	@AddComments
-	public PageList<Article> getArticlePageListWithCountAddComments(ArticleParam2 vo) {
+	//@AddComments
+	public PageList<Article> getArticlePageListWithCountAddComments(ArticleParam vo) {
 		return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
 	}
 	
@@ -85,7 +85,7 @@ public class ArticleDao extends BaseDao {
 	public int insertArticle(String articleId, ArticleDto articleDto, User user) {
 		ArticleVo articleVo = new ArticleVo();
 		articleVo.setArticleId(articleId);
-		articleVo.setWriteMemberId(user.getMemberId());
+		articleVo.setWriteMemberId(user.getUserId());
 		articleVo.setTitle(articleDto.getTitle());
 		articleVo.setContent(articleDto.getContent());
 		articleVo.setWriteMemberId(articleDto.getWriteMemberId());
@@ -94,10 +94,10 @@ public class ArticleDao extends BaseDao {
 
 	}
 
-	public int updateArticle(ArticleDto articleDto) {
+	public int updateArticle(ArticleDto articleDto, User user) {
 		ArticleVo articleVo = new ArticleVo();
 		articleVo.setArticleId(articleDto.getArticleId());
-		articleVo.setWriteMemberId(articleDto.getWriteMemberId());
+		articleVo.setWriteMemberId(user.getUserId());
 		articleVo.setTitle(articleDto.getTitle());
 		articleVo.setContent(articleDto.getContent());
 		articleVo.setModifyMemberId(articleDto.getModifyMemberId());
@@ -115,8 +115,8 @@ public class ArticleDao extends BaseDao {
 		return sqlSession.selectOne(mapper + "getSequence");
 	}
 
-	public void deleteArticle(ArticleDto vo) {
-		sqlSession.delete(mapper + "deleteArticle", vo);
+	public int deleteArticle(String articleId) {
+		return sqlSession.delete(mapper + "deleteArticle", articleId);
 
 	}
 
@@ -131,8 +131,8 @@ public class ArticleDao extends BaseDao {
 		return sqlSession.insert(mapper + "insertReply", articleVo);
 	}
 
-	public boolean equalsWriterId(ArticleDto article) {
-		String result = sqlSession.selectOne(mapper + "equalsWriterId", article);
+	public boolean equalsWriterId(String articleId) {
+		String result = sqlSession.selectOne(mapper + "equalsWriterId", articleId);
 		if (result.equals("Y")) {
 			return true;
 		}

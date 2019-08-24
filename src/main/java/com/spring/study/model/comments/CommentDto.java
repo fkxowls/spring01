@@ -1,35 +1,39 @@
 package com.spring.study.model.comments;
 
-public class CommentsDto {
+import java.util.Date;
+
+public class CommentDto {
 	private String articleId;
-	private int pageSize;
+	private String commentId;
+	private int parentId;
+	private String content;
+	private String writeMemberId;
+	private String writeDate;
+	private String secretTypeCd;
+	
 	private int commentsPage;
 	private int startNum;
 	private int endNum;
-	private String writeMemberId;
-	private String content;
-	private String secretTypeCd;
-	private int parentId;
-	private String replyId;
+	private int pageSize;
 	
 
-	public CommentsDto() {
+	public CommentDto() {
 	
 	}
 
-	public CommentsDto(String articleId, String content, String secretTypeCd) {
+	public CommentDto(String articleId, String content, String secretTypeCd) {
 		this.articleId    = articleId;
 		this.content	  = content;//?? 여기에 왜 갑분컨???
 		this.secretTypeCd =secretTypeCd;
 	}
 	
-	public CommentsDto(String articleId, int commentsPage, int pageSize) {
+	public CommentDto(String articleId, int commentsPage, int pageSize) {
 		this.articleId 	  = articleId;
 		this.pageSize 	  = pageSize;
 		this.commentsPage = commentsPage;
 	}
 
-	public CommentsDto(String articleId, int commentsPage, int pageSize, String writeMemberId) {
+	public CommentDto(String articleId, int commentsPage, int pageSize, String writeMemberId) {
 		this.articleId 	      = articleId;
 		this.commentsPage 	  = commentsPage;
 		this.writeMemberId 	  = writeMemberId;
@@ -49,8 +53,8 @@ public class CommentsDto {
 	public String getSecretTypeCd() {
 		return secretTypeCd;
 	}
-	public String getReplyId() {
-		return replyId;
+	public String getCommentId() {
+		return commentId;
 	}
 
 	public int getParentId() {
@@ -89,6 +93,38 @@ public class CommentsDto {
 	public int getEndNum() {
 		this.endNum = this.commentsPage * 10;
 		return endNum;
+	}
+
+	public String getWriteDate() {
+		return writeDate;
+	}
+
+	public void setCommentId(String commentId) {
+		this.commentId = commentId;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public void setWriteDate(String string) {
+		this.writeDate = string;
+	}
+
+	public void setSecretTypeCd(String secretTypeCd) {
+		this.secretTypeCd = secretTypeCd;
+	}
+
+	public void setStartNum(int startNum) {
+		this.startNum = startNum;
+	}
+
+	public void setEndNum(int endNum) {
+		this.endNum = endNum;
+	}
+
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
 	}
 	
 	

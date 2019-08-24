@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spring.study.model.comments.CommentsVo;
+import com.spring.study.model.comments.CommentVo;
 
 public class ArticleVo {
 
@@ -20,7 +20,7 @@ public class ArticleVo {
 	private Date modifyDate;
 
 	//Article로 옮기기 Vo는 컬럼과 1:1매칭
-	private List<CommentsVo> commentsList;
+	private List<CommentVo> commentsList;
 	private NoticeArticleVo noticeArticle;
 
 	public NoticeArticleVo getNoticeArticle() {
@@ -31,9 +31,9 @@ public class ArticleVo {
 		this.noticeArticle = noticeArticle;
 	}
 
-	public List<CommentsVo> getCommentsList() {
+	public List<CommentVo> getCommentsList() {
 		if (null == commentsList) {
-			commentsList = new ArrayList<CommentsVo>();
+			commentsList = new ArrayList<CommentVo>();
 		}
 		return commentsList;
 	}
@@ -54,7 +54,7 @@ public class ArticleVo {
 		this.modifyDate = modifyDate;
 	}
 
-	public void setCommentsList(List<CommentsVo> commentsList) {
+	public void setCommentsList(List<CommentVo> commentsList) {
 		this.commentsList = commentsList;
 	}
 

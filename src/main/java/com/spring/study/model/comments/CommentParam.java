@@ -10,7 +10,7 @@ import com.spring.study.model.article.ArticleParam.Builder;
  * @author jnty0
  *
  */
-public class CommentsParam extends BaseParam{
+public class CommentParam extends BaseParam{
 	private String articleId;
 	private String writeMemberId;
 	private String userId;
@@ -40,14 +40,14 @@ public class CommentsParam extends BaseParam{
 			return this;
 		}
 		
-		public CommentsParam build() {
+		public CommentParam build() {
 			super.build();
-			return new CommentsParam(this);
+			return new CommentParam(this);
 		}
 		
 	}
 
-	public CommentsParam(Builder builder) {
+	public CommentParam(Builder builder) {
 		super(builder);
 		this.articleId = builder.articleId;
 		this.writeMemberId = builder.writeMemberId;

@@ -44,7 +44,7 @@
  -->	
 	
 	<!-- <select id="listArticle2" resultMap="articleResult"> -->
-	<select id="listArticle2" resultType="articleVo">
+	<select id="listArticle2" parameterType="com.spring.study.model.article.ArticleParam2" resultType="com.spring.study.model.article.Article">
 	
 		SELECT  X.*
 		FROM    (
@@ -59,37 +59,39 @@
                                      , A.CONTENT
                                      , A.WRITE_MEMBER_ID
                                      , A.WRITE_DATE
-                                FROM   ARTICLE A
+                                FROM   ARTICLE_TB A
                                 WHERE  1                   = 1
-                                AND     (#{writeMemberId} IS NULL OR A.WRITE_MEMBER_ID = #{writeMemberId})
-                               -- WHERE   ARTICLE_ID > 0
+                                <!-- AND     (#{writeMemberId} IS NULL OR A.WRITE_MEMBER_ID = #{writeMemberId}) -->
+                                
                                 START WITH
                                         PARENT_ID           = 0 
                                 CONNECT BY
-                                        PRIOR ARTICLE_ID    = B.PARENT_ID 
+                                        PRIOR ARTICLE_ID    = A.PARENT_ID 
                                 ORDER SIBLINGS BY
-                                       <if test="#{sort == 'old'}">
+                                       <choose>
+                                       <when test="sort == 'old'">
                                        A.ARTICLE_ID
-                                       </if>
-                                       <if test="#{sort == new}">
+                                       </when>
+                                       <when test="sort == 'new'">
                                        A.ARTICLE_ID DESC
-                                       </if>
-                                       <if test="#{sort == title}">
+                                       </when>
+                                       <when test="sort == 'title'">
                                        A.TITLE
-                                       </if>
-                                       <if test="#{sort == 'commentCnt'}">
+                                       </when>
+                                       <when test="sort == 'commentCnt'">
                                        (
-	                                       SELECT COUNT(REPLY_ID)
-	                                       FROM   ARTICLE_REPLY
-	                                       WHERE  ARTICLE_ID = B.ARTICLE_ID
+	                                       SELECT COUNT(COMMENT_ID)
+	                                       FROM   COMMENT_TB
+	                                       WHERE  ARTICLE_ID = A.ARTICLE_ID
                                        ) DESC
-                                       </if>
-                                       <if test="#{sort == 'viewCnt'}">
+                                       </when>
+                                       <when test="sort == 'viewCnt'">
                                        (
 	                                       SELECT ARTICLE_COUNT
 	                                       FROM ARTICLE_COUNT_TB
                                        ) DESC
-                                       </if>
+                                       </when>
+                                       </choose>
 					        ) A
 		<![CDATA[
 					WHERE   A.RNUM         <= #{endNum}
@@ -99,7 +101,7 @@
  	 
 	</select>
 	
-    <select id="listNoticeArticle2" resultType="articleVo">
+    <select id="listNoticeArticle2" resultType="com.spring.study.model.article.Article">
     <![CDATA[
         SELECT  X.*
         FROM    (
@@ -113,8 +115,8 @@
                                       , A.TITLE
                                       , A.CONTENT
                                       , A.WRITE_MEMBER_ID
-                                FROM    NOTICE_ARTICLE  NA <!--  모수 자체가 ARTICLE 보다 현저하게 적음 -->
-                                      , ARTICLE         A
+                                FROM    NOTICE_ARTICLE_TB  NA <!--  모수 자체가 ARTICLE 보다 현저하게 적음 -->
+                                      , ARTICLE_TB         A
                                 WHERE   1                   = 1
                                 AND     A.ARTICLE_ID        = NA.ARTICLE_ID
                                 AND     SYSDATE             BETWEEN NA.DISPLAY_START_DATE   AND NA.DISPLAY_END_DATE -- 추가로 NOTICE_ARTICLE 자체적인 필터 걸어서 모수를 더 줄일 수도 있음
@@ -127,7 +129,7 @@
      ]]>
     </select>
 	
-	<select id="listArticle" resultType="articleVo">
+	<select id="listArticle" resultType="com.spring.study.model.article.Article">
             SELECT	ROWNUM as rNum
                     ,LEVEL AS LVL
                     , ARTICLE_ID
@@ -136,7 +138,7 @@
                     , CONTENT
                     , WRITE_MEMBER_ID
                     <!-- , WRITE_DATE -->
-            FROM    ARTICLE
+            FROM    ARTICLE_TB
 			WHERE   ARTICLE_ID > 0
             START WITH
                     PARENT_ID           = 0 
@@ -148,15 +150,22 @@
 	</select>
 	
 	<select id="viewArticle" parameterType="String" resultType="com.spring.study.model.article.Article">
-		SELECT 
-				ARTICLE_ID
+		SELECT   ARTICLE_ID
 				,TITLE
 				,CONTENT
 				,WRITE_MEMBER_ID
 				,WRITE_DATE
-		FROM 	ARTICLE 
+		FROM 	ARTICLE_TB
 		WHERE 	ARTICLE_ID = #{articleId}
 	</select>
+	
+	<select id="getWriterId" parameterType="String" resultType="com.spring.study.model.article.Article">
+        SELECT  
+                WRITE_MEMBER_ID
+        FROM    
+                ARTICLE_TB 
+        WHERE   ARTICLE_ID = #{articleId}
+    </select>
 	
 	<insert id="insertArticle" parameterType="articleVo">
 		INSERT INTO ARTICLE
@@ -195,19 +204,19 @@
 	<select id="totalArticle" resultType="int">
 		SELECT
 				COUNT(1)
-		FROM	ARTICLE
+		FROM	ARTICLE_TB
 				
 	</select>
 	
 	<select id="getSequence" resultType="int">
 		SELECT 
 				MAX(ARTICLE_ID)
-		FROM 	ARTICLE
+		FROM 	ARTICLE_TB
 	</select>
 	
 	<delete id="deleteArticle" parameterType="String">
 		DELETE 	
-		FROM	ARTICLE
+		FROM	ARTICLE_TB
 		WHERE	ARTICLE_ID = #{articleId}
 		AND		WRITE_MEMBER_ID = #{writeMemberId}
 	
@@ -247,13 +256,13 @@
 				(
 					SELECT 
 							1
-					FROM	ARTICLE
+					FROM	ARTICLE_TB
 					WHERE	
 							ARTICLE_ID = #{articleId}
 				)
 	</select>
 	<!-- 아이디 체크 AOP를 위한 쿼리-->	
-	<select id="equalsWriterId" parameterType="articleVo" resultType="String">
+	<select id="equalsWriterId" parameterType="String" resultType="String">
 		SELECT	 NVL(MIN('Y'), 'N')
 		FROM 	DUAL
 		WHERE	1			= 1
@@ -261,7 +270,7 @@
 				(
 					SELECT 
 							1
-					FROM	ARTICLE
+					FROM	ARTICLE_TB
 					WHERE	
 							ARTICLE_ID = #{articleId}
 					AND		WRITE_MEMBER_ID = #{writeMemberId} 
@@ -277,7 +286,7 @@
 	<select id="noticeList" resultType="articleVo">
 		SELECT  /*+ ordered use_nl(t2)*/
 				T2.*
-		FROM 	NOTICE_ARTICLE T1, ARTICLE T2
+		FROM 	NOTICE_ARTICLE_TB T1, ARTICLE_TB T2
 		WHERE	
 				T1.ARTICLE_ID = T2.ARTICLE_ID
 	</select>
@@ -305,7 +314,7 @@
 	<select id="getMyArticleList" parameterType="String" resultType="articleVo">
 		SELECT /*+ INDEX(MEMBER_ID_IDX)*/
 				* 
-		FROM ARTICLE
+		FROM ARTICLE_TB
 		WHERE WRITE_MEMBER_ID = #{writeMemberId}
 	</select>	
 	
@@ -316,20 +325,11 @@
 				(
 						SELECT 
 									1
-						FROM		NOTICE_ARTICLE
+						FROM		NOTICE_ARTICLE_TB
 						WHERE	
 									ARTICLE_ID = #{articleId}
 				)
 	</select>
 	
-	
-	
-	<select id="chkMemberLevel" parameterType="memberVo" resultType="int">
-		SELECT	member_level
-		FROM	MEMBER
-		WHERE
-				MEMBER_ID 	 = #{memberId}
-		AND		MEMBER_LEVEL = #{memberLevel}
-	</select>
 	
 </mapper>

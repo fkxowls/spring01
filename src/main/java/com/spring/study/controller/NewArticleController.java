@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,7 +28,11 @@ import com.spring.study.common.model.BaseParam;
 import com.spring.study.common.model.PageList;
 import com.spring.study.model.article.Article;
 import com.spring.study.model.article.ArticleDto;
-import com.spring.study.model.article.ArticleParam2;
+import com.spring.study.model.article.ArticleParam;
+import com.spring.study.model.comments.Comment;
+import com.spring.study.model.comments.CommentDto;
+import com.spring.study.model.comments.CommentParam;
+import com.spring.study.model.comments.CommentVo;
 import com.spring.study.model.user.User;
 import com.spring.study.service.ArticleService;
 import com.spring.study.service.CommentsService;
@@ -35,7 +40,10 @@ import com.spring.study.service.CommentsService;
 import javassist.NotFoundException;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 
-//TODO  union,정렬쿼리,addCommentAspect수정, 
+//TODO controller코드 정리  aop 
+// 	   articleParam 수정, addCommentAspect수정, union, 정렬쿼리
+//	     캐싱 리턴값 직렬화
+//     interceptor적용할 코드가 있는지 다시보기
 @Controller
 public class NewArticleController {
 	private static final Logger logger = LoggerFactory.getLogger(ArticleController.class);
@@ -48,14 +56,14 @@ public class NewArticleController {
 	
 	@RequestMapping(value = "/board/article/{page}/list")
 	public @ResponseBody Map<String, Object> getArticleList(@PathVariable int page, Model model,@RequestParam(required = false, defaultValue = "old") String sort) {																					
-		ArticleParam2 reqParam = new ArticleParam2.Builder(page, pageSize).sort(sort).build();
+		ArticleParam reqParam = new ArticleParam.Builder(page, pageSize).sort(sort).build();
 		Map<String, Object> resultMap = new HashMap<>();
 		List<Article> articleList = null;		
 		
 		if (1 == page) {
-			PageList<Article> returnPageList = articleService.getArticlePageListWithCount(reqParam);
-			articleList = returnPageList.getList();
-			resultMap.put("totalPage", returnPageList.getTotalPage());
+			PageList<Article> pageList = articleService.getArticlePageListWithCount(reqParam);
+			articleList = pageList.getList();
+			resultMap.put("totalPage", pageList.getTotalPage());
 		} else {
 			articleList = articleService.getArticleList(reqParam);
 		}
@@ -72,10 +80,10 @@ public class NewArticleController {
 	}
 	
 	@RequestMapping(value = "/board/article2/{page}/list")
-	public @ResponseBody Map<String, Object> getArticleList(Model model, @PathVariable int page) {
+	public @ResponseBody Map<String, Object> getArticleList(Model model, @PathVariable int page,@RequestParam(required = false, defaultValue = "old") String sort) {
 		BaseParam reqParam = new BaseParam.Builder(page, pageSize).useMoreView(true).build();
 		Map<String, Object> resultMap = new HashMap<>();
-	
+		
 		PageList<Article> pageListDto = articleService.getArticlePageList(reqParam);
 		List<Article> articleList = pageListDto.getList();
 		List<ArticleDto> articleHeader = articleList.stream()
@@ -185,7 +193,7 @@ public class NewArticleController {
 		}
 		//XXX 요청시 들어온 uesr의 null여부 equals여부는 판단해도 되는건가요??
 		Article article = articleService.getWriterId(articleDto.getArticleId());
-		if(!article.checkUserId(user.getMemberId())) {
+		if(!article.checkUserId(user.getUserId())) {
 			resultMap.put("code", HttpStatus.FORBIDDEN.getReasonPhrase());
 			resultMap.put("msg", "작성자만 수정 가능합니다.");
 			return resultMap;
@@ -193,20 +201,81 @@ public class NewArticleController {
 		
 		try {
 			articleService.modifyArticle(articleDto, user);
-			resultMap.put("code",HttpStatus.OK);
+			resultMap.put("code",HttpStatus.OK.value());
 			resultMap.put("msg",HttpStatus.OK.getReasonPhrase());
 		} catch (NotFoundException e) {
 			resultMap.put("msg", e.getMessage());
-			resultMap.put("code", HttpStatus.NOT_FOUND);
+			resultMap.put("code", HttpStatus.NOT_FOUND.value());
 			e.printStackTrace();
 		} catch (Exception e) {
 			resultMap.put("msg", e.getMessage());
-			resultMap.put("code", HttpStatus.SERVICE_UNAVAILABLE);
+			resultMap.put("code", HttpStatus.SERVICE_UNAVAILABLE.value());
 			e.printStackTrace();
 		}
 		
 		return resultMap;  
 	}
 	
+	@RequestMapping(value = "/board/{articleId}", method = RequestMethod.DELETE)
+	public @ResponseBody Map<String, Object> deleteArticle(@PathVariable String articleId, User user) {
+		Map<String, Object> resultMap = new HashMap<>();
+		
+		try {
+			articleService.deleteArticle(articleId);
+		} catch (DataIntegrityViolationException e) {
+			resultMap.put("code", HttpStatus.CONFLICT);
+			resultMap.put("msg", "댓글이 달린 글은 삭제할 수 없습니다.");
+		} catch (NotFoundException e) {
+			resultMap.put("code", HttpStatus.NOT_FOUND.value());
+			resultMap.put("msg", e.getMessage());
+		} catch (Exception e) {
+			resultMap.put("code", HttpStatus.SERVICE_UNAVAILABLE.value());
+			resultMap.put("msg", e.getMessage());
+			e.printStackTrace();
+		}
+		
+		return resultMap;
+	}
+	
+	@RequestMapping(value = "/board/{articleId}/comments/{page}/list")
+	public @ResponseBody Map<String, Object> getCommentList(@PathVariable String articleId, @PathVariable int page, User user) {
+		Map<String, Object> resultMap = new HashMap<>();
+		CommentParam commentsParam = new CommentParam.Builder(page, commentPageSize,articleId)
+										 			 .userId(user.getUserId()).build();
+		PageList<Comment> commentsPageList = commentsService.getCommentsPageList(commentsParam);
+		List<CommentDto> commentList = commentsPageList.getList()
+													   .stream()
+													   .map(Comment::showComment)
+													   .collect(Collectors.toList());
+		//TODO 결과상태
+		resultMap.put("commentList", commentList);
+		resultMap.put("totalPage", commentsPageList.getTotalPage());
+		
+		
+		return resultMap;
+	}
+	
+	@RequestMapping(value = "/board/{articleId}/comments", method = RequestMethod.POST)
+	public @ResponseBody Map<String, Object> writeComment(@RequestBody CommentDto commentsDto, User user) {
+		Map<String, Object> resultMap = new HashMap<>();
+		
+		try {
+			commentsService.writeComment(commentsDto, user);
+			resultMap.put("code", HttpStatus.OK.value());
+			resultMap.put("msg", HttpStatus.OK.getReasonPhrase());
+		} catch (NotFoundException e) {
+			resultMap.put("msg", e.getMessage());
+			resultMap.put("code", HttpStatus.NOT_FOUND.value());
+		} catch (SQLException e) {
+			resultMap.put("code", HttpStatus.INTERNAL_SERVER_ERROR.value());
+			resultMap.put("msg", e.getMessage());
+		} catch (Exception e) {
+			resultMap.put("msg", e.getMessage());
+			resultMap.put("code", HttpStatus.SERVICE_UNAVAILABLE.value());
+			e.printStackTrace();
+		}
+		
+		return resultMap;
+	}
 	
 }

@@ -9,9 +9,10 @@ import org.springframework.stereotype.Repository;
 import com.spring.study.common.model.BaseDao;
 import com.spring.study.common.model.PageList;
 import com.spring.study.controller.ArticleController;
-import com.spring.study.model.comments.CommentsDto;
-import com.spring.study.model.comments.CommentsParam;
-import com.spring.study.model.comments.CommentsVo;
+import com.spring.study.model.comments.Comment;
+import com.spring.study.model.comments.CommentDto;
+import com.spring.study.model.comments.CommentParam;
+import com.spring.study.model.comments.CommentVo;
 import com.spring.study.model.user.User;
 
 
@@ -23,23 +24,23 @@ public class CommentDao  extends BaseDao{
 	@Autowired
 	SqlSession sqlSession;
 	
-	public boolean isExistsComment(String replyId) {
-		String result = sqlSession.selectOne("mapper.comment.isExistComment", replyId);
+	public boolean isExistsComment(String commentId) {
+		String result = sqlSession.selectOne("mapper.comment.isExistComment", commentId);
 		
 		return false;
 	}
 	
-	public PageList<CommentsVo> commentsList(CommentsParam commentsParam) {
+	public PageList<Comment> commentsList(CommentParam commentsParam) {
 		return super.selectPageDto("mapper.comment.listComment", commentsParam);
 	}
 		
-	public int writeComment(CommentsDto crd, User user) {
-		CommentsVo vo = new CommentsVo();	
-		vo.setWriteMemberId(user.getMemberId());
-		vo.setArticleId(crd.getArticleId());
-		vo.setParentId(crd.getParentId());
-		vo.setContent(crd.getContent());
-		vo.setSecretTypeCd(crd.getSecretTypeCd());
+	public int writeComment(CommentDto dto, User user) {
+		CommentVo vo = new CommentVo();	
+		vo.setWriteMemberId(user.getUserId());
+		vo.setArticleId(dto.getArticleId());
+		vo.setParentId(dto.getParentId());
+		vo.setContent(dto.getContent());
+		vo.setSecretTypeCd(dto.getSecretTypeCd());
 		
 		return sqlSession.insert("mapper.comment.insertComment", vo);
 
