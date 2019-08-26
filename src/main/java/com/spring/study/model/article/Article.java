@@ -8,10 +8,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.spring.study.dao.ArticleDao;
+import com.spring.study.model.comments.CommentVo;
 import com.spring.study.model.user.User;
 
 public class Article extends ArticleVo {
 	private static final int articleIdLength = 5;
+	private List<CommentVo> commentsList;
+	private NoticeArticleVo noticeArticle;
 	
 	public static final boolean checkId(String articleId) {
 		if(articleIdLength != articleId.length()) {
@@ -72,4 +75,23 @@ public class Article extends ArticleVo {
 		
 		return false;
 	}
+	//aop에서 comment주입하려고
+	public List<CommentVo> getCommentsList() {
+		return commentsList;
+	}
+
+	public void setCommentsList(List<CommentVo> commentsList) {
+		this.commentsList = commentsList;
+	}
+
+	//notice 혹시나 쓸일이 있을것같아서
+	public NoticeArticleVo getNoticeArticle() {
+		return noticeArticle;
+	}
+
+	public void setNoticeArticle(NoticeArticleVo noticeArticle) {
+		this.noticeArticle = noticeArticle;
+	}
+	
+	
 }

@@ -34,9 +34,9 @@ public class ArticleService {
 	@Autowired
 	private ArticleDao articleDao;
 	
-	public boolean isNotice(String articleId) {
-		return articleDao.isNoticeId(articleId);
-	}
+//	public boolean isNotice(String articleId) {
+//		return articleDao.isNoticeId(articleId);
+//	}
 
 	public Article getArticle(String articleId, User user) throws RuntimeException {
 		boolean isNoticeId = articleDao.isNoticeId(articleId);
@@ -121,11 +121,6 @@ public class ArticleService {
 		return articleDao.getWriterId(articleId);
 	}
 
-	/*
-	 * public void insertReComment(CommentsVo replyVo) {
-	 * commentDAO.writeComment(replyVo); }
-	 */
-
 	/****************************************************************************************************
 	 ****************************************************************************************************
 	 ****************************************************************************************************/
@@ -151,15 +146,6 @@ public class ArticleService {
 	 ****************************************************************************************************
 	 ****************************************************************************************************/
 
-	//아래 메서드 삭제
-	public boolean isEqualsWriterId(String writerId, UserVo user) {
-		if (user.getUserId().equals(writerId)) {
-			return true;
-		}
-
-		return false;
-	}
-
 	public int getTotalArticles() {
 		return articleDao.getTotalArticles();
 	}
@@ -168,22 +154,18 @@ public class ArticleService {
 		return articleDao.getSequence();
 	}
 
-	public List<ArticleVo> getNoticeList() {
-		return articleDao.getNoticeList();
-
-	}
-
-	public List<ArticleVo> getMyArticleList(Member member) {
-		String userId = "";
-
-		try {
-			userId = member.getMemberId();
-		} catch (NullPointerException e) {
-			throw new NullPointerException("로그인 세션 만료");
-		}
-
-		List<ArticleVo> myArticleList = articleDao.getMyArticleList(userId);
-		return myArticleList;
-	}
+	//글정렬 - 내글 보기
+//	public List<ArticleVo> getMyArticleList(Member member) {
+//		String userId = "";
+//
+//		try {
+//			userId = member.getMemberId();
+//		} catch (NullPointerException e) {
+//			throw new NullPointerException("로그인 세션 만료");
+//		}
+//
+//		List<ArticleVo> myArticleList = articleDao.getMyArticleList(userId);
+//		return myArticleList;
+//	}
 
 }

@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -12,13 +15,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.spring.study.common.model.PageList;
 import com.spring.study.dao.CommentDao;
+import com.spring.study.model.article.Article;
 import com.spring.study.model.article.ArticleVo;
-import com.spring.study.model.comments.CommentsDto;
-import com.spring.study.model.comments.CommentsParam;
-import com.spring.study.model.comments.CommentsVo;
+import com.spring.study.model.comments.Comment;
+import com.spring.study.model.comments.CommentDto;
+import com.spring.study.model.comments.CommentParam;
+import com.spring.study.model.comments.CommentVo;
 import com.spring.study.model.user.User;
 
 @Aspect
@@ -31,42 +39,34 @@ public class ArticleAddContentsAspect {
 	
 	@Around("@annotation(com.spring.study.common.aop.AddComments)")
 	public Object addComments(ProceedingJoinPoint joinPoint) {
-		Object returnObj = null;
+		Object obj = null;
 		try {
-			returnObj = joinPoint.proceed();
+			obj = joinPoint.proceed();
 		} catch (Throwable e) {	e.printStackTrace(); }
 		
-		//XXX 여기서 Article과 Dto중 뭘로 받아야할까요?
-		List<ArticleVo> returnList = new LinkedList<ArticleVo>();
-		if (returnObj instanceof PageList) {
-			returnList = ((PageList<ArticleVo>) returnObj).getList();
-		} else if (returnObj instanceof List) {
-			returnList = (List<ArticleVo>) returnObj;
-		} else if (returnObj instanceof ArticleVo) {
-			returnList.add((ArticleVo) returnObj);
+		
+		List<Article> pageList = new LinkedList<Article>();
+		if (obj instanceof PageList) {
+			pageList = ((PageList<Article>) obj).getList();
+		} else if (obj instanceof List) {
+			pageList = (List<Article>) obj;
+		} else if (obj instanceof Article) {
+			pageList.add((Article) obj);
 		} else {
-			return returnObj;
+			return obj;
 		}
-
-//		List<String> articleNumberList = new ArrayList<String>();
-//		for(ArticleVo vo : returnList) {
-//			articleNumberList.add(vo.getArticleNo());
-//		}
-//		String articleNumbers = String.join(",", articleNumberList);
-	
-		String articleNumbers = returnList.stream()
+		
+		HttpServletRequest req = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+		HttpSession session = req.getSession();
+		User user = (User) session.getAttribute("userSession");
+		
+		String articleNumbers = pageList.stream()
 				.map(ArticleVo::getArticleId)
 				.collect(Collectors.joining(","));
 		
-		//아래 아직 수정 중
-		//ArticleController getArticleList()에서 aop사용
-		//리턴값을 PageList로 받는 이유가 무엇인가요
-		CommentsDto req = new CommentsDto(articleNumbers, 1, 10);
-		//commentsList는 코멘트파라미터객체를 주입받아야하는데 여기서 어떻게 주입을 해야할까요?? 페이지 정보도 어떻게 받아야할까여, 현재 접속한 유저정보를 어떻게 받아야할까요..
-		//현재 접속한 유저아이디를 어떻게 가져와야할까여...
-		CommentsParam commentsParam = new CommentsParam.Builder(1, 10,articleNumbers)
+		CommentParam commentsParam = new CommentParam.Builder(1, 10,articleNumbers).userId(user.getUserId())
 				.build();
-		PageList<CommentsVo> commentsPageDto = commentDAO.commentsList(commentsParam);//TODO 여기 오류 해결
+		PageList<Comment> commentsPageDto = commentDAO.commentsList(commentsParam);
 		
 //		for(ArticleVo ArticleVo : returnList) {
 //			String key = ArticleVo.getArticleNo();
@@ -85,16 +85,16 @@ public class ArticleAddContentsAspect {
 //			}
 //		}
 		
-		Map<String, List<CommentsVo>> commentsListByArticleId = commentsPageDto.getList().stream()
-				.collect(Collectors.groupingBy(CommentsVo::getArticleId));
+		Map<String, List<CommentVo>> commentsListByArticleId = commentsPageDto.getList().stream()
+				.collect(Collectors.groupingBy(CommentVo::getArticleId));
 		
-		returnList.stream().forEach( vo -> vo.setCommentsList(commentsListByArticleId.get(vo.getArticleId())) );
+		pageList.stream().forEach( vo -> vo.setCommentsList(commentsListByArticleId.get(vo.getArticleId())) );
 		
 //		Stream<ArticleVo> stream = returnList.stream();
 //		stream = stream.filter( vo -> null == vo.getArticleNo() );
 //		stream = stream.limit(10);
 //		stream.forEach( vo -> vo.setCommentsList(commentsListByArticleNo.get(vo.getArticleNo())) );
 		
-		return returnObj;
+		return obj;
 	}
 }

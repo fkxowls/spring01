@@ -40,8 +40,8 @@ import com.spring.study.service.CommentsService;
 import javassist.NotFoundException;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 
-//TODO controller코드 정리  aop 
-// 	   articleParam 수정, addCommentAspect수정, union, 정렬쿼리
+//TODO controller코드 정리 ㅇ  addCommentAspect수정 ㅇ
+// 	   articleParam 수정, caching aop로 분리 , union, 정렬쿼리, 조회수 증가시키기 ,Dao정리
 //	     캐싱 리턴값 직렬화
 //     interceptor적용할 코드가 있는지 다시보기
 @Controller
@@ -136,7 +136,7 @@ public class NewArticleController {
 			resultMap.put("code", HttpStatus.OK.value());
 			resultMap.put("msg", HttpStatus.OK.getReasonPhrase());
 		} catch (SQLException e) {
-			resultMap.put("code", HttpStatus.INTERNAL_SERVER_ERROR.value());//XXX Sql등록중에 오류가 났을때 적절한 상태코드는 무엇인가요
+			resultMap.put("code", HttpStatus.INTERNAL_SERVER_ERROR.value());
 			resultMap.put("msg",e.getMessage());
 			e.printStackTrace();
 		} catch (Exception e) {

@@ -20,23 +20,29 @@ public class ArticleVo {
 	private Date modifyDate;
 
 	//Article로 옮기기 Vo는 컬럼과 1:1매칭
-	private List<CommentVo> commentsList;
-	private NoticeArticleVo noticeArticle;
+//	private List<CommentVo> commentsList;
+//	private NoticeArticleVo noticeArticle;
+//
+	
+	
+//	public NoticeArticleVo getNoticeArticle() {
+//		return noticeArticle;
+//	}
+//
+//	public void setNoticeArticle(NoticeArticleVo noticeArticle) {
+//		this.noticeArticle = noticeArticle;
+//	}
+//
+//	public List<CommentVo> getCommentsList() {
+//		if (null == commentsList) {
+//			commentsList = new ArrayList<CommentVo>();
+//		}
+//		return commentsList;
+//	}
+//	public void setCommentsList(List<CommentVo> commentsList) {
+//		this.commentsList = commentsList;
+//	}
 
-	public NoticeArticleVo getNoticeArticle() {
-		return noticeArticle;
-	}
-
-	public void setNoticeArticle(NoticeArticleVo noticeArticle) {
-		this.noticeArticle = noticeArticle;
-	}
-
-	public List<CommentVo> getCommentsList() {
-		if (null == commentsList) {
-			commentsList = new ArrayList<CommentVo>();
-		}
-		return commentsList;
-	}
 
 	public String getModifyMemberId() {
 		return modifyMemberId;
@@ -52,10 +58,6 @@ public class ArticleVo {
 
 	public void setModifyDate(Date modifyDate) {
 		this.modifyDate = modifyDate;
-	}
-
-	public void setCommentsList(List<CommentVo> commentsList) {
-		this.commentsList = commentsList;
 	}
 
 	public String getArticleId() {
