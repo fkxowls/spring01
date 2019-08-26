@@ -4,100 +4,85 @@
    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="mapper.article">
-
-<!-- <resultMap type="com.spring.study.common.model.ArticleVo" id="articleResult">
-	<result property="articleNo" column="articleNo"/>
-	<result property="parentNo" column="PARENT_ID"/>
-	<result property="title" column="TITLE"/>
-	<result property="content" column="CONTENT"/>
-	<result property="writeDate" column="WRITE_DATE"/>
-	<result property="writeMemberId" column="WRITE_MEMBER_ID"/> 
-	<collection property="commentsList" column="ARTICLE_NO" javaType="java.util.ArrayList" ofType="articleReplyVo" select="getCommentListByarticleNo"/>
-</resultMap> -->
-<!-- 	
- 	<select id="getCommentListByarticleNo" resultType="articleReplyVo">
-		SELECT
-  	    		  A.*
-			FROM    (
-  	          SELECT	ROWNUM as rNum
-    	                ,LEVEL AS LVL
-        	            , ARTICLE_NO
-            	        , REPLY_NO
-                	    , PARENT_NO
-                    	, CONTENT
-	                    , WRITE_MEMBER_ID
-    	               
-        	    FROM    ARTICLE_REPLY
-            	START WITH
-                	    PARENT_NO           = 0 
-            	CONNECT BY
-            	        PRIOR ARTICLE_NO    = PARENT_NO 
-	            ORDER SIBLINGS BY
-    	                ARTICLE_NO DESC
-       			 ) A
-       			 WHERE ARTICLE_NO in (
-	       			 SELECT regexp_substr(#{articleNo}, '[^,]+', 1, LEVEL)
-					FROM DUAL
-					CONNECT BY LEVEL &lt;= length(regexp_replace(#{article_no}, '[^,]+', '')) + 1
-       			 )
-	</select>
- -->	
-	
-	<!-- <select id="listArticle2" resultMap="articleResult"> -->
 	<select id="listArticle2" parameterType="com.spring.study.model.article.ArticleParam2" resultType="com.spring.study.model.article.Article">
 	
-		SELECT  X.*
-		FROM    (
-					SELECT  
-					        A.*   
-					FROM    ( 
-			                   SELECT  /*+ INDEX_DESC(A ARTICLE_ID)*/
-                                       ROWNUM AS RNUM
-                                     , A.ARTICLE_ID
-                                     , A.PARENT_ID
-                                     , A.TITLE
-                                     , A.CONTENT
-                                     , A.WRITE_MEMBER_ID
-                                     , A.WRITE_DATE
-                                FROM   ARTICLE_TB A
+SELECT  Z.*  
+FROM (      
+        SELECT  X.*
+        FROM    (
+                    SELECT  
+                    ROWNUM AS RNUM
+                            , A.*
+                    FROM    ( 
+                               SELECT   /*+ ORDERED USE_NL(N T) INDEX_DESC(N NOTICE_TB_PK) INDEX_DESC(T ARTICLE_PK) */
+                                      T.ARTICLE_ID
+                                     , T.PARENT_ID
+                                     , T.TITLE
+                                     , T.CONTENT
+                                     , T.WRITE_MEMBER_ID
+                                     , T.WRITE_DATE
+                                FROM    NOTICE_TB N
+                                        ,ARTICLE_TB T
                                 WHERE  1                   = 1
+                                AND     T.ARTICLE_ID        = N.ARTICLE_ID
+                                AND     SYSDATE           BETWEEN N.DISPLAY_START_DATE   AND N.DISPLAY_END_DATE
+                                UNION ALL
+                                SELECT  Y.*
+                                FROM    (
+                                        SELECT  
+                                                /*+ INDEX_DESC(C ARTICLE_ID)*/
+                                                C.ARTICLE_ID
+                                               , C.PARENT_ID
+                                               , C.TITLE
+                                               , C.CONTENT
+                                               , C.WRITE_MEMBER_ID
+                                               , C.WRITE_DATE
+                                FROM   ARTICLE_TB C
+                                WHERE 1                 = 1
+                                AND     NOT EXISTS (
+                                                      SELECT 
+                                                              'X'
+                                                      FROM    NOTICE_TB
+                                                      WHERE   ARTICLE_ID = C.ARTICLE_ID
+                                                   )
                                 <!-- AND     (#{writeMemberId} IS NULL OR A.WRITE_MEMBER_ID = #{writeMemberId}) -->
-                                
                                 START WITH
                                         PARENT_ID           = 0 
                                 CONNECT BY
                                         PRIOR ARTICLE_ID    = A.PARENT_ID 
                                 ORDER SIBLINGS BY
-                                       <choose>
-                                       <when test="sort == 'old'">
-                                       A.ARTICLE_ID
-                                       </when>
-                                       <when test="sort == 'new'">
-                                       A.ARTICLE_ID DESC
-                                       </when>
-                                       <when test="sort == 'title'">
-                                       A.TITLE
-                                       </when>
-                                       <when test="sort == 'commentCnt'">
-                                       (
-	                                       SELECT COUNT(COMMENT_ID)
-	                                       FROM   COMMENT_TB
-	                                       WHERE  ARTICLE_ID = A.ARTICLE_ID
-                                       ) DESC
-                                       </when>
-                                       <when test="sort == 'viewCnt'">
-                                       (
-	                                       SELECT ARTICLE_COUNT
-	                                       FROM ARTICLE_COUNT_TB
-                                       ) DESC
-                                       </when>
-                                       </choose>
-					        ) A
-		<![CDATA[
-					WHERE   A.RNUM         <= #{endNum}
-		        ) X
-		 WHERE  X.RNUM      >= #{startNum}
-		 ]]>
+		                                       <choose>
+		                                       <when test="sort == 'old'">
+		                                       A.ARTICLE_ID
+		                                       </when>
+		                                       <when test="sort == 'new'">
+		                                       A.ARTICLE_ID DESC
+		                                       </when>
+		                                       <when test="sort == 'title'">
+		                                       A.TITLE
+		                                       </when>
+		                                       <when test="sort == 'commentCnt'">
+		                                       (
+			                                       SELECT COUNT(COMMENT_ID)
+			                                       FROM   COMMENT_TB
+			                                       WHERE  ARTICLE_ID = A.ARTICLE_ID
+		                                       ) DESC
+		                                       </when>
+		                                       <when test="sort == 'viewCnt'">
+		                                       (
+			                                       SELECT ARTICLE_COUNT
+			                                       FROM ARTICLE_COUNT_TB
+		                                       ) DESC
+		                                       </when>
+		                                       </choose>
+					                   ) Y
+                            ) A
+               ) X
+	 <![CDATA[
+           WHERE   X.RNUM         <= #{endNum}
+	 ) Z
+	 WHERE  Z.RNUM      >= #{startNum}
+     ]]>
  	 
 	</select>
 	
@@ -108,18 +93,18 @@
                     SELECT  
                             A.*   
                     FROM    (
-                                SELECT  /*+ ORDERED USE_NL(NA A) INDEX_DESC(NA NOTICE_ARTICLE_PK) INDEX_DESC(A ARTICLE_PK) */
+                                SELECT  /*+ ORDERED USE_NL(N A) INDEX_DESC(N NOTICE_TB_PK) INDEX_DESC(A ARTICLE_PK) */
                                         ROW_NUMBER() OVER(PARTITION BY A.ARTICLE_ID ORDER BY A.ARTICLE_ID DESC) AS RNUM
                                       , A.ARTICLE_ID
                                       , A.PARENT_ID
                                       , A.TITLE
                                       , A.CONTENT
                                       , A.WRITE_MEMBER_ID
-                                FROM    NOTICE_ARTICLE_TB  NA <!--  모수 자체가 ARTICLE 보다 현저하게 적음 -->
+                                FROM    NOTICE_TB      NA <!--  모수 자체가 ARTICLE 보다 현저하게 적음 -->
                                       , ARTICLE_TB         A
                                 WHERE   1                   = 1
                                 AND     A.ARTICLE_ID        = NA.ARTICLE_ID
-                                AND     SYSDATE             BETWEEN NA.DISPLAY_START_DATE   AND NA.DISPLAY_END_DATE -- 추가로 NOTICE_ARTICLE 자체적인 필터 걸어서 모수를 더 줄일 수도 있음
+                                AND     SYSDATE             BETWEEN N.DISPLAY_START_DATE   AND N.DISPLAY_END_DATE -- 추가로 NOTICE_TB 자체적인 필터 걸어서 모수를 더 줄일 수도 있음
                                 ORDER BY
                                         A.ARTICLE_ID DESC
                             ) A
@@ -286,7 +271,7 @@
 	<select id="noticeList" resultType="articleVo">
 		SELECT  /*+ ordered use_nl(t2)*/
 				T2.*
-		FROM 	NOTICE_ARTICLE_TB T1, ARTICLE_TB T2
+		FROM 	NOTICE_TB T1, ARTICLE_TB T2
 		WHERE	
 				T1.ARTICLE_ID = T2.ARTICLE_ID
 	</select>
@@ -295,7 +280,7 @@
 		<selectKey keyProperty="noticeId" resultType="String" order="BEFORE">
 			SELECT NOTICE_ID_SEQ.NEXTVAL FROM DUAL
 		</selectKey>
-		INSERT INTO NOTICE_ARTICLE
+		INSERT INTO NOTICE_TB
 		(
 			NOTICE_ID
 			,ARTICLE_ID
@@ -325,7 +310,7 @@
 				(
 						SELECT 
 									1
-						FROM		NOTICE_ARTICLE_TB
+						FROM		NOTICE_TB
 						WHERE	
 									ARTICLE_ID = #{articleId}
 				)
