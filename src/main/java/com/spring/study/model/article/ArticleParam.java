@@ -14,10 +14,6 @@ public class ArticleParam extends BaseParam{
 		private String userId;
 		private String sort;
 		
-		public Builder(String articleId) {
-			this.articleId = articleId;
-		}
-		
 		public Builder(int page, int pageSize) {
 			super(page,pageSize);
 		}

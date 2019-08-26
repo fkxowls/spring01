@@ -15,23 +15,20 @@ public class BaseParam {
 		private int endNum;
 		private boolean moreView;
 		
-		
-		public Builder() {
-		}
 		//필수 요소
 		public Builder(int page, int pageSize) {
 			this.page     = page;
 			this.pageSize = pageSize;
 		}
 		//선택적인 요소
-		public Builder bothStartNumEndNum(int startNum, int endNum) {
+		public T bothStartNumEndNum(int startNum, int endNum) {
 			this.startNum = startNum;
 			this.endNum = endNum;
-			return this;
+			return (T) this;
 		}
-		public Builder useMoreView(boolean moreView) {
+		public T useMoreView(boolean moreView) {
 			this.moreView = moreView;
-			return this;
+			return (T) this;
 		}
 		
 		public BaseParam build() {
