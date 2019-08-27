@@ -17,13 +17,14 @@
                                         , C.PARENT_ID
                                         , C.WRITE_MEMBER_ID
                                         , C.SECRET_TYPE_CD
+                                        , C.WRITE_DATE
                                         ,CASE   
-                                             WHEN C.WRITE_MEMBER_ID = #{userId}  AND SECRET_TYPE_CD = 10 THEN C.CONTENT 
-                                             WHEN D.WRITE_MEMBER_ID = #{userId}  AND SECRET_TYPE_CD = 10 THEN C.CONTENT
-                                             ELSE     '비밀댓글'
+                                             WHEN (C.WRITE_MEMBER_ID != #{userId} AND D.WRITE_MEMBER_ID != #{userId}) AND SECRET_TYPE_CD = '10' THEN NULL
+                                             <!-- WHEN D.WRITE_MEMBER_ID != #{userId} AND SECRET_TYPE_CD = '10' THEN 'NULL' -->
+                                             ELSE  C.CONTENT
                                          END AS CONTENT
-                                FROM           ARTICLE_REPLY C
-                                INNER   JOIN   ARTICLE D
+                                FROM           COMMENT_TB C
+                                INNER   JOIN   ARTICLE_TB D
                                 ON C.ARTICLE_ID = D.ARTICLE_ID
                                 WHERE    C.ARTICLE_ID in (
                                                             SELECT regexp_substr(#{articleId}, '[^,]+', 1, LEVEL)
@@ -53,7 +54,7 @@
 	                           , WRITE_MEMBER_ID
 	                           , SECRET_CHK_FLAG
     	               
-        	   		  FROM     ARTICLE_REPLY
+        	   		  FROM     COMMENT_TB
        				  WHERE    ARTICLE_ID in (
 	       										SELECT regexp_substr(#{articleId}, '[^,]+', 1, LEVEL)
 												FROM DUAL
@@ -84,7 +85,7 @@
 	                    , WRITE_MEMBER_ID
 	                    ,SECRET_TYPE_CD
     	               
-        	    FROM    ARTICLE_REPLY
+        	    FROM    COMMENT_TB
             	START WITH
                 	    PARENT_ID           = 0 
             	CONNECT BY
@@ -103,14 +104,14 @@
 				(
 					SELECT 
 							1
-					FROM	ARTICLE_REPLY
+					FROM	COMMENT_TB
 					WHERE	
 							COMMENT_ID = #{commentId}
 				)
 	</insert>
 	
 	<insert id="insertComment" parameterType="articleReplyVo">
-		INSERT INTO ARTICLE_REPLY
+		INSERT INTO COMMENT_TB
 		(
 			COMMENT_ID
 			,ARTICLE_ID
@@ -118,6 +119,7 @@
 			,CONTENT
 			,WRITE_MEMBER_ID
 			,SECRET_TYPE_CD
+			,WRITE_DATE
 			
 		)
 		VALUES
@@ -128,6 +130,7 @@
 			 ,#{content}
 			 ,#{writeMemberId}
 			 ,#{secretTypeCd}
+			 ,SYSDATE
 			
 		)
 	

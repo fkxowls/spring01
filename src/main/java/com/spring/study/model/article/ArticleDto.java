@@ -1,14 +1,18 @@
 package com.spring.study.model.article;
 
 import java.util.Date;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.spring.study.model.comments.Comment;
+import com.spring.study.model.comments.CommentDto;
 
 public class ArticleDto {
 	private String articleId;
 	private String parentId;
 	private String title;
 	private String content;
+	private int readCount;
 	private String writeMemberId;
 	private String modifyMemberId;
 	private String articleTypeCd;
@@ -21,8 +25,22 @@ public class ArticleDto {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
 	private Date displayEndDate;
 	private String path;
+	private List<CommentDto> commentsList;
 	
 	
+	
+	public List<CommentDto> getCommentsList() {
+		return commentsList;
+	}
+	public void setCommentsList(List<CommentDto> commentsList) {
+		this.commentsList = commentsList;
+	}
+	public int getReadCount() {
+		return readCount;
+	}
+	public void setReadCount(int readCount) {
+		this.readCount = readCount;
+	}
 	public String getPath() {
 		return path;
 	}

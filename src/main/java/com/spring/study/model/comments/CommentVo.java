@@ -62,8 +62,8 @@ public class CommentVo {
 		return writeDate;
 	}
 
-	public void setWriteDate(Date writeDate) {
-		this.writeDate = writeDate;
+	public void setWriteDate(Date string) {
+		this.writeDate = string;
 	}
 
 	public String getWriteMemberId() {

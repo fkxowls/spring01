@@ -8,12 +8,13 @@ import org.springframework.stereotype.Repository;
 
 import com.spring.study.common.model.BaseDao;
 import com.spring.study.common.model.PageList;
-import com.spring.study.controller.ArticleController;
 import com.spring.study.model.comments.Comment;
 import com.spring.study.model.comments.CommentDto;
 import com.spring.study.model.comments.CommentParam;
 import com.spring.study.model.comments.CommentVo;
 import com.spring.study.model.user.User;
+
+import defalut.ArticleController;
 
 
 @Repository("commentDAO")

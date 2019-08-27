@@ -50,6 +50,8 @@ public class ArticleService {
 			throw new RuntimeException("접근 권한이 없습니다");
 		}
 		
+		articleDao.addArticleReadCount(articleId);//XXX 조회수 증가는 컨트롤러에서?? 아니면 서비스에서???
+		
 		return article;
 	}
 

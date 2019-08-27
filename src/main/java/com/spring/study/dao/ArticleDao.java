@@ -32,7 +32,7 @@ import com.spring.study.model.article.ArticleDto;
 import com.spring.study.model.article.ArticleParam;
 import com.spring.study.model.article.ArticleParam;
 import com.spring.study.model.article.ArticleVo;
-import com.spring.study.model.article.NoticeArticleVo;
+import com.spring.study.model.article.NoticeVo;
 import com.spring.study.model.user.Member;
 import com.spring.study.model.user.User;
 
@@ -45,14 +45,13 @@ public class ArticleDao extends BaseDao {
 	@Autowired
 	SqlSession sqlSession;
 
-	//@AddComments
+	@AddComments
 	public PageList<Article> getArticlePageListWithCountAddComments(ArticleParam vo) {
 		return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
 	}
 	
-	//@AddComments
+	@AddComments
 	public List<Article> getListArticleAddComments(BaseParam vo) {
-
 		return sqlSession.selectList(mapper + "listArticle2", vo);
 	}
 	
@@ -153,9 +152,14 @@ public class ArticleDao extends BaseDao {
 		return sqlSession.selectList(mapper + "noticeList");
 
 	}
+	
+	public void addArticleReadCount(String articleId) {
+		// 증가 쿼리는 아직 안함
+		sqlSession.insert(mapper + "addArticleReadCount", articleId);
+	}
 
 	public int registerNotice(String articleId, ArticleDto articleDto) {
-		NoticeArticleVo noticeArticleVo = new NoticeArticleVo();
+		NoticeVo noticeArticleVo = new NoticeVo();
 		noticeArticleVo.setArticleId(articleId);
 		noticeArticleVo.setDisplayStartDate(articleDto.getDisplayStartDate());
 		noticeArticleVo.setDisplayEndDate(articleDto.getDisplayEndDate());
@@ -237,9 +241,6 @@ public class ArticleDao extends BaseDao {
 		return false;
 	}
 	
-	public void test() {
-		System.out.println("테스트용");
-	}
 
 
 

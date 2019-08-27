@@ -8,9 +8,12 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +31,7 @@ import com.spring.study.model.comments.CommentDto;
 import com.spring.study.model.comments.CommentParam;
 import com.spring.study.model.comments.CommentVo;
 import com.spring.study.model.user.User;
+import com.spring.study.model.user.UserVo;
 
 @Aspect
 @Component
@@ -37,9 +41,21 @@ public class ArticleAddContentsAspect {
 	@Autowired
 	private CommentDao commentDAO;
 	
-	@Around("@annotation(com.spring.study.common.aop.AddComments)")
+	
+	@Around("@annotation(com.spring.study.common.aop.AddComments)" /* + "&& args(user2)" */)
 	public Object addComments(ProceedingJoinPoint joinPoint) {
 		Object obj = null;
+		HttpServletRequest req = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+		HttpSession session = req.getSession();
+		User user = (User) session.getAttribute("userSession");
+		if(null == user) {
+			user = new User();
+			user.setUserId("비회원");//StringUtils.EMPTY이나 "  " 이런식으로  넘기면 ? <로 받음
+			user.setUserLevel("00");
+			session.setAttribute("userSession", user);
+		}
+		
+		
 		try {
 			obj = joinPoint.proceed();
 		} catch (Throwable e) {	e.printStackTrace(); }
@@ -56,10 +72,12 @@ public class ArticleAddContentsAspect {
 			return obj;
 		}
 		
-		HttpServletRequest req = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
-		HttpSession session = req.getSession();
-		User user = (User) session.getAttribute("userSession");
-		
+//		if(null == user) {
+//			user = new User();
+//			user.setUserId(StringUtils.EMPTY);
+//			user.setUserLevel("00");
+//			session.setAttribute("userSession", user);
+//		}
 		String articleNumbers = pageList.stream()
 				.map(ArticleVo::getArticleId)
 				.collect(Collectors.joining(","));
@@ -85,10 +103,10 @@ public class ArticleAddContentsAspect {
 //			}
 //		}
 		
-		Map<String, List<CommentVo>> commentsListByArticleId = commentsPageDto.getList().stream()
-				.collect(Collectors.groupingBy(CommentVo::getArticleId));
+		Map<String, List<Comment>> commentsListByArticleId = commentsPageDto.getList().stream()
+				.collect(Collectors.groupingBy(Comment::getArticleId));
 		
-		pageList.stream().forEach( vo -> vo.setCommentsList(commentsListByArticleId.get(vo.getArticleId())) );
+		pageList.stream().forEach( vo -> vo.setCommentsList(commentsListByArticleId.get(vo.getArticleId())));
 		
 //		Stream<ArticleVo> stream = returnList.stream();
 //		stream = stream.filter( vo -> null == vo.getArticleNo() );

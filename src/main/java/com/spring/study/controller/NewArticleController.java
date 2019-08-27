@@ -37,13 +37,16 @@ import com.spring.study.model.user.User;
 import com.spring.study.service.ArticleService;
 import com.spring.study.service.CommentsService;
 
+import defalut.ArticleController;
 import javassist.NotFoundException;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 
-//TODO controller코드 정리 ㅇ  addCommentAspect수정 ㅇ
-// 	   articleParam 수정, caching aop로 분리 , union, 정렬쿼리, 조회수 증가시키기 ,Dao정리
-//	     캐싱 리턴값 직렬화
+//     controller코드 정리 ㅇ  addCommentAspect수정 ㅇ
+// 	   articleParam 수정 ㅇ , union ㅇ, 조회수 증가시키기 ㅇ  
+//	     캐싱 aop로 분리, 캐싱 리턴값 직렬화
+//	   Dao정리
 //     interceptor적용할 코드가 있는지 다시보기
+//     람다?? 물어보기
 @Controller
 public class NewArticleController {
 	private static final Logger logger = LoggerFactory.getLogger(ArticleController.class);
@@ -55,7 +58,7 @@ public class NewArticleController {
 	private CommentsService commentsService;
 	
 	@RequestMapping(value = "/board/article/{page}/list")
-	public @ResponseBody Map<String, Object> getArticleList(@PathVariable int page, Model model,@RequestParam(required = false, defaultValue = "old") String sort) {																					
+	public @ResponseBody Map<String, Object> getArticleList(@PathVariable int page, Model model,@RequestParam(required = false, defaultValue = "old") String sort, User user) {																					
 		ArticleParam reqParam = new ArticleParam.Builder(page, pageSize).sort(sort).build();
 		Map<String, Object> resultMap = new HashMap<>();
 		List<Article> articleList = null;		
@@ -71,7 +74,7 @@ public class NewArticleController {
 		List<ArticleDto> articleHeader = articleList.stream()
 		.map(Article::displayTitle)
 		.collect(Collectors.toList());
-		//XXX getArticlePageListWithCount()과 getTotalPage()에서 명시적으로 잡히는 예외가 없지만 db서버와 연결이 끊긴다거나 서버문제로 접속이 지연되는등에 일이 발생할 경우를 대비해서 예외처리를 해주고 그 상태를 정의해줘야하나요?? 
+		//결과상태
 		resultMap.put("code", HttpStatus.OK.value());
 		resultMap.put("msg", HttpStatus.OK.getReasonPhrase());
 		resultMap.put("articleHeader", articleHeader);
@@ -101,7 +104,7 @@ public class NewArticleController {
 	@RequestMapping(value = "/board/{articleId}/detail", method = RequestMethod.GET)
 	public @ResponseBody Map<String, Object> viewArticle(@PathVariable String articleId, User user) {
 		Map<String, Object> resultMap = new HashMap<>();
-
+		//글상세보기안에서 댓글 처리?? 
 		try {
 			Article article = articleService.getArticle(articleId, user);
 			resultMap.put("code", HttpStatus.OK.value());

@@ -10,9 +10,9 @@ public class Comment extends CommentVo{
 		dto.setArticleId(getArticleId());
 		dto.setCommentId(getCommentId());
 		dto.setParentId(getParentId());
-		dto.setContent(getContent());//"비밀댓글입니다" 처리
+		dto.setContent(null == getContent() ? "비밀댓글." : getContent());//"비밀댓글입니다" 처리
 		dto.setWriteMemberId(getWriteMemberId());
-		dto.setWriteDate(fdf.format(getWriteDate()));
+		dto.setWriteDate(getWriteDate());
 		
 		return dto;
 	}

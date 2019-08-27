@@ -2,13 +2,16 @@ package com.spring.study.model.comments;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 public class CommentDto {
 	private String articleId;
 	private String commentId;
 	private int parentId;
 	private String content;
 	private String writeMemberId;
-	private String writeDate;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
+	private Date writeDate;
 	private String secretTypeCd;
 	
 	private int commentsPage;
@@ -95,7 +98,7 @@ public class CommentDto {
 		return endNum;
 	}
 
-	public String getWriteDate() {
+	public Date getWriteDate() {
 		return writeDate;
 	}
 
@@ -107,8 +110,8 @@ public class CommentDto {
 		this.content = content;
 	}
 
-	public void setWriteDate(String string) {
-		this.writeDate = string;
+	public void setWriteDate(Date writeDate) {
+		this.writeDate = writeDate;
 	}
 
 	public void setSecretTypeCd(String secretTypeCd) {
