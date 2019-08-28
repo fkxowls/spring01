@@ -48,13 +48,6 @@ public class ArticleAddContentsAspect {
 		HttpServletRequest req = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
 		HttpSession session = req.getSession();
 		User user = (User) session.getAttribute("userSession");
-		if(null == user) {
-			user = new User();
-			user.setUserId("비회원");//StringUtils.EMPTY이나 "  " 이런식으로  넘기면 ? <로 받음
-			user.setUserLevel("00");
-			session.setAttribute("userSession", user);
-		}
-		
 		
 		try {
 			obj = joinPoint.proceed();
@@ -81,7 +74,7 @@ public class ArticleAddContentsAspect {
 		String articleNumbers = pageList.stream()
 				.map(ArticleVo::getArticleId)
 				.collect(Collectors.joining(","));
-		
+		//TODO 댓글 페이징 정보가 이상하게 들어감 ex) startNum -9, 및 페이징 정보와 댓글 리스트 분리
 		CommentParam commentsParam = new CommentParam.Builder(1, 10,articleNumbers).userId(user.getUserId())
 				.build();
 		PageList<Comment> commentsPageDto = commentDAO.commentsList(commentsParam);

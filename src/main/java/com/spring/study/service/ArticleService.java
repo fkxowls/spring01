@@ -8,23 +8,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
-import com.spring.study.common.model.BaseParam;
 import com.spring.study.common.model.CommonCode;
 import com.spring.study.common.model.PageList;
 import com.spring.study.dao.ArticleDao;
 import com.spring.study.model.article.Article;
 import com.spring.study.model.article.ArticleDto;
 import com.spring.study.model.article.ArticleParam;
-import com.spring.study.model.article.ArticleParam;
-import com.spring.study.model.article.ArticleVo;
-import com.spring.study.model.user.Member;
 import com.spring.study.model.user.User;
-import com.spring.study.model.user.UserVo;
 
 import javassist.NotFoundException;
-import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 
 @Service("ArticleService")
 public class ArticleService {
@@ -126,20 +119,21 @@ public class ArticleService {
 	/****************************************************************************************************
 	 ****************************************************************************************************
 	 ****************************************************************************************************/
+	
 	public PageList<Article> getArticlePageListWithCount(ArticleParam req) {
 		// PageList<ArticleVo> pageList = articleDao.getArticlePageListWithCount(req);
 		// feed형으로 받을 시
-		PageList<Article> feedTypePageList = articleDao.getArticlePageListWithCountAddComments(req);
+		PageList<Article> feedTypePageList = articleDao.getArticlePageListWithTotalCount(req);
 		return feedTypePageList;
 	}
 
-	public List<Article> getArticleList(BaseParam req) {
-		List<Article> list = articleDao.getListArticleAddComments(req);
+	public List<Article> getArticleList(ArticleParam req) {
+		List<Article> list = articleDao.getMoreListArticle(req);
 		//List<Article> list = articleDao.ListArticleTest(req);
 		return list;
 	}
 
-	public PageList<Article> getArticlePageList(BaseParam req) {
+	public PageList<Article> getArticlePageList(ArticleParam req) {
 		PageList<Article> resp = articleDao.getArticlePageList(req);
 		return resp;
 	}
@@ -169,5 +163,7 @@ public class ArticleService {
 //		List<ArticleVo> myArticleList = articleDao.getMyArticleList(userId);
 //		return myArticleList;
 //	}
+	
+
 
 }

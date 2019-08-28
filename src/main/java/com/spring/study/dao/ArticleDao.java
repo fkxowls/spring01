@@ -44,25 +44,31 @@ public class ArticleDao extends BaseDao {
 
 	@Autowired
 	SqlSession sqlSession;
-
-	@AddComments
-	public PageList<Article> getArticlePageListWithCountAddComments(ArticleParam vo) {
-		return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
-	}
-	
-	@AddComments
-	public List<Article> getListArticleAddComments(BaseParam vo) {
-		return sqlSession.selectList(mapper + "listArticle2", vo);
-	}
-	
+	//단순 글리스트
 	public PageList<ArticleVo> getArticlePageListWithCount(BaseParam vo) {
 		return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
 	}
-
-	public PageList<Article> getArticlePageList(BaseParam vo) {
-		return super.selectPageDto(mapper + "listArticle2", vo);
+	
+/*********************************************************************************/
+	//@DaoCaching
+	//@AddComments
+	public PageList<Article> getArticlePageListWithTotalCount(ArticleParam vo) {
+		return exampleDtoCaching(vo, "endPaging");
+		//return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
 	}
 	
+//	@AddComments
+	public List<Article> getMoreListArticle(ArticleParam vo) {
+		return exampleDtoCaching(vo, "endPagingMoreView");
+		//return sqlSession.selectList(mapper + "listArticle2", vo);
+	}
+	//hasNext
+	//@AddComments
+	public PageList<Article> getArticlePageList(ArticleParam vo) {
+		return exampleDtoCaching(vo, "hsaNextPaging");
+		//return super.selectPageDto(mapper + "listArticle2", vo);
+	}
+/*********************************************************************************/	
 	
 
 	public boolean isExistsArticle(String articleId) {
@@ -186,25 +192,39 @@ public class ArticleDao extends BaseDao {
 		return result;
 
 	}
-	//TODO AOP로 분리 
-	public List<Article> ListArticleTest(BaseParam vo) {
+	//XXX aop로 어떻게 분리해야할까요
+	//endPaging같은 경우 getMoreListArticle의 리턴타입은 List<Article>, 
+	//getArticlePageListWithTotalCount은 PageList<Article>
+	//Session에 담을때 PageList<Article>타입으로 넣어야할까요??
+	//List<Article>타입으로 저장해야한다면 첫페이지 진입시에 페이징정보(totalPage)는 어떻게 해야할까여
+	public PageList<Article> exampleDtoCaching(ArticleParam vo, String pagingType) {
 		HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		HttpServletResponse resp = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
 				.getResponse();
 		HttpSession session = req.getSession();
 		
-		{
+		PageList<Article> list = null;
+		List<Article> tmpList = null;
+		{							  
 			Date curDate = new Date();
 			String key = ArticleDao.class.getName() + ".ListArticleTest" + "&page=" + vo.getPage() + "&pageSize=" + vo.getPageSize();
 			String expireDate = (String) session.getAttribute("expire" + key);
 			
 			if(!expiresDate(curDate,expireDate)) {
-				List<Article> list = (List<Article>) session.getAttribute(key);
+				tmpList = (List<Article>) session.getAttribute(key);
+				list = new PageList<Article>(tmpList);
 				return list;
 			}
 		}
-
-		List<Article> list = sqlSession.selectList("mapper.article.listArticle2", vo);
+		
+		if(pagingType.equals("endPaging")) {
+			list = super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
+		}else if(pagingType.equals("endPagingMoreView")) {
+			List selectList = sqlSession.selectList(mapper + "listArticle2", vo);
+			list = new PageList<>(selectList);
+		}else if(pagingType.equals("hsaNextPaging")) {
+			list = super.selectPageDto(mapper + "listArticle2", vo);
+		}
 		
 		{
 			Date curDate = new Date();
@@ -213,13 +233,13 @@ public class ArticleDao extends BaseDao {
 			Date expireTime = DateUtils.addSeconds(curDate, Integer.parseInt(ttl));
 		
 			String expireDate = fdf.format(expireTime);
-			session.setAttribute(key, list);
+			session.setAttribute(key, list.getList());
 			session.setAttribute("expire" + key, expireDate);
 		}
 
 		return list;
 	}
-	//util패키지를 만들어서 거기로 빼야하나???
+	
 	private boolean expiresDate(Date curTime, String expireDate) {
 		if(null == expireDate) {
 			return true;
@@ -241,7 +261,7 @@ public class ArticleDao extends BaseDao {
 		return false;
 	}
 	
-
+	
 
 
 }
