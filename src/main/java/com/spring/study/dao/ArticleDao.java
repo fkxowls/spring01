@@ -24,6 +24,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.study.common.aop.AddComments;
+import com.spring.study.common.aop.DaoCaching;
 import com.spring.study.common.model.BaseDao;
 import com.spring.study.common.model.BaseParam;
 import com.spring.study.common.model.PageList;
@@ -193,8 +194,8 @@ public class ArticleDao extends BaseDao {
 
 	}
 	//XXX aop로 어떻게 분리해야할까요
-	//endPaging같은 경우 getMoreListArticle의 리턴타입은 List<Article>, 
-	//getArticlePageListWithTotalCount은 PageList<Article>
+	//endPaging같은 경우 getArticlePageListWithTotalCount은 PageList<Article>
+	//				  getMoreListArticle의 리턴타입은 List<Article>, 
 	//Session에 담을때 PageList<Article>타입으로 넣어야할까요??
 	//List<Article>타입으로 저장해야한다면 첫페이지 진입시에 페이징정보(totalPage)는 어떻게 해야할까여
 	public PageList<Article> exampleDtoCaching(ArticleParam vo, String pagingType) {
@@ -209,7 +210,7 @@ public class ArticleDao extends BaseDao {
 			Date curDate = new Date();
 			String key = ArticleDao.class.getName() + ".ListArticleTest" + "&page=" + vo.getPage() + "&pageSize=" + vo.getPageSize();
 			String expireDate = (String) session.getAttribute("expire" + key);
-			
+			//XXX 직렬화???
 			if(!expiresDate(curDate,expireDate)) {
 				tmpList = (List<Article>) session.getAttribute(key);
 				list = new PageList<Article>(tmpList);
@@ -237,6 +238,20 @@ public class ArticleDao extends BaseDao {
 			session.setAttribute("expire" + key, expireDate);
 		}
 
+		return list;
+	}
+	
+	@DaoCaching//이런식으로하면 댓글은 캐싱안됨..
+	public PageList<Article> exampleDtoCaching2(ArticleParam vo, String pagingType) {
+		PageList<Article> list = null;
+		if(pagingType.equals("endPaging")) {
+			list = super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
+		}else if(pagingType.equals("endPagingMoreView")) {
+			List selectList = sqlSession.selectList(mapper + "listArticle2", vo);
+			list = new PageList<>(selectList);
+		}else if(pagingType.equals("hsaNextPaging")) {
+			list = super.selectPageDto(mapper + "listArticle2", vo);
+		}
 		return list;
 	}
 	

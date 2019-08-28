@@ -20,6 +20,7 @@ public class ArticleDto {
 	private Date writeDate;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
 	private Date modifyDate;
+	//XXX 공지시작일 만료일를 List<Notice>로 뺀다면 참조하는 객체가 Comment랑 Notice두개인데 앞으로 참고하는 객체가 생기면 이렇게 하나하나 추가하는건가요??
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
 	private Date displayStartDate;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
