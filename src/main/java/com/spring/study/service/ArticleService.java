@@ -15,6 +15,7 @@ import com.spring.study.dao.ArticleDao;
 import com.spring.study.model.article.Article;
 import com.spring.study.model.article.ArticleDto;
 import com.spring.study.model.article.ArticleParam;
+import com.spring.study.model.article.ArticleVo;
 import com.spring.study.model.user.User;
 
 import javassist.NotFoundException;
@@ -148,6 +149,10 @@ public class ArticleService {
 
 	public int getSequence() {
 		return articleDao.getSequence();
+	}
+
+	public PageList<Article> getMyClipboard(ArticleParam reqParam) {
+		return articleDao.getMyClipboard(reqParam);
 	}
 
 	//글정렬 - 내글 보기

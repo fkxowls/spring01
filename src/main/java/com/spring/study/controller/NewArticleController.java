@@ -43,8 +43,9 @@ import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 
 //     controller코드 정리 ㅇ  addCommentAspect수정 ㅇ
 // 	   articleParam 수정 ㅇ , union ㅇ, 조회수 증가시키기 ㅇ  
-//	     캐싱 aop로 분리, 캐싱 리턴값 직렬화
-//	   Dao정리
+//	     캐싱 aop로 분리 x, 리턴값 직렬화 x
+//	     클립보드
+//	   Dao정리, hasNext페이징 수정
 //     interceptor적용할 코드가 있는지 다시보기
 //     람다?? 물어보기
 @Controller
@@ -69,6 +70,7 @@ public class NewArticleController {
 			resultMap.put("totalPage", pageList.getTotalPage());
 		} else {
 			articleList = articleService.getArticleList(reqParam);
+			//articleList = pageList.getList();
 		}
 		
 		List<ArticleDto> articleHeader = articleList.stream()
@@ -84,7 +86,7 @@ public class NewArticleController {
 	
 	@RequestMapping(value = "/board/article2/{page}/list")
 	public @ResponseBody Map<String, Object> getArticleList(Model model, @PathVariable int page,@RequestParam(required = false, defaultValue = "old") String sort) {
-		BaseParam reqParam = new BaseParam.Builder(page, pageSize).useMoreView(true).build();
+		ArticleParam reqParam = new ArticleParam.Builder(page, pageSize).useMoreView(true).build();
 		Map<String, Object> resultMap = new HashMap<>();
 		
 		PageList<Article> pageListDto = articleService.getArticlePageList(reqParam);
@@ -122,6 +124,19 @@ public class NewArticleController {
 		}
 				
 		return resultMap;
+	}
+	
+	//클립보드
+	public @ResponseBody Map<String, Object> showTimeline(User user){
+		Map<String, Object> resultMap = new HashMap<>();
+		ArticleParam reqParam = new ArticleParam.Builder(1, pageSize).userId(user.getUserId()).useMoreView(true).build();
+		PageList<Article> clipboardInfo = articleService.getMyClipboard(reqParam);
+		
+		//결과상태 리턴하기
+		resultMap.put("clipboardList", clipboardInfo.getList());
+		resultMap.put("hasNext", clipboardInfo.getHasNext());
+		
+		return null;
 	}
 	
 	@RequestMapping(value = "/board/article", method = RequestMethod.POST)

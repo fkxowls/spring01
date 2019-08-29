@@ -46,7 +46,7 @@ public class ArticleDao extends BaseDao {
 	@Autowired
 	SqlSession sqlSession;
 	//단순 글리스트
-	public PageList<ArticleVo> getArticlePageListWithCount(BaseParam vo) {
+	public PageList<ArticleVo> getArticlePageListWithCount(ArticleParam vo) {
 		return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
 	}
 	
@@ -274,6 +274,11 @@ public class ArticleDao extends BaseDao {
 		}
 		
 		return false;
+	}
+	//AddComments
+	public PageList<Article> getMyClipboard(ArticleParam reqParam) {
+		return super.selectPageDto(mapper + "getClipboard", reqParam);
+		
 	}
 	
 	
