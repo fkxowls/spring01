@@ -40,8 +40,13 @@ public class PageListCachingAspect {
 				vo = (ArticleParam) object;
 			}
 	    }
-		//if(!codeSignature.equals("ArticleParam")) { throw new RuntimeException(); }
-	   		
+		
+		//XXX aop로 어떻게 분리해야할까요
+		//endPaging같은 경우 getArticlePageListWithTotalCount은 PageList<Article>
+		//				  getMoreListArticle의 리턴타입은 List<Article>, 
+		//Session에 담을때 PageList<Article>타입으로 넣어야할까요??
+		//List<Article>타입으로 저장해야한다면 첫페이지 진입시에 페이징정보(totalPage)는 어떻게 해야할까여
+	   	//Comments까지 캐싱이 되려면 Service - Dao 이 사이에 메서드를 하나 더 추가해서 거기에 @DaoCaching을 붙여야할까요?
 		HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		HttpServletResponse resp = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
 				.getResponse();
@@ -55,8 +60,9 @@ public class PageListCachingAspect {
 		String expireDate = (String) session.getAttribute("expire" + key);
 	
 		if(!expiresDate(curDate,expireDate)) {
-			tmpList = (List<Article>) session.getAttribute(key);
-			list = new PageList<Article>(tmpList);
+			System.out.println("ex");
+			list = (PageList<Article>) session.getAttribute(key);
+			//list = new PageList<Article>(tmpList);
 			return list;
 		}
 		
@@ -68,7 +74,7 @@ public class PageListCachingAspect {
 		}
 		
 		list = (PageList<Article>) obj;
-		
+		tmpList = list.getList();
 		key = ArticleDao.class.getName() + ".ListArticleTest" + "&page=" + vo.getPage() + "&pageSize=" + vo.getPageSize();
 		String ttl = "3600"; // 1시간 // TODO 커스텀 ttl 만큼 날짜 추가해줌
 		Date expireTime = DateUtils.addSeconds(curDate, Integer.parseInt(ttl));

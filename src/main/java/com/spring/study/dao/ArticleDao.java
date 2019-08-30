@@ -51,23 +51,25 @@ public class ArticleDao extends BaseDao {
 	}
 	
 /*********************************************************************************/
-	//@DaoCaching
 	//@AddComments
+	//@DaoCaching
 	public PageList<Article> getArticlePageListWithTotalCount(ArticleParam vo) {
-		return exampleDtoCaching(vo, "endPaging");
-		//return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
+		//return exampleDtoCaching(vo, "endPaging");
+		return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
 	}
 	
-//	@AddComments
+	//@AddComments
+	//@DaoCaching
 	public List<Article> getMoreListArticle(ArticleParam vo) {
-		return exampleDtoCaching(vo, "endPagingMoreView");
-		//return sqlSession.selectList(mapper + "listArticle2", vo);
+		//return exampleDtoCaching(vo, "endPagingMoreView");
+		return sqlSession.selectList(mapper + "listArticle2", vo);
 	}
 	//hasNext
 	//@AddComments
+	//@DaoCaching
 	public PageList<Article> getArticlePageList(ArticleParam vo) {
-		return exampleDtoCaching(vo, "hsaNextPaging");
-		//return super.selectPageDto(mapper + "listArticle2", vo);
+		//return exampleDtoCaching(vo, "hsaNextPaging");
+		return super.selectPageDto(mapper + "listArticle2", vo);
 	}
 /*********************************************************************************/	
 	
@@ -146,7 +148,6 @@ public class ArticleDao extends BaseDao {
 	}
 
 	public Article getWriterId(String articleId) {
-		//return "admin";
 		return sqlSession.selectOne(mapper+"getWriterId", articleId);
 	}
 	
@@ -161,7 +162,6 @@ public class ArticleDao extends BaseDao {
 	}
 	
 	public void addArticleReadCount(String articleId) {
-		// 증가 쿼리는 아직 안함
 		sqlSession.insert(mapper + "addArticleReadCount", articleId);
 	}
 
@@ -193,11 +193,7 @@ public class ArticleDao extends BaseDao {
 		return result;
 
 	}
-	//XXX aop로 어떻게 분리해야할까요
-	//endPaging같은 경우 getArticlePageListWithTotalCount은 PageList<Article>
-	//				  getMoreListArticle의 리턴타입은 List<Article>, 
-	//Session에 담을때 PageList<Article>타입으로 넣어야할까요??
-	//List<Article>타입으로 저장해야한다면 첫페이지 진입시에 페이징정보(totalPage)는 어떻게 해야할까여
+	
 	public PageList<Article> exampleDtoCaching(ArticleParam vo, String pagingType) {
 		HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
 		HttpServletResponse resp = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
@@ -226,7 +222,7 @@ public class ArticleDao extends BaseDao {
 		}else if(pagingType.equals("hsaNextPaging")) {
 			list = super.selectPageDto(mapper + "listArticle2", vo);
 		}
-		
+		tmpList = list.getList();
 		{
 			Date curDate = new Date();
 			String key = ArticleDao.class.getName() + ".ListArticleTest" + "&page=" + vo.getPage() + "&pageSize=" + vo.getPageSize();
@@ -234,7 +230,7 @@ public class ArticleDao extends BaseDao {
 			Date expireTime = DateUtils.addSeconds(curDate, Integer.parseInt(ttl));
 		
 			String expireDate = fdf.format(expireTime);
-			session.setAttribute(key, list.getList());
+			session.setAttribute(key, tmpList);
 			session.setAttribute("expire" + key, expireDate);
 		}
 
@@ -275,7 +271,7 @@ public class ArticleDao extends BaseDao {
 		
 		return false;
 	}
-	//AddComments
+	//@AddComments
 	public PageList<Article> getMyClipboard(ArticleParam reqParam) {
 		return super.selectPageDto(mapper + "getClipboard", reqParam);
 		

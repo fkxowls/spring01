@@ -167,6 +167,17 @@
 		WHERE 	ARTICLE_ID = #{articleId}
 	</select>
 	
+	<insert id="addArticleReadCount" parameterType="String">
+	   INSERT INTO ARTICLE_TB
+	   (
+	       ARTICLE_ID
+	   )
+	   VALUES
+	   (
+	       #{articleId}
+	   )
+	</insert>
+	
 	<select id="getWriterId" parameterType="String" resultType="com.spring.study.model.article.Article">
         SELECT  
                 WRITE_MEMBER_ID
@@ -176,7 +187,7 @@
     </select>
 	
 	<insert id="insertArticle" parameterType="articleVo">
-		INSERT INTO ARTICLE
+		INSERT INTO ARTICLE_TB
 		(
 			ARTICLE_ID
 			,PARENT_ID
@@ -197,7 +208,7 @@
 	</insert>
 	
 	<update id="updateArticle" parameterType="articleVo">
-		UPDATE ARTICLE
+		UPDATE ARTICLE_TB
 		SET
 				TITLE			  = #{title}
 				,CONTENT		  = #{content}
@@ -338,16 +349,5 @@
 									ARTICLE_ID = #{articleId}
 				)
 	</select>
-	
-	<insert id="addArticleReadCount" parameterType="String">
-	   INSERT INTO ARTICLE_COUNT_TB 
-	   (
-	         ARTICLE_ID
-	   )
-	   VALUES 
-	   (
-	        #{articleId}
-	   )
-	</insert>
 	
 </mapper>

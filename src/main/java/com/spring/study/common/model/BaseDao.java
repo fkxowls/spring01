@@ -5,24 +5,26 @@ import java.util.List;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.spring.study.model.article.ArticleParam;
+
 public class BaseDao {
 
 	@Autowired
 	SqlSession sqlSession;
-
-	protected <E> PageList<E> selectPageDto(String statement, BaseParam parameter) {
+															//XXX BaseDao는 BaseParam으로만 받아야하는건가요??
+	protected <E> PageList<E> selectPageDto(String statement, ArticleParam parameter) {
 		return selectPageDto(statement, null, parameter);
 	}
 
-	protected <E> PageList<E> selectPageDto(String statement, String countStatement, BaseParam parameter) {
+	protected <E> PageList<E> selectPageDto(String statement, String countStatement, ArticleParam parameter) {
 		int totalCount = 0;
-		if (null != countStatement) {
+		if (parameter.isUseEndCount() && null != countStatement) {
 			totalCount = sqlSession.selectOne(countStatement);
 		}
 		
 		List<E> list = sqlSession.selectList(statement, parameter);
 		boolean hasNext = false;
-		if (parameter.moreView() && null != list) {
+		if (parameter.isUseHasNext() && null != list) {
 			hasNext = list.size() > parameter.getPageSize() ? true : false;
 		}
 		if (hasNext) {

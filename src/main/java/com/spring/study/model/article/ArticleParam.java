@@ -56,6 +56,8 @@ public class ArticleParam extends BaseParam{
 	}
 
 	public final String getUserId() {
+		System.out.println("have getUserId method start?");
+		System.out.println(this.userId);
 		return userId;
 	}
 	

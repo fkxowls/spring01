@@ -6,14 +6,16 @@ public class BaseParam {
 	private int endNum;
 	private int page;
 	private int pageSize;
-	private boolean moreView;	
+	private boolean useHasNext;	
+	private boolean useEndCount;
 	
 	public static class Builder<T extends Builder<T>> {
 		private int page;
 		private int pageSize;
 		private int startNum;
 		private int endNum;
-		private boolean moreView;
+		private boolean useHasNext;
+		private boolean useEndCount;
 		
 		//필수 요소
 		public Builder(int page, int pageSize) {
@@ -26,8 +28,14 @@ public class BaseParam {
 			this.endNum = endNum;
 			return (T) this;
 		}
-		public T useMoreView(boolean moreView) {
-			this.moreView = moreView;
+		
+		public T useHasNext(boolean useHasNext) {
+			this.useHasNext = useHasNext;
+			return (T) this;
+		}
+		
+		public T useEndCount(boolean useEndCount) {
+			this.useEndCount = useEndCount;
 			return (T) this;
 		}
 		
@@ -41,7 +49,7 @@ public class BaseParam {
 			builder.startNum = (builder.page - 1) * builder.pageSize + 1;
 			builder.endNum = builder.page * builder.pageSize;
 		}
-		if(builder.moreView) {
+		if(builder.useHasNext) {
 			builder.endNum = builder.endNum + 1;
 		}
 
@@ -49,7 +57,8 @@ public class BaseParam {
 		this.endNum = builder.endNum;
 		this.page = builder.page;
 		this.pageSize = builder.pageSize;
-		this.moreView = builder.moreView;
+		this.useHasNext = builder.useHasNext;
+		this.useEndCount = builder.useEndCount;
 	}
 	
 	public int getStartNum() {
@@ -60,8 +69,12 @@ public class BaseParam {
 		return endNum;
 	}
 
-	public boolean moreView() {
-		return moreView;
+	public boolean isUseHasNext() {
+		return useHasNext;
+	}
+	
+	public boolean isUseEndCount() {
+		return useEndCount;
 	}
 
 	public int getPage() {
