@@ -41,10 +41,10 @@ public class UserController {
 
 		UserVo userInfo = memberService.login(userVo);
 		User user = new User();
-		user.setMemberId(userInfo.getMemberId());
-		user.setMemberLevel(userInfo.getMemberLevel());
+		user.setUserId(userInfo.getUserId());
+		user.setUserLevel(userInfo.getUserLevel());
 		//UserVo memberDTO = memberService.setMemberSession(user);
-		session.setAttribute("memberSession", user);
+		session.setAttribute("userSession", user);
 
 
 		return "redirect:/board/article/list";

@@ -11,12 +11,12 @@ public class BaseDao {
 
 	@Autowired
 	SqlSession sqlSession;
-															//XXX BaseDao는 BaseParam으로만 받아야하는건가요??
-	protected <E> PageList<E> selectPageDto(String statement, ArticleParam parameter) {
+	
+	protected <E> PageList<E> selectPageDto(String statement, BaseParam parameter) {
 		return selectPageDto(statement, null, parameter);
 	}
 
-	protected <E> PageList<E> selectPageDto(String statement, String countStatement, ArticleParam parameter) {
+	protected <E> PageList<E> selectPageDto(String statement, String countStatement, BaseParam parameter) {
 		int totalCount = 0;
 		if (parameter.isUseEndCount() && null != countStatement) {
 			totalCount = sqlSession.selectOne(countStatement);

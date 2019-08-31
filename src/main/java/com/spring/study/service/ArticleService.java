@@ -116,10 +116,6 @@ public class ArticleService {
 	public Article getWriterId(String articleId) {
 		return articleDao.getWriterId(articleId);
 	}
-
-	/****************************************************************************************************
-	 ****************************************************************************************************
-	 ****************************************************************************************************/
 	
 	public PageList<Article> getArticlePageListWithCount(ArticleParam req) {
 		// PageList<ArticleVo> pageList = articleDao.getArticlePageListWithCount(req);
@@ -138,10 +134,6 @@ public class ArticleService {
 		PageList<Article> resp = articleDao.getArticlePageList(req);
 		return resp;
 	}
-
-	/****************************************************************************************************
-	 ****************************************************************************************************
-	 ****************************************************************************************************/
 
 	public int getTotalArticles() {
 		return articleDao.getTotalArticles();

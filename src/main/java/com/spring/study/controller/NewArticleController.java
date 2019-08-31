@@ -56,25 +56,33 @@ public class NewArticleController {
 	@Autowired
 	private CommentsService commentsService;
 	
-	@RequestMapping(value = "/board/article/{page}/list")
-	public @ResponseBody Map<String, Object> getArticleList(@PathVariable int page, Model model,@RequestParam(required = false, defaultValue = "old") String sort, User user) {																					
-		ArticleParam reqParam = new ArticleParam.Builder(page, pageSize).useEndCount(true).sort(sort).build();
+	@RequestMapping(value = "/article/{page}/list")
+	// TODO @ErrorCatch
+	public @ResponseBody Map<String, Object> getArticleList(User user, @PathVariable int page, Model model, @RequestParam(defaultValue = "old") String sort) {																					
+		ArticleParam reqParam = new ArticleParam
+				.Builder(page, pageSize)
+				.useEndCount(true)
+				.sort(sort)
+				.build();
+		
 		Map<String, Object> resultMap = new HashMap<>();
-		List<Article> articleList = null;		
+		List<Article> articleList;		
 		
 		if (1 == page) {
 			PageList<Article> pageList = articleService.getArticlePageListWithCount(reqParam);
 			articleList = pageList.getList();
-			resultMap.put("totalPage", pageList.getTotalPage());
+			resultMap.put("totalPage", String.valueOf(pageList.getTotalPage()));
+			resultMap.put("page", String.valueOf(pageList.getPage()));
+			resultMap.put("pageSize", String.valueOf(pageList.getPageSize()));
 		} else {
 			articleList = articleService.getArticleList(reqParam);
 			//articleList = pageList.getList();
 		}
 		
 		List<ArticleDto> articleHeader = articleList.stream()
-		.map(Article::displayTitle)
-		.collect(Collectors.toList());
-		
+				.map(Article::displayTitle)
+				.collect(Collectors.toList());
+
 		resultMap.put("code", HttpStatus.OK.value());
 		resultMap.put("msg", HttpStatus.OK.getReasonPhrase());
 		resultMap.put("articleHeader", articleHeader);
@@ -82,7 +90,7 @@ public class NewArticleController {
 		return resultMap;
 	}
 	
-	@RequestMapping(value = "/board/article2/{page}/list")
+	@RequestMapping(value = "/article2/{page}/list")
 	public @ResponseBody Map<String, Object> getArticleList(Model model, @PathVariable int page,@RequestParam(required = false, defaultValue = "old") String sort) {
 		ArticleParam reqParam = new ArticleParam.Builder(page, pageSize).useHasNext(true).sort(sort).build();
 		Map<String, Object> resultMap = new HashMap<>();
@@ -101,7 +109,7 @@ public class NewArticleController {
 		return resultMap;
 	}
 	
-	@RequestMapping(value = "/board/{articleId}/detail", method = RequestMethod.GET)
+	@RequestMapping(value = "/{articleId}/detail", method = RequestMethod.GET)
 	public @ResponseBody Map<String, Object> viewArticle(@PathVariable String articleId, User user) {
 		Map<String, Object> resultMap = new HashMap<>();
 		//글상세보기안에서 댓글 처리?? 
@@ -142,7 +150,7 @@ public class NewArticleController {
 		return resultMap;
 	}
 	
-	@RequestMapping(value = "/board/article", method = RequestMethod.POST)
+	@RequestMapping(value = "/article", method = RequestMethod.POST)
 	public @ResponseBody Map<String, Object> writeArticle(@RequestBody ArticleDto articleDto, HttpServletRequest req, User user){
 		Map<String, Object> resultMap = new HashMap<>();
 		//XXX 로그인세션이 만료되어 현재 접속자가 Null이 될 가능성을 생각하는것도 하지않는게 맞는건가요?
@@ -153,7 +161,7 @@ public class NewArticleController {
 		}
 		
 		try {
-			articleService.writeArticle(articleDto, user);
+			articleService.writeArticle(articleDto, user);//Dto -> Article
 			resultMap.put("code", HttpStatus.OK.value());
 			resultMap.put("msg", HttpStatus.OK.getReasonPhrase());
 		} catch (SQLException e) {
@@ -168,7 +176,7 @@ public class NewArticleController {
 		return resultMap;
 	}
 	
-	@RequestMapping(value = "/board/{articleId}/reply", method = RequestMethod.POST)
+	@RequestMapping(value = "/{articleId}/reply", method = RequestMethod.POST)
 	public @ResponseBody Map<String,Object> writeReply(@RequestBody ArticleDto articleDto, User user) {
 		Map<String, Object> resultMap = new HashMap<>();
 		
@@ -197,7 +205,7 @@ public class NewArticleController {
 		return resultMap;
 	}
 	
-	@RequestMapping(value = "/board/{articleId}", method = RequestMethod.PUT)
+	@RequestMapping(value = "/{articleId}", method = RequestMethod.PUT)
 	public @ResponseBody Map<String, Object> modifyArticle(@RequestBody ArticleDto articleDto, User user) {
 		Map<String, Object> resultMap = new HashMap<>();
 		
@@ -237,7 +245,7 @@ public class NewArticleController {
 		return resultMap;  
 	}
 	
-	@RequestMapping(value = "/board/{articleId}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/{articleId}", method = RequestMethod.DELETE)
 	public @ResponseBody Map<String, Object> deleteArticle(@PathVariable String articleId, User user) {
 		Map<String, Object> resultMap = new HashMap<>();
 		
@@ -258,7 +266,7 @@ public class NewArticleController {
 		return resultMap;
 	}
 	
-	@RequestMapping(value = "/board/{articleId}/comments/{page}/list")
+	@RequestMapping(value = "/{articleId}/comments/{page}/list")
 	public @ResponseBody Map<String, Object> getCommentList(@PathVariable String articleId, @PathVariable int page, User user) {
 		Map<String, Object> resultMap = new HashMap<>();
 		CommentParam commentsParam = new CommentParam.Builder(page, commentPageSize,articleId)
@@ -276,7 +284,7 @@ public class NewArticleController {
 		return resultMap;
 	}
 	
-	@RequestMapping(value = "/board/{articleId}/comments", method = RequestMethod.POST)
+	@RequestMapping(value = "/{articleId}/comments", method = RequestMethod.POST)
 	public @ResponseBody Map<String, Object> writeComment(@RequestBody CommentDto commentsDto, User user) {
 		Map<String, Object> resultMap = new HashMap<>();
 		

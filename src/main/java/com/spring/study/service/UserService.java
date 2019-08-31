@@ -26,8 +26,8 @@ public class UserService {
 
 	public UserVo setMemberSession(UserVo user) {
 		UserVo UserVo = new UserVo();
-		UserVo.setMemberId(user.getMemberId());
-		UserVo.setMemberLevel(user.getMemberLevel());
+		UserVo.setUserId(user.getUserId());
+		UserVo.setUserLevel(user.getUserLevel());
 		return UserVo;
 	}
 

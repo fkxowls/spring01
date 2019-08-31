@@ -3,6 +3,8 @@ package com.spring.study.common.aop;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -35,8 +37,8 @@ import com.spring.study.model.user.UserVo;
 
 @Aspect
 @Component
-public class ArticleAddContentsAspect {
-	private static final Logger logger = LoggerFactory.getLogger(ArticleAddContentsAspect.class);
+public class AddCommentsAspect {
+	private static final Logger logger = LoggerFactory.getLogger(AddCommentsAspect.class);
 	
 	@Autowired
 	private CommentDao commentDAO;
@@ -44,15 +46,14 @@ public class ArticleAddContentsAspect {
 	
 	@Around("@annotation(com.spring.study.common.aop.AddComments)" /* + "&& args(user2)" */)
 	public Object addComments(ProceedingJoinPoint joinPoint) {
-		Object obj = null;
 		HttpServletRequest req = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
 		HttpSession session = req.getSession();
 		User user = (User) session.getAttribute("userSession");
-		
+
+		Object obj = null;
 		try {
 			obj = joinPoint.proceed();
 		} catch (Throwable e) {	e.printStackTrace(); }
-		
 		
 		List<Article> pageList = new LinkedList<Article>();
 		if (obj instanceof PageList) {
@@ -96,10 +97,16 @@ public class ArticleAddContentsAspect {
 //			}
 //		}
 		
-		Map<String, List<Comment>> commentsListByArticleId = commentsPageDto.getList().stream()
-				.collect(Collectors.groupingBy(Comment::getArticleId));
+		Function<Comment, String> temp = Comment::getArticleId;//TODO
 		
-		pageList.stream().forEach( vo -> vo.setCommentsList(commentsListByArticleId.get(vo.getArticleId())));
+		Map<String, List<Comment>> commentsListByArticleId = commentsPageDto.getList().stream()
+				.collect(Collectors.groupingBy(temp));
+		
+		Consumer<Article> action = vo -> vo.setCommentsList(commentsListByArticleId.get(vo.getArticleId()));
+		
+		action.accept(pageList.get(0));
+		
+		pageList.stream().forEach( action );
 		
 //		Stream<ArticleVo> stream = returnList.stream();
 //		stream = stream.filter( vo -> null == vo.getArticleNo() );

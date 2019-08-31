@@ -12,7 +12,9 @@ public class PageList<E> {
 	private int endNum;
 	private List<E> list;
 	
-	public PageList() {}
+	public PageList(List<E> list) {
+		this.list = list;	
+	}
 	
 	public PageList(int page, int pageSize, List<E> list, int totalCount, boolean hasNext) { // 리스폰스 객체
 		this.page = page;

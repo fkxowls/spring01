@@ -7,11 +7,11 @@ import com.spring.study.model.article.ArticleDto;
 public class User extends UserVo{
 	
 	public boolean isLogon() {
-		return StringUtils.isNotEmpty(super.getMemberId());
+		return StringUtils.isNotEmpty(super.getUserId());
 	}
 	
-	public boolean isEqualsUserId(String writerId) {
-		if(StringUtils.equals(writerId, super.getMemberId())) {
+	public boolean checkUserId(String writerId) {
+		if(StringUtils.equals(writerId, super.getUserId())) {
 			return true;
 		}
 		return false;
@@ -19,7 +19,7 @@ public class User extends UserVo{
 	
 	public ArticleDto getUserInfo() {
 		ArticleDto articleDto = new ArticleDto();
-		articleDto.setWriteMemberId(super.getMemberId());
+		articleDto.setWriteMemberId(super.getUserId());
 		
 		return articleDto;
 	}

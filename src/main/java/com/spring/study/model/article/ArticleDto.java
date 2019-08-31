@@ -6,7 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.spring.study.model.comments.Comment;
 import com.spring.study.model.comments.CommentDto;
-
+//Annotation
 public class ArticleDto {
 	private String articleId;
 	private String parentId;
@@ -16,7 +16,7 @@ public class ArticleDto {
 	private String writeMemberId;
 	private String modifyMemberId;
 	private String articleTypeCd;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")//TODO Article로
 	private Date writeDate;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
 	private Date modifyDate;

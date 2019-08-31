@@ -77,11 +77,11 @@ public class BaseParam {
 		return useEndCount;
 	}
 
-	public int getPage() {
+	public Integer getPage() { // TODO 세션캐싱에서 Object로 캐스팅하기 위함, 다른 방법 알아보고 걷어내야 함
 		return page;
 	}
 
-	public int getPageSize() {
+	public Integer getPageSize() { // TODO 세션캐싱에서 Object로 캐스팅하기 위함, 다른 방법 알아보고 걷어내야 함
 		return pageSize;
 	}
 

@@ -54,7 +54,7 @@ function getCommentList(){
 
 function fn_insertComment(){
 	var content = $('input[name=comment]').val();
-	var jsonText = '{"articleNo": "${nowArticleNo}","writeMemberId":"${memberSession.memberId}","content":'+ content+'}';
+	var jsonText = '{"articleNo": "${nowArticleNo}","writeMemberId":"${userSession.memberId}","content":'+ content+'}';
 	var sendData1 = JSON.stringify(jsonText);
 	var sendData2 = JSON.parse(sendData1);
 	
@@ -88,7 +88,7 @@ function fn_reComment(idx){
 function insertReComment(idx){
 	alert(idx);
 	var content = $('input[name=reComment]').val();
-	var jsonText = '{"articleNo": "${nowArticleNo}","parentNo":'+idx+',"writeMemberId":"${memberSession.memberId}","content":'+ content+'}';
+	var jsonText = '{"articleNo": "${nowArticleNo}","parentNo":'+idx+',"writeMemberId":"${userSession.memberId}","content":'+ content+'}';
 	var sendData1 = JSON.stringify(jsonText);
 	var sendData2 = JSON.parse(sendData1);
 	

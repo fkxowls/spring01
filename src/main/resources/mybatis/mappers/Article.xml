@@ -74,30 +74,31 @@
 	                                CONNECT BY
 	                                        PRIOR ARTICLE_ID    = C.PARENT_ID 
 	                                ORDER SIBLINGS BY
-			                                       <choose>
-			                                       <when test="sort == 'old'">
+	                                       <choose>
+		                                       <when test="sort == 'old'">
 			                                       C.ARTICLE_ID DESC
-			                                       </when>
-			                                       <when test="sort == 'new'">
+		                                       </when>
+		                                       <when test="sort == 'new'">
 			                                       C.ARTICLE_ID 
-			                                       </when>
-			                                       <when test="sort == 'title'">
+		                                       </when>
+		                                       <when test="sort == 'title'">
 			                                       C.TITLE
-			                                       </when>
-			                                       <when test="sort == 'commentCnt'">
+		                                       </when>
+		                                       <when test="sort == 'commentCnt'">
 			                                       (
-				                                       SELECT COUNT(COMMENT_ID)
+				                                       SELECT ARTICLE_ID, COUNT(1)
 				                                       FROM   COMMENT_TB
-				                                       WHERE  ARTICLE_ID = C.ARTICLE_ID
+				                                       GROUP BY ARTICLE_ID
 			                                       ) DESC
-			                                       </when>
-			                                       <when test="sort == 'viewCnt'">
+		                                       </when>
+		                                       <when test="sort == 'viewCnt'">
 			                                       (
-				                                       SELECT ARTICLE_COUNT
+				                                       SELECT ARTICLE_ID, COUNT(1)
 				                                       FROM ARTICLE_COUNT_TB
+                                                       GROUP BY ARTICLE_ID
 			                                       ) DESC
-			                                       </when>
-			                                       </choose>
+		                                       </when>
+	                                       </choose>
 						                   ) Y
 	                            ) A
 	               ) X

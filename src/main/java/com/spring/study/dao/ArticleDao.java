@@ -1,6 +1,5 @@
 package com.spring.study.dao;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
@@ -21,16 +20,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spring.study.common.aop.AddComments;
-import com.spring.study.common.aop.DaoCaching;
+import com.spring.study.common.aop.CacheInSession;
 import com.spring.study.common.model.BaseDao;
-import com.spring.study.common.model.BaseParam;
 import com.spring.study.common.model.PageList;
 import com.spring.study.model.article.Article;
 import com.spring.study.model.article.ArticleDto;
-import com.spring.study.model.article.ArticleParam;
 import com.spring.study.model.article.ArticleParam;
 import com.spring.study.model.article.ArticleVo;
 import com.spring.study.model.article.NoticeVo;
@@ -52,21 +46,21 @@ public class ArticleDao extends BaseDao {
 	
 /*********************************************************************************/
 	//@AddComments
-	//@DaoCaching
+	//@@SessionCaching
+	@CacheInSession(name = "ArticleDao.getArticlePageListWithTotalCount", key = "userId,page,pageSize,sort", type = "com.spring.study.model.article.ArticleParam")
 	public PageList<Article> getArticlePageListWithTotalCount(ArticleParam vo) {
 		//return exampleDtoCaching(vo, "endPaging");
 		return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
 	}
 	
 	//@AddComments
-	//@DaoCaching
+	@CacheInSession(name = "ArticleDao.getMoreListArticle", key = "userId,page,pageSize,sort", type = "com.spring.study.model.article.ArticleParam")
 	public List<Article> getMoreListArticle(ArticleParam vo) {
-		//return exampleDtoCaching(vo, "endPagingMoreView");
 		return sqlSession.selectList(mapper + "listArticle2", vo);
 	}
 	//hasNext
 	//@AddComments
-	//@DaoCaching
+	//@@SessionCaching
 	public PageList<Article> getArticlePageList(ArticleParam vo) {
 		//return exampleDtoCaching(vo, "hsaNextPaging");
 		return super.selectPageDto(mapper + "listArticle2", vo);
@@ -91,7 +85,7 @@ public class ArticleDao extends BaseDao {
 	}
 
 	public int insertArticle(String articleId, ArticleDto articleDto, User user) {
-		ArticleVo articleVo = new ArticleVo();
+		ArticleVo articleVo = new ArticleVo();//TODO 직접 만들지 말것
 		articleVo.setArticleId(articleId);
 		articleVo.setWriteMemberId(user.getUserId());
 		articleVo.setTitle(articleDto.getTitle());
@@ -236,18 +230,17 @@ public class ArticleDao extends BaseDao {
 
 		return list;
 	}
-	
-	@DaoCaching//이런식으로하면 댓글은 캐싱안됨..
-	public PageList<Article> exampleDtoCaching2(ArticleParam vo, String pagingType) {
-		PageList<Article> list = null;
-		if(pagingType.equals("endPaging")) {
-			list = super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
-		}else if(pagingType.equals("endPagingMoreView")) {
-			List selectList = sqlSession.selectList(mapper + "listArticle2", vo);
-			list = new PageList<>(selectList);
-		}else if(pagingType.equals("hsaNextPaging")) {
-			list = super.selectPageDto(mapper + "listArticle2", vo);
-		}
+
+	@CacheInSession(name = "ArticleDao.listArticleTest", key = "userId,page,pageSize", type = "com.spring.study.model.article.ArticleParam")
+	public List<Article> listArticleTest(ArticleParam vo) {
+		List<Article> list = null;
+//		if(pagingType.equals("endPaging")) {
+//			list = super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
+//		}else if(pagingType.equals("endPagingMoreView")) {
+			list = sqlSession.selectList(mapper + "listArticle2", vo);
+//		}else if(pagingType.equals("hsaNextPaging")) {
+//			list = super.selectPageDto(mapper + "listArticle2", vo);
+//		}
 		return list;
 	}
 	
