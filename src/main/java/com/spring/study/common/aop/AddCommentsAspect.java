@@ -65,48 +65,26 @@ public class AddCommentsAspect {
 		} else {
 			return obj;
 		}
-		
-//		if(null == user) {
-//			user = new User();
-//			user.setUserId(StringUtils.EMPTY);
-//			user.setUserLevel("00");
-//			session.setAttribute("userSession", user);
-//		}
+	
 		String articleNumbers = pageList.stream()
 				.map(ArticleVo::getArticleId)
 				.collect(Collectors.joining(","));
-		//TODO 댓글 페이징 정보가 이상하게 들어감 ex) startNum -9, 및 페이징 정보와 댓글 리스트 분리
-		CommentParam commentsParam = new CommentParam.Builder(1, 10,articleNumbers).userId(user.getUserId())
-				.build();
-		PageList<Comment> commentsPageDto = commentDAO.commentsList(commentsParam);
+		CommentParam commentsParam = new CommentParam.Builder(1, 10,articleNumbers)
+													 .userId(user.getUserId())
+													 .useEndCount(true)
+													 .build();
+		Function<Comment, String> articleIdGroup = Comment::getArticleId;
+		Map<String, PageList<Comment>> commentList = commentDAO.getFeedList(commentsParam, articleIdGroup);//XXX Paging 정보는 어떻게???
 		
-//		for(ArticleVo ArticleVo : returnList) {
-//			String key = ArticleVo.getArticleNo();
-//			ArticleVo.setCommentsList(Lists.newArrayList());
-//			for(int i = 0; i < commentsList.size(); i++) {
-//				ArticleReplyVo articleReplyVo = commentsList.get(i);
-//				if(null == articleReplyVo.getArticleNo()) {
-//					continue;
-//				}
-//				if(key.equals(articleReplyVo.getArticleNo())) {
-//					ArticleVo.getCommentsList().add(articleReplyVo);
-//				}
-//				if(10 == ArticleVo.getCommentsList().size()) {
-//					break;
-//				}
-//			}
-//		}
+//		pageList.stream().forEach( vo -> vo.setCommentsList(commentList.get(vo.getArticleId())));
+		pageList.stream().forEach( vo -> vo.setCommentsList(commentList.get));
+//		PageList<Comment> commentsPageDto = commentDAO.commentsList(commentsParam);
+//		Map<String, List<Comment>> commentsListByArticleId = commentsPageDto.getList().stream()
+//				.collect(Collectors.groupingBy(articleIdGroup));//TODO 그룹핑하는 거 메서드로 분리 
 		
-		Function<Comment, String> temp = Comment::getArticleId;//TODO
+//		Consumer<Article> action = vo -> vo.setCommentsList(commentsListByArticleId.get(vo.getArticleId()));
+//		action.accept(pageList.get(0));
 		
-		Map<String, List<Comment>> commentsListByArticleId = commentsPageDto.getList().stream()
-				.collect(Collectors.groupingBy(temp));
-		
-		Consumer<Article> action = vo -> vo.setCommentsList(commentsListByArticleId.get(vo.getArticleId()));
-		
-		action.accept(pageList.get(0));
-		
-		pageList.stream().forEach( action );
 		
 //		Stream<ArticleVo> stream = returnList.stream();
 //		stream = stream.filter( vo -> null == vo.getArticleNo() );
