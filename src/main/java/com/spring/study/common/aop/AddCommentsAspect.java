@@ -77,7 +77,6 @@ public class AddCommentsAspect {
 		Map<String, PageList<Comment>> commentList = commentDAO.getFeedList(commentsParam, articleIdGroup);//XXX Paging 정보는 어떻게???
 		
 //		pageList.stream().forEach( vo -> vo.setCommentsList(commentList.get(vo.getArticleId())));
-		pageList.stream().forEach( vo -> vo.setCommentsList(commentList.get));
 //		PageList<Comment> commentsPageDto = commentDAO.commentsList(commentsParam);
 //		Map<String, List<Comment>> commentsListByArticleId = commentsPageDto.getList().stream()
 //				.collect(Collectors.groupingBy(articleIdGroup));//TODO 그룹핑하는 거 메서드로 분리 
