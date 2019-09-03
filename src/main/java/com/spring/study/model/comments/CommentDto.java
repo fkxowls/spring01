@@ -13,11 +13,14 @@ public class CommentDto {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
 	private Date writeDate;
 	private String secretTypeCd;
-	
-	private int commentsPage;
-	private int startNum;
-	private int endNum;
+	private int page;
 	private int pageSize;
+	private boolean hasNext;
+	
+//	private int commentsPage;
+//	private int pageSize;
+//	private int startNum;
+//	private int endNum;
 	
 
 	public CommentDto() {
@@ -33,12 +36,12 @@ public class CommentDto {
 	public CommentDto(String articleId, int commentsPage, int pageSize) {
 		this.articleId 	  = articleId;
 		this.pageSize 	  = pageSize;
-		this.commentsPage = commentsPage;
+		this.page = commentsPage;
 	}
 
 	public CommentDto(String articleId, int commentsPage, int pageSize, String writeMemberId) {
 		this.articleId 	      = articleId;
-		this.commentsPage 	  = commentsPage;
+		this.page 	  = commentsPage;
 		this.writeMemberId 	  = writeMemberId;
 	}
 	
@@ -47,9 +50,7 @@ public class CommentDto {
 	public void setArticleId(String articleId) {
 		this.articleId = articleId;
 	}
-	public void setCommentsPage(int commentsPage) {
-		this.commentsPage = commentsPage;
-	}
+	
 	public String getContent() {
 		return content;
 	}
@@ -84,20 +85,12 @@ public class CommentDto {
 		return articleId;
 	}
 
-	public int getCommentsPage() {
-		return commentsPage;
-	}
-
-	public int getStartNum() {
-		this.startNum = (this.commentsPage - 1) * 10 + 1;
-		return startNum;
-	}
-
-	public int getEndNum() {
-		this.endNum = this.commentsPage * 10;
-		return endNum;
-	}
-
+//	public int getCommentsPage() {
+//		return page;
+//	}
+//	public void setCommentsPage(int commentsPage) {
+//		this.page = commentsPage;
+//	}
 	public Date getWriteDate() {
 		return writeDate;
 	}
@@ -118,17 +111,27 @@ public class CommentDto {
 		this.secretTypeCd = secretTypeCd;
 	}
 
-	public void setStartNum(int startNum) {
-		this.startNum = startNum;
-	}
-
-	public void setEndNum(int endNum) {
-		this.endNum = endNum;
-	}
-
 	public void setPageSize(int pageSize) {
 		this.pageSize = pageSize;
 	}
+
+	public int getPage() {
+		return page;
+	}
+
+	public void setPage(int page) {
+		this.page = page;
+	}
+
+	public boolean isHasNext() {
+		return hasNext;
+	}
+
+	public void setHasNext(boolean hasNext) {
+		this.hasNext = hasNext;
+	}
+	
+	
 	
 	
 }

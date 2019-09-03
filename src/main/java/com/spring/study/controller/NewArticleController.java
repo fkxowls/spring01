@@ -57,7 +57,7 @@ public class NewArticleController {
 	private CommentsService commentsService;
 	
 	@RequestMapping(value = "/article/{page}/list")
-	// TODO @ErrorCatch
+	// TODO @ErrorCatch //Resolver가 작동안하는듯 로그인 해도 null일때 값 들어감
 	public @ResponseBody Map<String, Object> getArticleList(User user, @PathVariable int page, Model model, @RequestParam(defaultValue = "old") String sort) {																					
 		ArticleParam reqParam = new ArticleParam
 				.Builder(page, pageSize)
@@ -133,9 +133,15 @@ public class NewArticleController {
 	}
 	
 	//클립보드
+	@RequestMapping(value = "/testMethod", method = RequestMethod.GET)
 	public @ResponseBody Map<String, Object> showTimeline(User user){
-		Map<String, Object> resultMap = new HashMap<>();
-		ArticleParam reqParam = new ArticleParam.Builder(1, pageSize).userId(user.getUserId()).useHasNext(true).build();
+		Map<String, Object> resultMap = new HashMap<>();//임시로 1주입
+		ArticleParam reqParam = new ArticleParam.Builder(1, pageSize).userId("admin").sort("old").useHasNext(true).build();
+		//내가 쓴 글 등록역순으로 가져오기
+		PageList<Article> myArticleList = articleService.getArticlePageList(reqParam);
+		//내가쓴글의 최상위 글 가져오기
+		List<Article> TopArticleList = articleService.getTopLevelArticles(myArticleList);
+		
 		PageList<Article> clipboardInfo = articleService.getMyClipboard(reqParam);
 		
 		List<ArticleDto> articleHeader = clipboardInfo.getList().stream()

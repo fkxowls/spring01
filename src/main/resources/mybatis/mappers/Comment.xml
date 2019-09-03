@@ -136,5 +136,16 @@
 	
 	</insert>
 	
+	<select id="totalComments" parameterType="com.spring.study.model.comments.CommentParam" resultType="articleReplyVo">
+        SELECT
+                COUNT(1) AS TOTAL_COUNT
+        FROM    COMMENT_TB
+        WHERE    ARTICLE_ID in (
+	                               SELECT regexp_substr(#{articleId}, '[^,]+', 1, LEVEL)
+	                               FROM DUAL
+	                               CONNECT BY LEVEL &lt;= length(regexp_replace(#{articleId}, '[^,]+', '')) + 1
+                              )    
+        GROUP BY ARTICLE_ID
+    </select>
 	
 </mapper>

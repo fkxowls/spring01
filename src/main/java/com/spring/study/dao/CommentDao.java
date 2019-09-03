@@ -55,26 +55,42 @@ public class CommentDao  extends BaseDao{
 		
 		return sqlSession.insert("mapper.comment.insertComment", vo);
 	}
-	//Map<String, PageList<E>>//XXX 페이지 정보는 어떻게??
+	//PageInfo 제대로 출력안됨, endPagingInfo 담는거 못함, BaseDao로 이동해야함
 	public <E> Map<String, PageList<E>> getFeedList(BaseParam baseParam, Function<E, String> articleIdGroup) {
 		int totalCount = 0;
-		boolean hsaNext = false;
-		if(baseParam.isUseEndCount()) {
-			totalCount = sqlSession.selectOne("totalArticle");
-		}
+		boolean hasNext = false;
 		
 		Map<String, PageList<E>> pageListMap = new HashMap<>();
 		Map<String, List<E>> listMap = new HashMap<>();
 		List<E> commentsList = sqlSession.selectList("mapper.comment.listComment", baseParam);
-		// {10037 = [[댓글1],[댓글2]], 10038 = [[댓글1],[댓글2]] } 페이지정보는 ???
 		listMap = commentsList.stream().collect(Collectors.groupingBy(articleIdGroup));
-//		Set<String> keys = listMap.keySet();
-//		list.forEach(computeIfAbsent(keys, k -> new ArrayList<>()))
-//		list.values().stream().collect(Collectors.toCollection(ArrayList::new));
-		List<E> list = new ArrayList(listMap.values());
 		
-		PageList<E> pageList = new PageList<>(baseParam.getPage(),baseParam.getPageSize(),list,totalCount, false);
-		pageListMap.put("commentPageList", pageList);
+		if(baseParam.isUseHasNext() && commentsList != null) {
+			for(Entry<String, List<E>> entry : listMap.entrySet()) {	
+				List<E> resultList = entry.getValue();
+				if(resultList.size() > 10) { 
+					hasNext = true; 
+					resultList.subList(0, baseParam.getPageSize());
+				}
+				
+				pageListMap.put(entry.getKey(), new PageList<E>(baseParam.getPage(), baseParam.getPageSize(), resultList, 0, hasNext));
+			}
+		}
+		//XXX TotalCount로 페이징 처리한 정보는 어떻게 해야할까요
+		listMap = commentsList.stream().collect(Collectors.groupingBy(articleIdGroup));
+		List<E> totalComments = sqlSession.selectList("mapper.comment.totalComments", baseParam);
+		//totalCount
+//		Map<String, String> totalComments = sqlSession.selectMap("mapper.comment.totalComments",baseParam);
+//		listMap = totalComments.stream().collect(Collectors.groupingBy(articleIdGroup));
+		
+//		Set<String> keys = listMap.keySet();
+		List<E> list = new ArrayList(listMap.values());
+//		for(int i=0; i<listMap.size() i++) {
+//			if(listMap.containsKey()) {
+//				
+//			}
+//		}
+		
 
 		return pageListMap;
 	}

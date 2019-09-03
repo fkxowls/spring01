@@ -71,12 +71,14 @@ public class AddCommentsAspect {
 				.collect(Collectors.joining(","));
 		CommentParam commentsParam = new CommentParam.Builder(1, 10,articleNumbers)
 													 .userId(user.getUserId())
-													 .useEndCount(true)
+													 .useHasNext(true)
 													 .build();
 		Function<Comment, String> articleIdGroup = Comment::getArticleId;
-		Map<String, PageList<Comment>> commentList = commentDAO.getFeedList(commentsParam, articleIdGroup);//XXX Paging 정보는 어떻게???
+		Map<String, PageList<Comment>> commentList = commentDAO.getFeedList(commentsParam, articleIdGroup);
 		
-//		pageList.stream().forEach( vo -> vo.setCommentsList(commentList.get(vo.getArticleId())));
+		Consumer<Article> action =  vo -> vo.setCommentsList(commentList.get(10037));
+		
+		pageList.stream().forEach( vo -> vo.setCommentsList(commentList.get(vo.getArticleId())));
 //		PageList<Comment> commentsPageDto = commentDAO.commentsList(commentsParam);
 //		Map<String, List<Comment>> commentsListByArticleId = commentsPageDto.getList().stream()
 //				.collect(Collectors.groupingBy(articleIdGroup));//TODO 그룹핑하는 거 메서드로 분리 

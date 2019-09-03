@@ -20,6 +20,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.spring.study.common.aop.AddComments;
 import com.spring.study.common.aop.CacheInSession;
 import com.spring.study.common.model.BaseDao;
 import com.spring.study.common.model.PageList;
@@ -45,8 +46,7 @@ public class ArticleDao extends BaseDao {
 	}
 	
 /*********************************************************************************/
-	//@AddComments
-	//@@SessionCaching
+	@AddComments
 	@CacheInSession(name = "ArticleDao.getArticlePageListWithTotalCount", key = "userId,page,pageSize,sort", type = "com.spring.study.model.article.ArticleParam")
 	public PageList<Article> getArticlePageListWithTotalCount(ArticleParam vo) {
 		//return exampleDtoCaching(vo, "endPaging");
@@ -60,7 +60,6 @@ public class ArticleDao extends BaseDao {
 	}
 	//hasNext
 	//@AddComments
-	//@@SessionCaching
 	public PageList<Article> getArticlePageList(ArticleParam vo) {
 		//return exampleDtoCaching(vo, "hsaNextPaging");
 		return super.selectPageDto(mapper + "listArticle2", vo);
@@ -267,6 +266,11 @@ public class ArticleDao extends BaseDao {
 	//@AddComments
 	public PageList<Article> getMyClipboard(ArticleParam reqParam) {
 		return super.selectPageDto(mapper + "getClipboard", reqParam);
+		
+	}
+
+	public List<Article> getTopLevelArticles(String articleNumbers) {
+		return sqlSession.selectList(mapper + "rootArticleList", articleNumbers);
 		
 	}
 	

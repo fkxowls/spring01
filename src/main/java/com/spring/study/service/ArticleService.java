@@ -2,6 +2,7 @@ package com.spring.study.service;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,7 +147,17 @@ public class ArticleService {
 	public PageList<Article> getMyClipboard(ArticleParam reqParam) {
 		return articleDao.getMyClipboard(reqParam);
 	}
-
+	//검색한 글의 최상위 글 가져오는 메서드
+	public List<Article> getTopLevelArticles(PageList<Article> myArticleList) {
+		String articleNumbers = myArticleList.getList().stream()
+											 .filter( vo -> !vo.getParentId().equals("0") )
+											 .map( vo -> vo.getArticleId() )
+											 .collect(Collectors.joining(","));
+		List<Article> rootArticleList = articleDao.getTopLevelArticles(articleNumbers);
+									
+		
+		return rootArticleList;
+	}
 	//글정렬 - 내글 보기
 //	public List<ArticleVo> getMyArticleList(Member member) {
 //		String userId = "";

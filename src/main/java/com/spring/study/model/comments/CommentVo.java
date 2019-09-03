@@ -10,6 +10,7 @@ public class CommentVo {
 	private Date writeDate;
 	private String writeMemberId;
 	private String secretTypeCd;
+	private String totalCount;//댓글 카운트랑 글번호 같이 가져오려고 추가함
 	
 	@Override
 	public String toString() {
@@ -20,6 +21,16 @@ public class CommentVo {
 
 	public CommentVo() {
 
+	}
+	
+	
+	
+	public String getTotalCount() {
+		return totalCount;
+	}
+
+	public void setTotalCount(String totalCount) {
+		this.totalCount = totalCount;
 	}
 
 	public int getParentId() {
