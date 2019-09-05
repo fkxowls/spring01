@@ -1,7 +1,11 @@
 package com.spring.study.service;
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -16,7 +20,9 @@ import com.spring.study.dao.ArticleDao;
 import com.spring.study.model.article.Article;
 import com.spring.study.model.article.ArticleDto;
 import com.spring.study.model.article.ArticleParam;
-import com.spring.study.model.article.ArticleVo;
+import com.spring.study.model.article.ArticleRankVo;
+import com.spring.study.model.article.ArticleReadCountVo;
+import com.spring.study.model.comments.Comment;
 import com.spring.study.model.user.User;
 
 import javassist.NotFoundException;
@@ -171,7 +177,31 @@ public class ArticleService {
 //		List<ArticleVo> myArticleList = articleDao.getMyArticleList(userId);
 //		return myArticleList;
 //	}
-	
 
+	public void setClipboard(PageList<Article> myArticleList, List<Article> topArticleList) {
+		
+	}
+	
+	//배치 로직
+	public void sortArticleRank() {
+		List<ArticleRankVo> allArticleIds = articleDao.getAllArticleIds();
+		List<Comment> commentsCntList = articleDao.getCommentsCntList();//Article에 필드로
+		List<ArticleReadCountVo> readCntList = articleDao.getReadCntList();
+		
+		Map<String,Integer> commentsCntListMap = commentsCntList.stream().collect(Collectors.toMap(Comment::getArticleId, Comment::getCommentsCnt));
+		Map<String,Integer> readCntListMap = readCntList.stream().collect(Collectors.toMap(ArticleReadCountVo::getArticleId, ArticleReadCountVo::getReadCount));
+		
+		allArticleIds.stream().peek(vo -> vo.setReadCnt(readCntListMap.get(vo.getArticleId()))) //여기서 오류남
+							  .peek(vo -> vo.setCommentCnt(commentsCntListMap.get(vo.getArticleId())))
+							  .peek(vo -> { 
+								  			int recommendPoint = vo.getCommentCnt() * vo.getReadCnt(); 
+								  			vo.setRecommend(recommendPoint);
+							              })								  	
+							  .collect(Collectors.toList());
+		articleDao.deleteArticleRank();
+		articleDao.insertArticleRank(allArticleIds);
+							  
+	}
+	
 
 }

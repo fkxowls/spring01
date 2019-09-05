@@ -4,28 +4,22 @@
    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="mapper.article">
-    <select id="getClipboard" parameterType="com.spring.study.model.article.ArticleParam" resultType="com.spring.study.model.article.Article">
+    <select id="rootArticleList" parameterType="com.spring.study.model.article.ArticleParam" resultType="com.spring.study.model.article.Article">
         SELECT 
-                DISTINCT  A.ARTICLE_ID
-                          , A.PARENT_ID
-                          , A.TITLE
-                          , A.CONTENT
-                          , A.WRITE_MEMBER_ID
-                          , A.WRITE_DATE
-		FROM             ARTICLE_TB A
-		START WITH       A.ARTICLE_ID IN 
-		                        ( 
-	                              SELECT  ARTICLE_ID 
-	                              FROM    ARTICLE_TB 
-	                              WHERE   A.WRITE_MEMBER_ID = #{userId}
-		                        )
-					<!-- A.ARTICLE_ID IN 
-									(
-									SELECT regexp_substr(#{articleId}, '[^,]+', 1, LEVEL)
-									FROM DUAL
-									CONNECT BY LEVEL <= length(regexp_replace(#{articleId}, '[^,]+', '')) + 1
-									) -->
-		CONNECT BY  A.ARTICLE_ID = PRIOR A.PARENT_ID
+                     ARTICLE_ID
+                   , PARENT_ID
+                   , TITLE
+                   , CONTENT
+                   , WRITE_MEMBER_ID
+                   , WRITE_DATE
+		FROM         ARTICLE_TB 
+		START WITH   ARTICLE_ID IN 
+					              ( <!-- 10024->10008, 10030->10018, 10031->10018, 100032->100018, 10033->10032->10018, 10030->10018 -->
+					                SELECT regexp_substr(#{articleId}, '[^,]+', 1, LEVEL) AS ARTICLE_ID
+					                FROM DUAL
+					                CONNECT BY LEVEL &lt;= length(regexp_replace(#{articleId}, '[^,]+', '')) + 1
+					              )            
+		CONNECT BY  ARTICLE_ID =  PRIOR PARENT_ID
     </select>
     
 	<select id="listArticle2" parameterType="com.spring.study.model.article.ArticleParam" resultType="com.spring.study.model.article.Article">
@@ -350,5 +344,50 @@
 									ARTICLE_ID = #{articleId}
 				)
 	</select>
+    
+    <!-- 배치  -->
+    <select id="getAllArticleIds" resultType="com.spring.study.model.article.ArticleRankVo">
+        SELECT ARTICLE_ID
+        FROM ARTICLE_TB
+       
+    </select>
+    
+    <!-- <resultMap id="commentCntResultMap" type="java.util.HashMap">
+        <result property="articleId" column="ARTICLE_ID"/>
+        <result property="count" column="COUNT" javaType="int"/>
+    </resultMap>
+     -->
+    <select id="getCommentsCntList" resultType="com.spring.study.model.comments.Comment">
+        SELECT ARTICLE_ID, COUNT(1) AS COMMENTS_CNT
+		FROM COMMENT_TB
+		GROUP BY ARTICLE_ID
+    </select>
+    
+    <select id="getReadCntList" resultType="com.spring.study.model.article.ArticleReadCountVo">
+        SELECT ARTICLE_ID, COUNT(1) AS READ_COUNT
+		FROM ARTICLE_COUNT_TB
+		GROUP BY ARTICLE_ID 
+    </select>
 	
+	<delete id="deleteArticleRank">
+	   DELETE  
+       FROM    ARTICLE_RANK_COUNT
+	</delete>
+	
+	<insert id="insertArticleRank">
+	    INSERT INTO ARTICLE_ID
+	    (
+	                 ARTICLE_ID
+				   , COMMENT_CNT
+				   , READ_CNT
+				   , RECOMMEND
+	    )
+	    VALUES
+	    (
+	               #{articleId}
+                   #{commentCnt}
+                   #{readCnt}
+                   #{recommend}
+	    )
+	</insert>
 </mapper>

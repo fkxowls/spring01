@@ -2,8 +2,10 @@ package com.spring.study.controller;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,11 +43,6 @@ import defalut.ArticleController;
 import javassist.NotFoundException;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 
-//     controller코드 정리 ㅇ  addCommentAspect수정 ㅇ
-// 	   articleParam 수정 ㅇ , union ㅇ, 조회수 증가시키기 ㅇ  
-//	     클립보드 ㅇ
-//	     캐싱 aop로 분리 x, 리턴값 직렬화 x
-//	   hasNext페이징 수정 ㅇ, dao및 xml 코드 정리 x
 @Controller
 public class NewArticleController {
 	private static final Logger logger = LoggerFactory.getLogger(ArticleController.class);
@@ -132,26 +129,22 @@ public class NewArticleController {
 		return resultMap;
 	}
 	
+	//배치
+	@RequestMapping(value ="/testMethod2")
+	public void testMethod2() {
+		articleService.sortArticleRank();
+	}
+	
 	//클립보드
 	@RequestMapping(value = "/testMethod", method = RequestMethod.GET)
-	public @ResponseBody Map<String, Object> showTimeline(User user){
+	public @ResponseBody Map<String, Object> showClipboard(User user){
 		Map<String, Object> resultMap = new HashMap<>();//임시로 1주입
 		ArticleParam reqParam = new ArticleParam.Builder(1, pageSize).userId("admin").sort("old").useHasNext(true).build();
 		//내가 쓴 글 등록역순으로 가져오기
 		PageList<Article> myArticleList = articleService.getArticlePageList(reqParam);
-		//내가쓴글의 최상위 글 가져오기
-		List<Article> TopArticleList = articleService.getTopLevelArticles(myArticleList);
+		//내가쓴글의 루트글들 가져오기 //XXX 어떻게 가져와야할지 모르겠습니다.....
+		List<Article> topArticleList = articleService.getTopLevelArticles(myArticleList);
 		
-		PageList<Article> clipboardInfo = articleService.getMyClipboard(reqParam);
-		
-		List<ArticleDto> articleHeader = clipboardInfo.getList().stream()
-																.map(Article::displayTitle)
-																.collect(Collectors.toList());
-		resultMap.put("code", HttpStatus.OK.value());
-		resultMap.put("msg", HttpStatus.OK.getReasonPhrase());
-		
-		resultMap.put("clipboardList", articleHeader);
-		resultMap.put("hasNext", clipboardInfo.getHasNext());
 		
 		return resultMap;
 	}

@@ -27,8 +27,11 @@ import com.spring.study.common.model.PageList;
 import com.spring.study.model.article.Article;
 import com.spring.study.model.article.ArticleDto;
 import com.spring.study.model.article.ArticleParam;
+import com.spring.study.model.article.ArticleRankVo;
+import com.spring.study.model.article.ArticleReadCountVo;
 import com.spring.study.model.article.ArticleVo;
 import com.spring.study.model.article.NoticeVo;
+import com.spring.study.model.comments.Comment;
 import com.spring.study.model.user.Member;
 import com.spring.study.model.user.User;
 
@@ -273,6 +276,29 @@ public class ArticleDao extends BaseDao {
 		return sqlSession.selectList(mapper + "rootArticleList", articleNumbers);
 		
 	}
+	//배치 로직
+	public List<ArticleRankVo> getAllArticleIds() {
+		return sqlSession.selectList(mapper + "getAllArticleIds");
+	}
+
+	public List<Comment> getCommentsCntList() {
+		return sqlSession.selectList(mapper + "getCommentsCntList");
+	}
+
+	public List<ArticleReadCountVo> getReadCntList() {
+		return sqlSession.selectList(mapper + "getReadCntList");
+	}
+
+	public void deleteArticleRank() {
+		sqlSession.delete(mapper + "deleteArticleRank");
+		
+	}
+
+	public void insertArticleRank(List<ArticleRankVo> allArticleIds) {
+		sqlSession.insert(mapper + "insertArticleRank", allArticleIds);
+		
+	}
+	
 	
 	
 

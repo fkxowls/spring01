@@ -17,9 +17,13 @@ import com.spring.study.model.user.User;
 
 public class Article extends ArticleVo {
 	private static final int articleIdLength = 5;
-	private List<Comment> commentsList;
+	private PageList<Comment> commentsList;
+	private Article rootArticle;
 	private NoticeVo noticeArticle;
 	private ArticleReadCountVo articleReadCountVo;
+	private List<String> articleIds;
+	private List<Comment> commentsCntList;
+	private List<ArticleReadCountVo> readCntList;
 
 	public static final boolean checkId(String articleId) {
 		if (articleIdLength != articleId.length()) {
@@ -38,13 +42,15 @@ public class Article extends ArticleVo {
 		articleDto.setWriteDate(getWriteDate());
 		articleDto.setPath("/board/" + super.getArticleId());
 		// articleDto.setReadCount();//XXX 조회수필드를 articleVo에 추가해야하는건가요??
-		// articleDto.setCommentsList(getCommentsList().stream().map(Comment::showComment).collect(Collectors.toList()));
-
+		articleDto.setRootArticle(getRootArticle());
+		
 		if (null != commentsList) {
-			List<CommentDto> commentDtoList = getCommentsList().stream().map(Comment::showComment)
+			List<CommentDto> commentDtoList = getCommentsList().getList().stream().map(Comment::showComment)
 					.collect(Collectors.toList());
 			articleDto.setCommentsList(commentDtoList);
 		}
+		
+		
 		return articleDto;
 	}
 
@@ -89,12 +95,20 @@ public class Article extends ArticleVo {
 	}
 
 	// aop에서 comment주입하려고
-	public List<Comment> getCommentsList() {
+	public PageList<Comment> getCommentsList() {
 		return commentsList;
 	}
 
-	public void setCommentsList(List<Comment> commentsList) {
+	public void setCommentsList(PageList<Comment> commentsList) {
 		this.commentsList = commentsList;
+	}
+
+	public Article getRootArticle() {
+		return rootArticle;
+	}
+
+	public void setRootArticle(Article rootArticle) {
+		this.rootArticle = rootArticle;
 	}
 
 	// notice 혹시나 쓸일이 있을것같아서
@@ -106,4 +120,36 @@ public class Article extends ArticleVo {
 		this.noticeArticle = noticeArticle;
 	}
 
+	public ArticleReadCountVo getArticleReadCountVo() {
+		return articleReadCountVo;
+	}
+
+	public void setArticleReadCountVo(ArticleReadCountVo articleReadCountVo) {
+		this.articleReadCountVo = articleReadCountVo;
+	}
+
+	public List<String> getArticleIds() {
+		return articleIds;
+	}
+
+	public void setArticleIds(List<String> articleIds) {
+		this.articleIds = articleIds;
+	}
+
+	public List<Comment> getCommentsCntList() {
+		return commentsCntList;
+	}
+
+	public void setCommentsCntList(List<Comment> commentsCntList) {
+		this.commentsCntList = commentsCntList;
+	}
+
+	public List<ArticleReadCountVo> getReadCntList() {
+		return readCntList;
+	}
+
+	public void setReadCntList(List<ArticleReadCountVo> readCntList) {
+		this.readCntList = readCntList;
+	}
+	
 }
