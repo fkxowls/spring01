@@ -4,7 +4,7 @@ import org.apache.commons.lang.time.FastDateFormat;
 
 public class Comment extends CommentVo{
 	private static final FastDateFormat fdf = FastDateFormat.getInstance("yyyy-MM-dd HH:mm");
-	
+	private int commentsCnt;
 	public CommentDto showComment() {
 		CommentDto dto = new CommentDto();
 		dto.setArticleId(getArticleId());
@@ -16,4 +16,12 @@ public class Comment extends CommentVo{
 		
 		return dto;
 	}
+	public int getCommentsCnt() {
+		return commentsCnt;
+	}
+	public void setCommentsCnt(int commentsCnt) {
+		this.commentsCnt = commentsCnt;
+	}
+	
+	
 }

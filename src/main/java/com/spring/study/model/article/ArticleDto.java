@@ -6,7 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.spring.study.model.comments.Comment;
 import com.spring.study.model.comments.CommentDto;
-//Annotation
+//TODO JsonFormat 제거해야함
 public class ArticleDto {
 	private String articleId;
 	private String parentId;
@@ -20,16 +20,21 @@ public class ArticleDto {
 	private Date writeDate;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
 	private Date modifyDate;
-	//XXX 공지시작일 만료일를 List<Notice>로 뺀다면 참조하는 객체가 Comment랑 Notice두개인데 앞으로 참고하는 객체가 생기면 이렇게 하나하나 추가하는건가요??
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
 	private Date displayStartDate;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
 	private Date displayEndDate;
 	private String path;
 	private List<CommentDto> commentsList;
+	private Article rootArticle; //root글 붙이려고
 	
-	
-	
+
+	public Article getRootArticle() {
+		return rootArticle;
+	}
+	public void setRootArticle(Article rootArticle) {
+		this.rootArticle = rootArticle;
+	}
 	public List<CommentDto> getCommentsList() {
 		return commentsList;
 	}

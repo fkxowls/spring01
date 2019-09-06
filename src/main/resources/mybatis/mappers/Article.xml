@@ -374,8 +374,8 @@
        FROM    ARTICLE_RANK_COUNT
 	</delete>
 	
-	<insert id="insertArticleRank">
-	    INSERT INTO ARTICLE_ID
+	<insert id="insertArticleRank" parameterType="com.spring.study.model.article.ArticleRankVo">
+	    INSERT INTO ARTICLE_RANK_COUNT
 	    (
 	                 ARTICLE_ID
 				   , COMMENT_CNT
@@ -383,11 +383,13 @@
 				   , RECOMMEND
 	    )
 	    VALUES
+	    <foreach item="article" index="index" collection="list" open="" separator="," close="">
 	    (
-	               #{articleId}
-                   #{commentCnt}
-                   #{readCnt}
-                   #{recommend}
+	                 #{article.articleId}
+                   , #{article.commentCnt}
+                   , #{article.readCnt}
+                   , #{article.recommend}
 	    )
+	    </foreach>
 	</insert>
 </mapper>

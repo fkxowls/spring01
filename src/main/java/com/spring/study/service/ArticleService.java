@@ -51,7 +51,7 @@ public class ArticleService {
 			throw new RuntimeException("접근 권한이 없습니다");
 		}
 		
-		articleDao.addArticleReadCount(articleId);//XXX 조회수 증가는 컨트롤러에서?? 아니면 서비스에서???
+		articleDao.addArticleReadCount(articleId);
 		
 		return article;
 	}
@@ -190,9 +190,18 @@ public class ArticleService {
 		
 		Map<String,Integer> commentsCntListMap = commentsCntList.stream().collect(Collectors.toMap(Comment::getArticleId, Comment::getCommentsCnt));
 		Map<String,Integer> readCntListMap = readCntList.stream().collect(Collectors.toMap(ArticleReadCountVo::getArticleId, ArticleReadCountVo::getReadCount));
-		
-		allArticleIds.stream().peek(vo -> vo.setReadCnt(readCntListMap.get(vo.getArticleId()))) //여기서 오류남
-							  .peek(vo -> vo.setCommentCnt(commentsCntListMap.get(vo.getArticleId())))
+	
+		allArticleIds.stream()
+							  .peek(vo -> {//XXX 요런식으로 null체크해서 주입하는게 맞는건가요?? Integer로 받아도 되는건가여?
+								  			Integer tmpInt = readCntListMap.get(vo.getArticleId());
+								  			if(null != tmpInt)			
+								  			vo.setReadCnt(readCntListMap.get(vo.getArticleId()));
+							  			  })
+							  .peek(vo -> {
+								            Integer tmpInt = commentsCntListMap.get(vo.getArticleId());
+								  			if(null != tmpInt)	
+								  			vo.setCommentCnt(commentsCntListMap.get(vo.getArticleId()));
+							  			 })
 							  .peek(vo -> { 
 								  			int recommendPoint = vo.getCommentCnt() * vo.getReadCnt(); 
 								  			vo.setRecommend(recommendPoint);
@@ -202,6 +211,6 @@ public class ArticleService {
 		articleDao.insertArticleRank(allArticleIds);
 							  
 	}
-	
+
 
 }

@@ -219,7 +219,7 @@ public class NewArticleController {
 			resultMap.put("msg", "잘못된 요청입니다.");
 			return resultMap;
 		}
-		//XXX 요청시 들어온 uesr의 null여부 equals여부는 판단해도 되는건가요??
+		//요청시 들어온 uesr의 null여부 equals여부는 판단해도 되는건가요??
 		Article article = articleService.getWriterId(articleDto.getArticleId());
 		if(!article.checkUserId(user.getUserId())) {
 			resultMap.put("code", HttpStatus.FORBIDDEN.getReasonPhrase());

@@ -74,7 +74,7 @@ public class AddCommentsAspect {
 													 .useHasNext(true)
 													 .build();
 		Function<Comment, String> articleIdGroup = Comment::getArticleId;
-		Map<String, PageList<Comment>> commentList = commentDAO.getFeedList(commentsParam, articleIdGroup);
+		Map<String, PageList<Comment>> commentList = commentDAO.getFeedCommentList(commentsParam, articleIdGroup);
 		
 		Consumer<Article> action =  vo -> vo.setCommentsList(commentList.get(10037));
 		

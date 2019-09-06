@@ -190,48 +190,48 @@ public class ArticleDao extends BaseDao {
 
 	}
 	
-	public PageList<Article> exampleDtoCaching(ArticleParam vo, String pagingType) {
-		HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-		HttpServletResponse resp = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
-				.getResponse();
-		HttpSession session = req.getSession();
-		
-		PageList<Article> list = null;
-		List<Article> tmpList = null;
-		{							  
-			Date curDate = new Date();
-			String key = ArticleDao.class.getName() + ".ListArticleTest" + "&page=" + vo.getPage() + "&pageSize=" + vo.getPageSize();
-			String expireDate = (String) session.getAttribute("expire" + key);
-			//XXX 직렬화???
-			if(!expiresDate(curDate,expireDate)) {
-				tmpList = (List<Article>) session.getAttribute(key);
-				list = new PageList<Article>(tmpList);
-				return list;
-			}
-		}
-		
-		if(pagingType.equals("endPaging")) {
-			list = super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
-		}else if(pagingType.equals("endPagingMoreView")) {
-			List selectList = sqlSession.selectList(mapper + "listArticle2", vo);
-			list = new PageList<>(selectList);
-		}else if(pagingType.equals("hsaNextPaging")) {
-			list = super.selectPageDto(mapper + "listArticle2", vo);
-		}
-		tmpList = list.getList();
-		{
-			Date curDate = new Date();
-			String key = ArticleDao.class.getName() + ".ListArticleTest" + "&page=" + vo.getPage() + "&pageSize=" + vo.getPageSize();
-			String ttl = "3600"; // 1시간 // TODO 커스텀 ttl 만큼 날짜 추가해줌
-			Date expireTime = DateUtils.addSeconds(curDate, Integer.parseInt(ttl));
-		
-			String expireDate = fdf.format(expireTime);
-			session.setAttribute(key, tmpList);
-			session.setAttribute("expire" + key, expireDate);
-		}
-
-		return list;
-	}
+//	public PageList<Article> exampleDtoCaching(ArticleParam vo, String pagingType) {
+//		HttpServletRequest req = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+//		HttpServletResponse resp = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+//				.getResponse();
+//		HttpSession session = req.getSession();
+//		
+//		PageList<Article> list = null;
+//		List<Article> tmpList = null;
+//		{							  
+//			Date curDate = new Date();
+//			String key = ArticleDao.class.getName() + ".ListArticleTest" + "&page=" + vo.getPage() + "&pageSize=" + vo.getPageSize();
+//			String expireDate = (String) session.getAttribute("expire" + key);
+//			
+//			if(!expiresDate(curDate,expireDate)) {
+//				tmpList = (List<Article>) session.getAttribute(key);
+//				list = new PageList<Article>(tmpList);
+//				return list;
+//			}
+//		}
+//		
+//		if(pagingType.equals("endPaging")) {
+//			list = super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
+//		}else if(pagingType.equals("endPagingMoreView")) {
+//			List selectList = sqlSession.selectList(mapper + "listArticle2", vo);
+//			list = new PageList<>(selectList);
+//		}else if(pagingType.equals("hsaNextPaging")) {
+//			list = super.selectPageDto(mapper + "listArticle2", vo);
+//		}
+//		tmpList = list.getList();
+//		{
+//			Date curDate = new Date();
+//			String key = ArticleDao.class.getName() + ".ListArticleTest" + "&page=" + vo.getPage() + "&pageSize=" + vo.getPageSize();
+//			String ttl = "3600"; // 1시간 // TODO 커스텀 ttl 만큼 날짜 추가해줌
+//			Date expireTime = DateUtils.addSeconds(curDate, Integer.parseInt(ttl));
+//		
+//			String expireDate = fdf.format(expireTime);
+//			session.setAttribute(key, tmpList);
+//			session.setAttribute("expire" + key, expireDate);
+//		}
+//
+//		return list;
+//	}
 
 	@CacheInSession(name = "ArticleDao.listArticleTest", key = "userId,page,pageSize", type = "com.spring.study.model.article.ArticleParam")
 	public List<Article> listArticleTest(ArticleParam vo) {
@@ -295,6 +295,7 @@ public class ArticleDao extends BaseDao {
 	}
 
 	public void insertArticleRank(List<ArticleRankVo> allArticleIds) {
+		//XXX INSERT 쿼리에서 계속 오류가 나는 이유가 멀까여
 		sqlSession.insert(mapper + "insertArticleRank", allArticleIds);
 		
 	}
