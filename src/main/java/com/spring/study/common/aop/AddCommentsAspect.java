@@ -44,8 +44,9 @@ public class AddCommentsAspect {
 	private CommentDao commentDAO;
 	
 	
-	@Around("@annotation(com.spring.study.common.aop.AddComments)" /* + "&& args(user2)" */)
-	public Object addComments(ProceedingJoinPoint joinPoint) {
+	@SuppressWarnings("unchecked")
+	@Around("@annotation(com.spring.study.common.aop.AddComments) && @ annotation(target)")
+	public Object addComments(ProceedingJoinPoint joinPoint, AddComments target) {
 		HttpServletRequest req = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
 		HttpSession session = req.getSession();
 		User user = (User) session.getAttribute("userSession");
@@ -69,28 +70,15 @@ public class AddCommentsAspect {
 		String articleNumbers = pageList.stream()
 				.map(ArticleVo::getArticleId)
 				.collect(Collectors.joining(","));
-		CommentParam commentsParam = new CommentParam.Builder(1, 10,articleNumbers)
-													 .userId(user.getUserId())
-													 .useHasNext(true)
-													 .build();
-		Function<Comment, String> articleIdGroup = Comment::getArticleId;
-		Map<String, PageList<Comment>> commentList = commentDAO.getFeedCommentList(commentsParam, articleIdGroup);
+		CommentParam commentParam = new CommentParam.Builder(10, articleNumbers)
+				.userId(user.getUserId())
+				.useMore(target.useMore())
+				.useTotal(target.useTotal())
+				.build();
+		Map<String, PageList<Comment>> commentList = commentDAO.getCommentsListMap(commentParam, Comment::getArticleId);
 		
-		Consumer<Article> action =  vo -> vo.setCommentsList(commentList.get(10037));
-		
-		pageList.stream().forEach( vo -> vo.setCommentsList(commentList.get(vo.getArticleId())));
-//		PageList<Comment> commentsPageDto = commentDAO.commentsList(commentsParam);
-//		Map<String, List<Comment>> commentsListByArticleId = commentsPageDto.getList().stream()
-//				.collect(Collectors.groupingBy(articleIdGroup));//TODO 그룹핑하는 거 메서드로 분리 
-		
-//		Consumer<Article> action = vo -> vo.setCommentsList(commentsListByArticleId.get(vo.getArticleId()));
-//		action.accept(pageList.get(0));
-		
-		
-//		Stream<ArticleVo> stream = returnList.stream();
-//		stream = stream.filter( vo -> null == vo.getArticleNo() );
-//		stream = stream.limit(10);
-//		stream.forEach( vo -> vo.setCommentsList(commentsListByArticleNo.get(vo.getArticleNo())) );
+		pageList.stream()
+				.forEach( vo -> vo.setCommentsList(commentList.get(vo.getArticleId())) );
 		
 		return obj;
 	}

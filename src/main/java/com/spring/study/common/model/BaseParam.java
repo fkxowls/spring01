@@ -6,50 +6,56 @@ public class BaseParam {
 	private int endNum;
 	private int page;
 	private int pageSize;
-	private boolean useHasNext;	
-	private boolean useEndCount;
+	private boolean useMore;	
+	private boolean useTotal;
 	
 	public static class Builder<T extends Builder<T>> {
 		private int page;
 		private int pageSize;
 		private int startNum;
 		private int endNum;
-		private boolean useHasNext;
-		private boolean useEndCount;
+		private boolean useMore;
+		private boolean useTotal;
 		
-		//필수 요소
-		public Builder(int page, int pageSize) {
-			this.page     = page;
+		public Builder(int pageSize) {
 			this.pageSize = pageSize;
 		}
-		//선택적인 요소
-		public T bothStartNumEndNum(int startNum, int endNum) {
+		public Builder(int startNum, int endNum) {
 			this.startNum = startNum;
 			this.endNum = endNum;
+		}
+		public T page(int page) {
+			this.page = page;
 			return (T) this;
 		}
-		
-		public T useHasNext(boolean useHasNext) {
-			this.useHasNext = useHasNext;
+		public T useMore(boolean useMore) {
+			this.useMore = useMore;
 			return (T) this;
 		}
-		
-		public T useEndCount(boolean useEndCount) {
-			this.useEndCount = useEndCount;
+		public T useTotal(boolean useTotal) {
+			this.useTotal = useTotal;
 			return (T) this;
 		}
-		
 		public BaseParam build() {
 			return new BaseParam(this);
 		}
 	}
 
 	protected BaseParam(Builder<?> builder) { // 리퀘스트 객체
-		if(0 == builder.startNum || 0 == builder.endNum) {
+		if(0 == builder.page) {
+			builder.page = 1;
+		}
+		
+		if(0 == builder.startNum && 0 == builder.endNum) {
 			builder.startNum = (builder.page - 1) * builder.pageSize + 1;
 			builder.endNum = builder.page * builder.pageSize;
 		}
-		if(builder.useHasNext) {
+		
+		if(0 == builder.pageSize) {
+			builder.pageSize = builder.endNum - builder.startNum + 1;
+		}
+		
+		if(builder.useMore) {
 			builder.endNum = builder.endNum + 1;
 		}
 
@@ -57,8 +63,8 @@ public class BaseParam {
 		this.endNum = builder.endNum;
 		this.page = builder.page;
 		this.pageSize = builder.pageSize;
-		this.useHasNext = builder.useHasNext;
-		this.useEndCount = builder.useEndCount;
+		this.useMore = builder.useMore;
+		this.useTotal = builder.useTotal;
 	}
 	
 	public int getStartNum() {
@@ -69,12 +75,12 @@ public class BaseParam {
 		return endNum;
 	}
 
-	public boolean isUseHasNext() {
-		return useHasNext;
+	public boolean useMore() {
+		return useMore;
 	}
 	
-	public boolean isUseEndCount() {
-		return useEndCount;
+	public boolean useTotal() {
+		return useTotal;
 	}
 
 	public Integer getPage() { // TODO 세션캐싱에서 Object로 캐스팅하기 위함, 다른 방법 알아보고 걷어내야 함

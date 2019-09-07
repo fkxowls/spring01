@@ -12,7 +12,9 @@
                    , CONTENT
                    , WRITE_MEMBER_ID
                    , WRITE_DATE
-		FROM         ARTICLE_TB 
+		FROM         ARTICLE_TB
+		WHERE        1=1
+		AND          PARENT_ID           = 0
 		START WITH   ARTICLE_ID IN 
 					              ( <!-- 10024->10008, 10030->10018, 10031->10018, 100032->100018, 10033->10032->10018, 10030->10018 -->
 					                SELECT regexp_substr(#{articleId}, '[^,]+', 1, LEVEL) AS ARTICLE_ID
@@ -382,14 +384,12 @@
 				   , READ_CNT
 				   , RECOMMEND
 	    )
-	    VALUES
-	    <foreach item="article" index="index" collection="list" open="" separator="," close="">
-	    (
-	                 #{article.articleId}
+        <foreach item="article" index="index" collection="list" open="" separator=" UNION ALL " close="">
+        SELECT       #{article.articleId}
                    , #{article.commentCnt}
                    , #{article.readCnt}
                    , #{article.recommend}
-	    )
+        FROM        DUAL
 	    </foreach>
 	</insert>
 </mapper>

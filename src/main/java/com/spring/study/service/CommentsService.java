@@ -28,7 +28,7 @@ public class CommentsService{
 	private ArticleDao articleDao;
 	
 	public PageList<Comment> getCommentsPageList(CommentParam commentsParam) {
-		PageList<Comment> commentPageList = commentDao.commentsList(commentsParam);
+		PageList<Comment> commentPageList = commentDao.getCommentsList(commentsParam);
 		/*		
 		List<CommentsVo> commentsList = commentPageList.getCommentsList();
 		commentsList.stream()

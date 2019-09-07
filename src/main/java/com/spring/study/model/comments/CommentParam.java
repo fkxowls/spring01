@@ -20,8 +20,12 @@ public class CommentParam extends BaseParam{
 		private String writeMemberId;
 		private String userId;
 		
-		public Builder(int page, int pageSize, String articleId) {
-			super(page,pageSize);
+		public Builder(int pageSize, String articleId) {
+			super(pageSize);
+			this.articleId = articleId;
+		}
+		public Builder(int startNum, int endNum, String articleId) {
+			super(startNum, endNum);
 			this.articleId = articleId;
 		}
 		

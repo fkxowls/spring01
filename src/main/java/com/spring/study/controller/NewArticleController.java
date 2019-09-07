@@ -56,9 +56,9 @@ public class NewArticleController {
 	@RequestMapping(value = "/article/{page}/list")
 	// TODO @ErrorCatch //Resolver가 작동안하는듯 로그인 해도 null일때 값 들어감
 	public @ResponseBody Map<String, Object> getArticleList(User user, @PathVariable int page, Model model, @RequestParam(defaultValue = "old") String sort) {																					
-		ArticleParam reqParam = new ArticleParam
-				.Builder(page, pageSize)
-				.useEndCount(true)
+		ArticleParam reqParam = new ArticleParam.Builder(pageSize)
+				.page(page)
+				.useTotal(true)
 				.sort(sort)
 				.build();
 		
@@ -89,7 +89,7 @@ public class NewArticleController {
 	
 	@RequestMapping(value = "/article2/{page}/list")
 	public @ResponseBody Map<String, Object> getArticleList(Model model, @PathVariable int page,@RequestParam(required = false, defaultValue = "old") String sort) {
-		ArticleParam reqParam = new ArticleParam.Builder(page, pageSize).useHasNext(true).sort(sort).build();
+		ArticleParam reqParam = new ArticleParam.Builder(pageSize).page(page).useMore(true).sort(sort).build();
 		Map<String, Object> resultMap = new HashMap<>();
 		
 		PageList<Article> pageListDto = articleService.getArticlePageList(reqParam);
@@ -131,15 +131,22 @@ public class NewArticleController {
 	
 	//배치
 	@RequestMapping(value ="/testMethod2")
-	public void testMethod2() {
-		articleService.sortArticleRank();
+	public @ResponseBody Map<String, String> testMethod2() {
+		Map<String, String> result = new HashMap<>();
+		try {
+			articleService.sortArticleRank();
+			result.put("result","success");
+		} catch(Exception e) {
+			result.put("result","fail");
+		}
+		return result;
 	}
 	
 	//클립보드
 	@RequestMapping(value = "/testMethod", method = RequestMethod.GET)
 	public @ResponseBody Map<String, Object> showClipboard(User user){
 		Map<String, Object> resultMap = new HashMap<>();//임시로 1주입
-		ArticleParam reqParam = new ArticleParam.Builder(1, pageSize).userId("admin").sort("old").useHasNext(true).build();
+		ArticleParam reqParam = new ArticleParam.Builder(pageSize).userId("admin").sort("old").useMore(true).build();
 		//내가 쓴 글 등록역순으로 가져오기
 		PageList<Article> myArticleList = articleService.getArticlePageList(reqParam);
 		//내가쓴글의 루트글들 가져오기 //XXX 어떻게 가져와야할지 모르겠습니다.....
@@ -268,8 +275,10 @@ public class NewArticleController {
 	@RequestMapping(value = "/{articleId}/comments/{page}/list")
 	public @ResponseBody Map<String, Object> getCommentList(@PathVariable String articleId, @PathVariable int page, User user) {
 		Map<String, Object> resultMap = new HashMap<>();
-		CommentParam commentsParam = new CommentParam.Builder(page, commentPageSize,articleId)
-										 			 .userId(user.getUserId()).build();
+		CommentParam commentsParam = new CommentParam.Builder(commentPageSize,articleId)
+				.page(page)
+				.userId(user.getUserId())
+				.build();
 		PageList<Comment> commentsPageList = commentsService.getCommentsPageList(commentsParam);
 		List<CommentDto> commentList = commentsPageList.getList()
 													   .stream()

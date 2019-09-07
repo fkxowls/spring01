@@ -1,104 +1,30 @@
-ALTER TABLE ARTICLE ADD CONSTRAINT WRITE_MEMBER_FK FOREIGN KEY(WRITE_MEMBER_ID) REFERENCES MEMBER(MEMBER_ID)
-DROP TABLE ARTICLE
-delete from article where article_Id = '10087'
-ALTER TABLE ARTICLE ADD(NOTICE_CHK_FLAG NUMBER(1));
-SELECT * FROM NOTICE_ARTICLE where article_Id = '10083'
-ALTER TABLE ARTICLE MODIFY (WRITE_DATE DEFAULT null);
-SELECT * FROM USER_CONSTRAINTS WHERE TABLE_NAME = 'ARTICLE'
-ALTER TABLE ARTICLE DROP CONSTRAINT SYS_C008213;
+alter table article_tb drop constraint SYS_C007015
 CREATE INDEX MEMBER_ID_IDX ON ARTICLE(WRITE_MEMBER_ID)
-SELECT INDEX_NAME FROM USER_INDEXES WHERE TABLE_NAME = 'ARTICLE'
-
-DELETE  
-        FROM    ARTICLE
-        WHERE   ARTICLE_ID = '10077'
-
---NL조인
-SELECT  /*+ ordered use_nl(t2)*/
-		T2.*
-FROM 	NOTICE_ARTICLE T1, ARTICLE T2
-WHERE	
-		T1.ARTICLE_ID = T2.ARTICLE_ID
-		;
-		
-SELECT /*+ INDEX(MEMBER_ID_IDX)*/
-		* 
-FROM ARTICLE
-WHERE WRITE_MEMBER_ID = 'admin'
-
-SELECT 
-		*
-FROM 	ARTICLE
-WHERE  	1 = 1
-and		ARTICLE_ID = 10072
-AND		EXISTS
-				(
-					SELECT 
-							1
-					FROM	MEMBER
-					WHERE	
-							MEMBER_ID = 'admin'
-					AND		MEMBER_LEVEL = 10
-				)
---세미조인		
-SELECT 	A.TITLE
-FROM  	ARTICLE A
-WHERE  	EXISTS
-			   (	SELECT *
-					FROM NOTICE_ARTICLE B
-					WHERE A.ARTICLE_ID = B.ARTICLE_ID
-					AND B.NOTICE_ID > 0
-			    )
-
---Multi Insert
-
-			    
-SELECT  /*+ ordered use_nl(B)*/
-	 A.* 
-FROM	 ARTICLE A
-		,NOTICE_ARTICLE B
-WHERE A.ARTICLE_ID = B.ARTICLE_ID
-AND   B.NOTICE_ID = '10054'; 
-
-NOTICE_ID_SEQ.nextval;
-SELECT * FROM  ARTICLE
-CREATE TABLE ARTICLE
+SELECT INDEX_NAME FROM USER_INDEXES WHERE TABLE_NAME = 'ARTICLE_TB'
+SELECT * FROM NOTICE_TB WHERE PARENT_ID > 0
+CREATE TABLE ARTICLE_TB
 (
-	ARTICLE_ID NUMBER(10) PRIMARY KEY
-	,PARENT_ID NUMBER(10)
-	,TITLE VARCHAR2(200) NOT NULL
-	,CONTENT VARCHAR2(1000) NOT NULL
-	,WRITE_DATE DATE DEFAULT SYSDATE NOT NULL
-	,WRITE_MEMBER_ID VARCHAR2(50) NOT NULL
-	,MODIFY_MEMBER_ID  VARCHAR2(50)
-	,MODIFY_DATE DATE DEFAULT SYSDATE NOT NULL
+    ARTICLE_ID NUMBER(10) PRIMARY KEY
+    ,PARENT_ID NUMBER(10) NOT NULL
+    ,TITLE VARCHAR2(200) NOT NULL
+    ,CONTENT VARCHAR2(1000) NOT NULL
+    ,WRITE_DATE DATE NOT NULL
+    ,WRITE_MEMBER_ID VARCHAR2(50) NOT NULL
+    ,MODIFY_MEMBER_ID  VARCHAR2(50)
+    ,MODIFY_DATE DATE
 )
-CONSTRAINT FK_ID01 FOREIGN KEY(WRITE_MEMBER_ID) REFERENCES MEMBER(MEMBER_ID)
-;
 
-ALTER TABLE ARTICLE ADD FOREIGN KEY(WRITE_MEMBER_ID) REFERENCES MEMBER(MEMBER_ID)
-
-
-CREATE SEQUENCE NO_SEQ
+select ARTICLE_SEQ.NEXTVAL from dual 
+CREATE SEQUENCE ARTICLE_SEQ
  	   START WITH 10001
    	   INCREMENT BY 1
 	   MAXVALUE 99999
        MINVALUE 10001
        NOCYCLE;
 
+SELECT * FROM USER_CONSTRAINTS WHERE TABLE_NAME = 'ARTICLE_TB'
 DROP SEQUENCE NO_SEQ
 
-
-SELECT RN,ARTICLE_ID
-FROM
-(
-	SELECT /*+ INDEX_DESC(ARTICLE ARTICLE_ID)*/ ROWNUM AS RN,ARTICLE_ID
-	FROM ARTICLE
-	WHERE ARTICLE_ID > 0
-	AND ROWNUM <= 50
-) 
-WHERE RN > 10
-;
 
 SELECT
       	  A.*
@@ -121,13 +47,6 @@ FROM    (
                     ARTICLE_NO DESC
        	) A
 WHERE   rNum  BETWEEN 1  AND 90
-		
-	<-- X -->
-	SELECT * FROM (
-		SELECT /*+ INDEX_DESC(ARTICLE ARTICLE_OD)*/ ROWNUM AS RNUM, Z.* FROM(
-			SELECT * FROM ARTICLE
-		)Z WHERE ROWNUM <=21
-	)WHERE RNUM >= 11
 		
 	
 SELECT 	 X.*
@@ -171,103 +90,27 @@ SELECT  X.*
                 ) X
          WHERE  X.RNUM      >= #{startNum:INTEGER}
  	 
-SELECT	 NVL(MIN('Y'), 'N')
-FROM 	DUAL
-WHERE EXISTS
-(
-		SELECT 
-				1
-		FROM	ARTICLE
-		WHERE	
-				WRITE_MEMBER_ID = 'mem2'
-		AND		ARTICLE_NO = 871
-); 
 
-INSERT INTO ARTICLE
-		(
+INSERT INTO ARTICLE_TB
+	       	(
 			ARTICLE_ID
 			,PARENT_ID
 			,TITLE
-			,NOTICE_CHK_FLAG
 			,CONTENT
 			,WRITE_MEMBER_ID
 			,WRITE_DATE
+			,MODIFY_DATE
 		)
 		VALUES
 		(
 			10110
 			,0
 			,'dddddd'
-			,1
 			,'sss'
 			,'admin'
 			,SYSDATE
-		)
-SELECT 
-				* 
-FROM 	ARTICLE _reply
-WHERE 	ARTICLE_ID = '10086'
-
-SELECT  X.*
-        FROM    (   SELECT  A.*   
-                    FROM    ( 
-                                SELECT  /*+ INDEX_DESC(A ARTICLE_PK)*/
-                                        ROW_NUMBER() OVER(ORDER BY ARTICLE_ID DESC) AS RNUM  
-                                      , A.ARTICLE_ID
-                                      , A.PARENT_ID
-                                      , A.TITLE
-                                      , A.CONTENT
-                                      , A.WRITE_MEMBER_ID
-                                FROM    ARTICLE A
-                            ) A
-                    WHERE   RNUM         <= 10
-                               
-                ) X
-         WHERE  X.RNUM      >= 1
-         
-SELECT   X.*
-             
-    FROM (
-            SELECT  /*+ INDEX_DESC(ARTICLE ARTICLE_NO)*/
-                    ROWNUM AS RNUM
-                    , A.*      
-             FROM (
-                    SELECT    ARTICLE_ID
-                             , PARENT_ID
-                             , TITLE
-                             , CONTENT
-                             , WRITE_MEMBER_ID
-                             
-                    FROM ARTICLE
-                    ORDER BY ARTICLE_ID desc
-                  ) A
-             WHERE ROWNUM <= 10
-          ) X
-     WHERE   X.RNUM >= 1      
-     
-SELECT   X.*
-             
-    FROM (
-            SELECT  /*+ INDEX_DESC(ARTICLE ARTICLE_ID)*/
-                    ROWNUM AS RNUM
-                    , A.*      
-             FROM (
-                    SELECT    ARTICLE_ID
-                             , PARENT_ID
-                             , TITLE
-                             , CONTENT
-                             , WRITE_MEMBER_ID
-                             
-                    FROM ARTICLE
-                    ORDER BY ARTICLE_ID DESC
-                  ) A
-             WHERE ROWNUM <= 80
-          ) X
-     WHERE   X.RNUM >=1    
-
-  
-                                       ROW_NUMBER() OVER(PARTITION BY B.ARTICLE_ID ORDER BY  COUNT(B.REPLY_ID) ASC) AS RNUM
-                                       
+			,SYSDATE
+		)                              
                                        
      SELECT  X.*
         FROM    (
@@ -310,5 +153,82 @@ SELECT   X.*
          SELECT COUNT(ARTICLE_ID) FROM ARTICLE_REPLY GROUP BY ARTICLE_ID
          SELECT COUNT(REPLY_ID)  OVER(PARTITION BY ARTICLE_ID) , ARTICLE_ID FROM ARTICLE_REPLY
          SELECT COUNT(ARTICLE_ID) OVER(PARTITION BY ARTICLE_ID ORDER BY REPLY_ID DESC), ARTICLE_ID FROM ARTICLE_REPLY
-         
+
+SELECT  X.*
+        FROM    (
+                    SELECT  
+                            A.*   
+                    FROM    ( 
+                               SELECT  /*+ INDEX_DESC(A ARTICLE_ID)*/
+                                       ROWNUM AS RNUM
+                                     , A.ARTICLE_ID
+                                     , A.PARENT_ID
+                                     , A.TITLE
+                                     , A.CONTENT
+                                     , A.WRITE_MEMBER_ID
+                                     , A.WRITE_DATE
+                                FROM   ARTICLE_TB A
+                                WHERE  1                   = 1
+--                                AND     (#{writeMemberId} IS NULL OR A.WRITE_MEMBER_ID = #{writeMemberId})
+                     
+                                START WITH
+                                        PARENT_ID           = 0 
+                                CONNECT BY
+                                        PRIOR ARTICLE_ID    = A.PARENT_ID 
+                                ORDER SIBLINGS BY
+                                       (
+                                           SELECT ARTICLE_COUNT
+                                           FROM ARTICLE_COUNT_TB
+                                       ) DESC
+                            ) A
+                    WHERE   A.RNUM         <= 80
+                ) X
+         WHERE  X.RNUM      >= 1
         
+                             SELECT    A.ARTICLE_ID
+                                     , A.PARENT_ID
+                                     , A.TITLE
+                                     , A.CONTENT
+                                     , A.WRITE_MEMBER_ID
+                                     , A.WRITE_DATE
+                             FROM    NOTICE_TB N
+                                    ,ARTICLE_TB A
+                             WHERE   1                   = 1
+                             AND     A.ARTICLE_ID        = N.ARTICLE_ID
+                             ORDER BY
+                                     A.ARTICLE_ID DESC
+                                     
+                                     
+SELECT  
+            /*+ INDEX_DESC(C ARTICLE_ID)*/
+                C.ARTICLE_ID
+               , C.PARENT_ID
+               , C.TITLE
+               , C.CONTENT
+               , C.WRITE_MEMBER_ID
+               , C.WRITE_DATE
+FROM   ARTICLE_TB C
+WHERE 1                 = 1
+AND     NOT EXISTS (
+                      SELECT 
+                              'X'
+                      FROM    NOTICE_TB
+                      WHERE   ARTICLE_ID = C.ARTICLE_ID
+                    )
+                    
+ SELECT   /*+ ORDERED USE_NL(N A) INDEX_DESC(N NOTICE_TB_PK) INDEX_DESC(A ARTICLE_PK) */
+	      T.ARTICLE_ID
+	     , T.PARENT_ID
+	     , T.TITLE
+	     , T.CONTENT
+	     , T.WRITE_MEMBER_ID
+	     , T.WRITE_DATE
+FROM     NOTICE_TB N
+        ,ARTICLE_TB T
+WHERE  1                   = 1
+AND     T.ARTICLE_ID        = N.ARTICLE_ID
+AND     SYSDATE           BETWEEN DISPLAY_START_DATE   AND DISPLAY_END_DATE
+
+SELECT * FROM NOTICE_TB
+UPDATE NOTICE_TB SET DISPLAY_END_DATE = SYSDATE+15 WHERE NOTICE_ID = '10005'
+                                        

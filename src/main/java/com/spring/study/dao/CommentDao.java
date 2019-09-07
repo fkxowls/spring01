@@ -1,13 +1,7 @@
 package com.spring.study.dao;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
@@ -16,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.spring.study.common.model.BaseDao;
-import com.spring.study.common.model.BaseParam;
 import com.spring.study.common.model.PageList;
 import com.spring.study.model.comments.Comment;
 import com.spring.study.model.comments.CommentDto;
@@ -30,7 +23,7 @@ import defalut.ArticleController;
 @Repository("commentDAO")
 public class CommentDao  extends BaseDao{
 	private static final Logger logger = LoggerFactory.getLogger(ArticleController.class);
-	private static String mapper = "mapper.article.";
+	private static String mapper = "mapper.comment.";
 	
 	@Autowired
 	SqlSession sqlSession;
@@ -41,8 +34,12 @@ public class CommentDao  extends BaseDao{
 		return false;
 	}
 	 
-	public PageList<Comment> commentsList(CommentParam commentsParam) {
-		return super.selectPageDto(mapper + "listComment", commentsParam);
+	public PageList<Comment> getCommentsList(CommentParam commentsParam) {
+		return super.selectPageList(mapper + "listComment", commentsParam);
+	}
+	 
+	public Map<String, PageList<Comment>> getCommentsListMap(CommentParam commentParam, Function<Comment, String> articleIdGroup) {
+		return super.selectPageListMap(mapper + "listComment", commentParam, articleIdGroup);
 	}
 		
 	public int writeComment(CommentDto dto, User user) {
@@ -55,10 +52,7 @@ public class CommentDao  extends BaseDao{
 		
 		return sqlSession.insert(mapper + "insertComment", vo);
 	}
-	//PageInfo 제대로 출력안됨, endPagingInfo 담는거 못함, BaseDao로 이동해야함
-	public <E> Map<String, PageList<E>> getFeedCommentList(BaseParam baseParam, Function<E, String> articleIdGroup) {
-		return super.groupById(mapper + "listComment", baseParam, articleIdGroup);
-	}
+
 	public String getWriterOfArticle(String articleId) {
 		// 글작성자 가져오는 쿼리 날리기
 		return null;

@@ -1,13 +1,11 @@
 package com.spring.study.service;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -184,32 +182,29 @@ public class ArticleService {
 	
 	//배치 로직
 	public void sortArticleRank() {
-		List<ArticleRankVo> allArticleIds = articleDao.getAllArticleIds();
+		List<ArticleRankVo> allArticleList = articleDao.getAllArticleIds();
 		List<Comment> commentsCntList = articleDao.getCommentsCntList();//Article에 필드로
 		List<ArticleReadCountVo> readCntList = articleDao.getReadCntList();
 		
-		Map<String,Integer> commentsCntListMap = commentsCntList.stream().collect(Collectors.toMap(Comment::getArticleId, Comment::getCommentsCnt));
-		Map<String,Integer> readCntListMap = readCntList.stream().collect(Collectors.toMap(ArticleReadCountVo::getArticleId, ArticleReadCountVo::getReadCount));
+		Map<String, Integer> commentsCntListMap = commentsCntList.stream()
+				.collect(Collectors.toMap(Comment::getArticleId, Comment::getCommentsCnt));
+		Map<String, Integer> readCntListMap = readCntList.stream()
+				.collect(Collectors.toMap(ArticleReadCountVo::getArticleId, ArticleReadCountVo::getReadCount));
 	
-		allArticleIds.stream()
-							  .peek(vo -> {//XXX 요런식으로 null체크해서 주입하는게 맞는건가요?? Integer로 받아도 되는건가여?
-								  			Integer tmpInt = readCntListMap.get(vo.getArticleId());
-								  			if(null != tmpInt)			
-								  			vo.setReadCnt(readCntListMap.get(vo.getArticleId()));
-							  			  })
-							  .peek(vo -> {
-								            Integer tmpInt = commentsCntListMap.get(vo.getArticleId());
-								  			if(null != tmpInt)	
-								  			vo.setCommentCnt(commentsCntListMap.get(vo.getArticleId()));
-							  			 })
-							  .peek(vo -> { 
-								  			int recommendPoint = vo.getCommentCnt() * vo.getReadCnt(); 
-								  			vo.setRecommend(recommendPoint);
-							              })								  	
-							  .collect(Collectors.toList());
+		allArticleList.stream()
+				.forEach(vo -> {
+					final String id = vo.getArticleId();
+					
+		            int commentCnt = MapUtils.getInteger(commentsCntListMap, id, 0);
+		            int readCnt = MapUtils.getInteger(readCntListMap, id, 0);
+		  			int recommend = commentCnt * readCnt;
+		  			
+		  			vo.setCommentCnt(commentCnt);
+		  			vo.setReadCnt(readCnt);
+		  			vo.setRecommend(recommend);
+				});
 		articleDao.deleteArticleRank();
-		articleDao.insertArticleRank(allArticleIds);
-							  
+		articleDao.insertArticleRank(allArticleList);
 	}
 
 

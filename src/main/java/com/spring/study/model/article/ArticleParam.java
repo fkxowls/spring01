@@ -14,8 +14,11 @@ public class ArticleParam extends BaseParam{
 		private String userId;
 		private String sort;
 		
-		public Builder(int page, int pageSize) {
-			super(page,pageSize);
+		public Builder(int pageSize) {
+			super(pageSize);
+		}
+		public Builder(int startNum, int endNum) {
+			super(startNum, endNum);
 		}
 		
 		public Builder sort(String sort) {

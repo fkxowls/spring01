@@ -1,12 +1,8 @@
 package com.spring.study.model.article;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spring.study.model.comments.CommentVo;
+import com.spring.study.common.model.BaseVo;
 
 public class ArticleVo {
 

@@ -1,10 +1,9 @@
 package com.spring.study.model.article;
 
 import java.util.Date;
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.spring.study.model.comments.Comment;
+import com.spring.study.common.model.PageList;
 import com.spring.study.model.comments.CommentDto;
 //TODO JsonFormat 제거해야함
 public class ArticleDto {
@@ -25,21 +24,21 @@ public class ArticleDto {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
 	private Date displayEndDate;
 	private String path;
-	private List<CommentDto> commentsList;
+	private PageList<CommentDto> commentPageList;
 	private Article rootArticle; //root글 붙이려고
 	
 
 	public Article getRootArticle() {
 		return rootArticle;
 	}
+	public PageList<CommentDto> getCommentPageList() {
+		return commentPageList;
+	}
+	public void setCommentPageList(PageList<CommentDto> commentPageList) {
+		this.commentPageList = commentPageList;
+	}
 	public void setRootArticle(Article rootArticle) {
 		this.rootArticle = rootArticle;
-	}
-	public List<CommentDto> getCommentsList() {
-		return commentsList;
-	}
-	public void setCommentsList(List<CommentDto> commentsList) {
-		this.commentsList = commentsList;
 	}
 	public int getReadCount() {
 		return readCount;

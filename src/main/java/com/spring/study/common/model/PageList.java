@@ -4,7 +4,7 @@ import java.util.List;
 
 
 public class PageList<E> {
-	private boolean hasNext = false;	
+	private boolean hasNext;	
 	private int page;
 	private int pageSize;
 	private int totalCount;
@@ -29,6 +29,9 @@ public class PageList<E> {
 	}
 
 	public int getTotalPage() {
+		if(0 == pageSize) {
+			return 0;
+		}
 		if(totalCount % pageSize == 0) {
 			return totalCount / pageSize;
 		} else {

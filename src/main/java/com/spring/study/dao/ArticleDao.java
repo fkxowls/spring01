@@ -3,12 +3,10 @@ package com.spring.study.dao;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import java.util.Map;
 
 import org.apache.commons.lang3.time.DateUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
@@ -17,8 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.spring.study.common.aop.AddComments;
 import com.spring.study.common.aop.CacheInSession;
@@ -45,27 +41,27 @@ public class ArticleDao extends BaseDao {
 	SqlSession sqlSession;
 	//단순 글리스트
 	public PageList<ArticleVo> getArticlePageListWithCount(ArticleParam vo) {
-		return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
+		return super.selectPageList(mapper + "listArticle2", mapper + "totalArticle", vo);
 	}
 	
 /*********************************************************************************/
-	@AddComments
+	@AddComments(useMore = true, useTotal = true)
 	@CacheInSession(name = "ArticleDao.getArticlePageListWithTotalCount", key = "userId,page,pageSize,sort", type = "com.spring.study.model.article.ArticleParam")
 	public PageList<Article> getArticlePageListWithTotalCount(ArticleParam vo) {
 		//return exampleDtoCaching(vo, "endPaging");
-		return super.selectPageDto(mapper + "listArticle2", mapper + "totalArticle", vo);
+		return super.selectPageList(mapper + "listArticle2", mapper + "totalArticle", vo);
 	}
 	
-	//@AddComments
+	@AddComments(useMore = true, useTotal = true)
 	@CacheInSession(name = "ArticleDao.getMoreListArticle", key = "userId,page,pageSize,sort", type = "com.spring.study.model.article.ArticleParam")
 	public List<Article> getMoreListArticle(ArticleParam vo) {
 		return sqlSession.selectList(mapper + "listArticle2", vo);
 	}
 	//hasNext
-	//@AddComments
+	@AddComments(useMore = true, useTotal = true)
 	public PageList<Article> getArticlePageList(ArticleParam vo) {
 		//return exampleDtoCaching(vo, "hsaNextPaging");
-		return super.selectPageDto(mapper + "listArticle2", vo);
+		return super.selectPageList(mapper + "listArticle2", vo);
 	}
 /*********************************************************************************/	
 	
@@ -80,7 +76,7 @@ public class ArticleDao extends BaseDao {
 		return false;
 	}
 
-	//@AddComments
+	//@AddComments(useMore = true, useTotal = true)
 	public Article viewArticle(String aritcleNo) {
 		return sqlSession.selectOne(mapper + "viewArticle", aritcleNo);
 
@@ -266,9 +262,9 @@ public class ArticleDao extends BaseDao {
 		
 		return false;
 	}
-	//@AddComments
+	@AddComments(useMore = true, useTotal = true)
 	public PageList<Article> getMyClipboard(ArticleParam reqParam) {
-		return super.selectPageDto(mapper + "getClipboard", reqParam);
+		return super.selectPageList(mapper + "getClipboard", reqParam);
 		
 	}
 
@@ -295,9 +291,7 @@ public class ArticleDao extends BaseDao {
 	}
 
 	public void insertArticleRank(List<ArticleRankVo> allArticleIds) {
-		//XXX INSERT 쿼리에서 계속 오류가 나는 이유가 멀까여
 		sqlSession.insert(mapper + "insertArticleRank", allArticleIds);
-		
 	}
 	
 	

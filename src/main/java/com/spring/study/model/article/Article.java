@@ -1,18 +1,16 @@
 package com.spring.study.model.article;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.spring.study.common.model.PageList;
-import com.spring.study.dao.ArticleDao;
 import com.spring.study.model.comments.Comment;
 import com.spring.study.model.comments.CommentDto;
-import com.spring.study.model.comments.CommentVo;
 import com.spring.study.model.user.User;
 
 public class Article extends ArticleVo {
@@ -44,12 +42,11 @@ public class Article extends ArticleVo {
 		// articleDto.setReadCount();//XXX 조회수필드를 articleVo에 추가해야하는건가요??
 		articleDto.setRootArticle(getRootArticle());
 		
-		if (null != commentsList) {
-			List<CommentDto> commentDtoList = getCommentsList().getList().stream().map(Comment::showComment)
-					.collect(Collectors.toList());
-			articleDto.setCommentsList(commentDtoList);
-		}
-		
+		List<CommentDto> commentDtoList = this.getCommentsList().getList().stream()
+				.map(Comment::showComment)
+				.collect(Collectors.toList());
+		PageList<CommentDto> commentDtoPageList = new PageList<CommentDto>(this.getCommentsList().getPage(), this.getCommentsList().getPageSize(), commentDtoList, this.getCommentsList().getTotalCount(), this.getCommentsList().getHasNext());
+		articleDto.setCommentPageList(commentDtoPageList);
 		
 		return articleDto;
 	}
@@ -94,8 +91,10 @@ public class Article extends ArticleVo {
 		return false;
 	}
 
-	// aop에서 comment주입하려고
 	public PageList<Comment> getCommentsList() {
+		if(null == commentsList) {
+			return new PageList<Comment>(Collections.EMPTY_LIST);
+		}
 		return commentsList;
 	}
 

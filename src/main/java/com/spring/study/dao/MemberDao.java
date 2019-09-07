@@ -9,9 +9,9 @@ import org.springframework.stereotype.Repository;
 import com.spring.study.model.user.User;
 import com.spring.study.model.user.UserVo;
 
-@Repository("MemberDAO")
-public class MemberDAO {
-	private static final Logger logger = LoggerFactory.getLogger(MemberDAO.class);
+@Repository("MemberDao")
+public class MemberDao {
+	private static final Logger logger = LoggerFactory.getLogger(MemberDao.class);
 	@Autowired
 	SqlSession sqlSession;
 	
