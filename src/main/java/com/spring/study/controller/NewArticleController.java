@@ -2,16 +2,15 @@ package com.spring.study.controller;
 
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,22 +25,18 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.spring.study.common.model.BaseParam;
 import com.spring.study.common.model.PageList;
 import com.spring.study.model.article.Article;
 import com.spring.study.model.article.ArticleDto;
 import com.spring.study.model.article.ArticleParam;
-import com.spring.study.model.comments.Comment;
 import com.spring.study.model.comments.CommentDto;
-import com.spring.study.model.comments.CommentParam;
-import com.spring.study.model.comments.CommentVo;
 import com.spring.study.model.user.User;
 import com.spring.study.service.ArticleService;
 import com.spring.study.service.CommentsService;
+import com.spring.study.service.UserFollowService;
 
 import defalut.ArticleController;
 import javassist.NotFoundException;
-import jdk.nashorn.internal.runtime.regexp.joni.exception.InternalException;
 
 @Controller
 public class NewArticleController {
@@ -52,15 +47,17 @@ public class NewArticleController {
 	private ArticleService articleService;
 	@Autowired
 	private CommentsService commentsService;
+	@Autowired
+	private UserFollowService userFollowService;
 	
-	@RequestMapping(value = "/article/{page}/list")
-	// TODO @ErrorCatch //Resolver가 작동안하는듯 로그인 해도 null일때 값 들어감
-	public @ResponseBody Map<String, Object> getArticleList(User user, @PathVariable int page, Model model, @RequestParam(defaultValue = "old") String sort) {																					
+	@RequestMapping(value = "/article/{page}/endPaging")
+	//TODO Resolver가 작동을 안함 오류찾아내기
+	public @ResponseBody Map<String, Object> getArticleList(@PathVariable int page, Model model, @RequestParam(defaultValue = "old") String sort) {																					
 		ArticleParam reqParam = new ArticleParam.Builder(pageSize)
-				.page(page)
-				.useTotal(true)
-				.sort(sort)
-				.build();
+										.page(page)
+										.useTotal(true)
+										.sort(sort)
+										.build();
 		
 		Map<String, Object> resultMap = new HashMap<>();
 		List<Article> articleList;		
@@ -73,13 +70,11 @@ public class NewArticleController {
 			resultMap.put("pageSize", String.valueOf(pageList.getPageSize()));
 		} else {
 			articleList = articleService.getArticleList(reqParam);
-			//articleList = pageList.getList();
 		}
 		
 		List<ArticleDto> articleHeader = articleList.stream()
-				.map(Article::displayTitle)
+				.map(Article::displayArticles)
 				.collect(Collectors.toList());
-
 		resultMap.put("code", HttpStatus.OK.value());
 		resultMap.put("msg", HttpStatus.OK.getReasonPhrase());
 		resultMap.put("articleHeader", articleHeader);
@@ -87,29 +82,62 @@ public class NewArticleController {
 		return resultMap;
 	}
 	
-	@RequestMapping(value = "/article2/{page}/list")
+	@RequestMapping(value = "/article/{page}/hasNext")
 	public @ResponseBody Map<String, Object> getArticleList(Model model, @PathVariable int page,@RequestParam(required = false, defaultValue = "old") String sort) {
-		ArticleParam reqParam = new ArticleParam.Builder(pageSize).page(page).useMore(true).sort(sort).build();
+		ArticleParam reqParam = new ArticleParam.Builder(pageSize)
+										.page(page)
+										.useMore(true)
+										.sort(sort)
+										.build();
 		Map<String, Object> resultMap = new HashMap<>();
 		
 		PageList<Article> pageListDto = articleService.getArticlePageList(reqParam);
 		List<Article> articleList = pageListDto.getList();
 		List<ArticleDto> articleHeader = articleList.stream()
-										.map(Article::displayTitle)
+										.map(Article::displayArticles)
 										.collect(Collectors.toList());
 		
 		resultMap.put("code", HttpStatus.OK.value());
 		resultMap.put("msg", HttpStatus.OK.getReasonPhrase());
 		resultMap.put("articleList", articleHeader);
 		resultMap.put("hasNext", pageListDto.getHasNext());
-
+		
 		return resultMap;
+	}
+
+	@RequestMapping(value = "/board/clipboard/{userId}", method = RequestMethod.GET)
+	@ResponseBody Map<String, Object> clipboard(User user, @RequestParam(defaultValue = "0") int page, @PathVariable String userId) {
+		Map<String, Object> map = new HashMap<>();
+		
+		ArticleParam articleParam = new ArticleParam
+				.Builder(pageSize)
+				.useMore(true)
+				.userId(user.getUserId())
+				.targetUserId(userId)
+				.build();
+		
+		PageList<Article> articlePageList = articleService.getClipboardList(articleParam);
+		List<Article> articleList = articlePageList.getList();
+		int totalPage = articlePageList.getTotalPage();
+		int totalCount = articlePageList.getTotalCount();
+		boolean hasNext = articlePageList.getHasNext();
+		
+		List<ArticleDto> articleDtoList = articleList.stream()
+				.map(Article::displayArticles)
+				.collect(Collectors.toList());
+			
+		map.put("articleList", articleDtoList);
+		map.put("totalPage", totalPage);
+		map.put("totalCount", totalCount);
+		map.put("hasNext", hasNext);
+		
+		return map;
 	}
 	
 	@RequestMapping(value = "/{articleId}/detail", method = RequestMethod.GET)
 	public @ResponseBody Map<String, Object> viewArticle(@PathVariable String articleId, User user) {
 		Map<String, Object> resultMap = new HashMap<>();
-		//글상세보기안에서 댓글 처리?? 
+		
 		try {
 			Article article = articleService.getArticle(articleId, user);
 			resultMap.put("code", HttpStatus.OK.value());
@@ -129,37 +157,10 @@ public class NewArticleController {
 		return resultMap;
 	}
 	
-	//배치
-	@RequestMapping(value ="/testMethod2")
-	public @ResponseBody Map<String, String> testMethod2() {
-		Map<String, String> result = new HashMap<>();
-		try {
-			articleService.sortArticleRank();
-			result.put("result","success");
-		} catch(Exception e) {
-			result.put("result","fail");
-		}
-		return result;
-	}
-	
-	//클립보드
-	@RequestMapping(value = "/testMethod", method = RequestMethod.GET)
-	public @ResponseBody Map<String, Object> showClipboard(User user){
-		Map<String, Object> resultMap = new HashMap<>();//임시로 1주입
-		ArticleParam reqParam = new ArticleParam.Builder(pageSize).userId("admin").sort("old").useMore(true).build();
-		//내가 쓴 글 등록역순으로 가져오기
-		PageList<Article> myArticleList = articleService.getArticlePageList(reqParam);
-		//내가쓴글의 루트글들 가져오기 //XXX 어떻게 가져와야할지 모르겠습니다.....
-		List<Article> topArticleList = articleService.getTopLevelArticles(myArticleList);
-		
-		
-		return resultMap;
-	}
-	
 	@RequestMapping(value = "/article", method = RequestMethod.POST)
 	public @ResponseBody Map<String, Object> writeArticle(@RequestBody ArticleDto articleDto, HttpServletRequest req, User user){
 		Map<String, Object> resultMap = new HashMap<>();
-		//XXX 로그인세션이 만료되어 현재 접속자가 Null이 될 가능성을 생각하는것도 하지않는게 맞는건가요?
+			
 		try {
 			req.setCharacterEncoding("utf-8");
 		} catch (UnsupportedEncodingException e) {
@@ -215,18 +216,18 @@ public class NewArticleController {
 	public @ResponseBody Map<String, Object> modifyArticle(@RequestBody ArticleDto articleDto, User user) {
 		Map<String, Object> resultMap = new HashMap<>();
 		
-//		if(!user.isLogon()) {
-//			resultState.put("msg", "로그인 세션 만료");
-//			resultState.put("code", HttpStatus.FORBIDDEN);
-//			return resultState;
-//		}
+		if(!user.isLogon()) {
+			resultMap.put("code", HttpStatus.FORBIDDEN);
+			resultMap.put("msg", "로그인 세션 만료");
+			return resultMap;
+		}
 		
 		if(!Article.checkId(articleDto.getArticleId())) { 
 			resultMap.put("code", HttpStatus.BAD_REQUEST.getReasonPhrase());
 			resultMap.put("msg", "잘못된 요청입니다.");
 			return resultMap;
 		}
-		//요청시 들어온 uesr의 null여부 equals여부는 판단해도 되는건가요??
+		
 		Article article = articleService.getWriterId(articleDto.getArticleId());
 		if(!article.checkUserId(user.getUserId())) {
 			resultMap.put("code", HttpStatus.FORBIDDEN.getReasonPhrase());
@@ -272,26 +273,6 @@ public class NewArticleController {
 		return resultMap;
 	}
 	
-	@RequestMapping(value = "/{articleId}/comments/{page}/list")
-	public @ResponseBody Map<String, Object> getCommentList(@PathVariable String articleId, @PathVariable int page, User user) {
-		Map<String, Object> resultMap = new HashMap<>();
-		CommentParam commentsParam = new CommentParam.Builder(commentPageSize,articleId)
-				.page(page)
-				.userId(user.getUserId())
-				.build();
-		PageList<Comment> commentsPageList = commentsService.getCommentsPageList(commentsParam);
-		List<CommentDto> commentList = commentsPageList.getList()
-													   .stream()
-													   .map(Comment::showComment)
-													   .collect(Collectors.toList());
-		//TODO 결과상태
-		resultMap.put("commentList", commentList);
-		resultMap.put("totalPage", commentsPageList.getTotalPage());
-		
-		
-		return resultMap;
-	}
-	
 	@RequestMapping(value = "/{articleId}/comments", method = RequestMethod.POST)
 	public @ResponseBody Map<String, Object> writeComment(@RequestBody CommentDto commentsDto, User user) {
 		Map<String, Object> resultMap = new HashMap<>();
@@ -315,4 +296,51 @@ public class NewArticleController {
 		return resultMap;
 	}
 	
+	//TODO 오류수정 및 효율성고민 트랜잭션범위까지 고려해보기
+	@RequestMapping(value ="/testMethod2")
+	public @ResponseBody Map<String, String> testMethod2() {
+		Map<String, String> result = new HashMap<>();
+		try {
+			articleService.sortArticleRank();
+			result.put("result","success");
+		} catch(Exception e) {
+			result.put("result","fail");
+		}
+		return result;
+	}
+	
+	//TODO 쿼리 및 기능의 목적이 무엇인지 다시 생각해보기
+	@RequestMapping(value = "/board/feedList/{page}", method = RequestMethod.GET)
+	public @ResponseBody Map<String, Object> feedList(User user, @PathVariable int page) {
+		Map<String, Object> map = new HashMap<>();
+		
+		List<String> followeeIdList = userFollowService.getFolloweeIds(user.getUserId());
+		String followeeIds = StringUtils.join(followeeIdList, ",");
+		
+		ArticleParam articleParam = new ArticleParam
+				.Builder(pageSize)
+				.page(page)
+				.useMore(true)
+				.userId(user.getUserId())
+				.targetUserId(followeeIds)
+				.build();
+		
+		PageList<Article> pageList = articleService.getFeedList(articleParam); 
+		
+		List<Article> articleList = pageList.getList();
+		int totalPage = pageList.getTotalPage();
+//		int totalCount = pageList.getTotalCount();
+		boolean hasNext = pageList.getHasNext();
+		
+		List<ArticleDto> displayArticles = articleList.stream()
+			.map(Article::displayArticles)
+			.collect(Collectors.toList());
+		
+		map.put("articleList", displayArticles);
+		map.put("totalPage", totalPage);
+//		map.put("totalCount", totalCount);
+		map.put("hasNext", hasNext);
+		
+		return map;
+	}
 }

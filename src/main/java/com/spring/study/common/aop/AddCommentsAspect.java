@@ -73,8 +73,8 @@ public class AddCommentsAspect {
 		CommentParam commentParam = new CommentParam.Builder(10, articleNumbers)
 				.userId(user.getUserId())
 				.useMore(target.useMore())
-				.useTotal(target.useTotal())
 				.build();
+		
 		Map<String, PageList<Comment>> commentList = commentDAO.getCommentsListMap(commentParam, Comment::getArticleId);
 		
 		pageList.stream()

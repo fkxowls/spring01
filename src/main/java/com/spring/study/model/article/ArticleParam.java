@@ -7,12 +7,14 @@ public class ArticleParam extends BaseParam{
 	private String articleId;
 	private String userId;
 	private String sort;
+	private String targetUserId;
 	
 	public static class Builder extends BaseParam.Builder<Builder>{
 		private String writeMemberId;
 		private String articleId;
 		private String userId;
 		private String sort;
+		private String targetUserId;
 		
 		public Builder(int pageSize) {
 			super(pageSize);
@@ -31,6 +33,11 @@ public class ArticleParam extends BaseParam{
 			return this;
 		}
 		
+		public Builder targetUserId(String targetUserId) {
+			this.targetUserId = targetUserId;
+			return this;
+		}
+		
 		public ArticleParam build() {
 			super.build();
 			return new ArticleParam(this);
@@ -44,6 +51,7 @@ public class ArticleParam extends BaseParam{
 		this.writeMemberId = builder.writeMemberId;
 		this.userId = builder.userId;
 		this.sort = builder.sort;
+		this.targetUserId = builder.targetUserId;
 	}
 
 	public String getArticleId() {
@@ -56,6 +64,10 @@ public class ArticleParam extends BaseParam{
 
 	public final String getSort() {
 		return sort;
+	}
+
+	public final String getTargetUserId() {
+		return targetUserId;
 	}
 
 	public final String getUserId() {

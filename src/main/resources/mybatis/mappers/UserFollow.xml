@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+      PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+   
+   
+ <mapper namespace="mapper.follow">
+    <insert id="insertUserFollow" parameterType="com.kkk26kkk.bbs.model.UserFollowVo">
+        INSERT INTO TB_USER_FOLLOW
+        (
+            FOLLOWEE_ID
+          , FOLLOWER_ID
+        )
+        VALUES
+        (
+            #{followeeId}
+          , #{followerId}
+        )
+    </insert>
+    
+    <select id="selectFolloweeIds" parameterType="String" resultType="String">
+        SELECT  /*+ INDEX (T IDX_TB_USER_FOLLOW_FOLLOWERID) */
+                FOLLOWEE_ID 
+        FROM    TB_USER_FOLLOW  T 
+        WHERE   FOLLOWER_ID     =   #{userId}
+    </select>
+</mapper>

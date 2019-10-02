@@ -31,8 +31,8 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver{
 		User user = (User) session.getAttribute("memberSession");
 		if(null == user) {
 			user = new User();
-			user.setUserId("RESOLVER");
-			user.setUserLevel("00");
+			user.setUserId(StringUtils.EMPTY);
+			user.setUserLevel(StringUtils.EMPTY);
 			session.setAttribute("userSession", user);
 		}
 		return user;

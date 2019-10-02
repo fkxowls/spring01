@@ -9,3 +9,6 @@ AND     EXISTS
             WHERE   
                     ARTICLE_ID = '10175'
         )
+        
+SELECT COUNT(1)
+FROM ARTICLE_TB

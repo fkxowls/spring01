@@ -2,8 +2,6 @@ package com.spring.study.model.article;
 
 import java.util.Date;
 
-import com.spring.study.common.model.BaseVo;
-
 public class ArticleVo {
 
 	private String articleId;
@@ -14,31 +12,6 @@ public class ArticleVo {
 	private String writeMemberId;
 	private String modifyMemberId;
 	private Date modifyDate;
-
-	//Article로 옮기기 Vo는 컬럼과 1:1매칭
-//	private List<CommentVo> commentsList;
-//	private NoticeArticleVo noticeArticle;
-//
-	
-	
-//	public NoticeArticleVo getNoticeArticle() {
-//		return noticeArticle;
-//	}
-//
-//	public void setNoticeArticle(NoticeArticleVo noticeArticle) {
-//		this.noticeArticle = noticeArticle;
-//	}
-//
-//	public List<CommentVo> getCommentsList() {
-//		if (null == commentsList) {
-//			commentsList = new ArrayList<CommentVo>();
-//		}
-//		return commentsList;
-//	}
-//	public void setCommentsList(List<CommentVo> commentsList) {
-//		this.commentsList = commentsList;
-//	}
-
 
 	public String getModifyMemberId() {
 		return modifyMemberId;

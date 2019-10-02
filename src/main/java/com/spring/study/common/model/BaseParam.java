@@ -1,6 +1,5 @@
 package com.spring.study.common.model;
 
-//리퀘스용 DTO -> Parameter객체
 public class BaseParam {
 	private int startNum;
 	private int endNum;
@@ -41,7 +40,7 @@ public class BaseParam {
 		}
 	}
 
-	protected BaseParam(Builder<?> builder) { // 리퀘스트 객체
+	protected BaseParam(Builder<?> builder) { 
 		if(0 == builder.page) {
 			builder.page = 1;
 		}

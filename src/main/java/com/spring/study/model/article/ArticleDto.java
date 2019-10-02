@@ -5,7 +5,7 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.spring.study.common.model.PageList;
 import com.spring.study.model.comments.CommentDto;
-//TODO JsonFormat 제거해야함
+
 public class ArticleDto {
 	private String articleId;
 	private String parentId;
@@ -15,20 +15,16 @@ public class ArticleDto {
 	private String writeMemberId;
 	private String modifyMemberId;
 	private String articleTypeCd;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")//TODO Article로
-	private Date writeDate;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
-	private Date modifyDate;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
-	private Date displayStartDate;
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "GMT+9")
-	private Date displayEndDate;
+	private String writeDate;//TODO Article로
+	private String modifyDate;
+	private String displayStartDate;
+	private String displayEndDate;
 	private String path;
 	private PageList<CommentDto> commentPageList;
-	private Article rootArticle; //root글 붙이려고
+	private ArticleDto rootArticle; //root글 붙이려고
 	
 
-	public Article getRootArticle() {
+	public ArticleDto getRootArticle() {
 		return rootArticle;
 	}
 	public PageList<CommentDto> getCommentPageList() {
@@ -37,7 +33,7 @@ public class ArticleDto {
 	public void setCommentPageList(PageList<CommentDto> commentPageList) {
 		this.commentPageList = commentPageList;
 	}
-	public void setRootArticle(Article rootArticle) {
+	public void setRootArticle(ArticleDto rootArticle) {
 		this.rootArticle = rootArticle;
 	}
 	public int getReadCount() {
@@ -94,29 +90,29 @@ public class ArticleDto {
 	public void setModifyMemberId(String modifyMemberId) {
 		this.modifyMemberId = modifyMemberId;
 	}
-	public Date getWriteDate() {
+	public String getWriteDate() {
 		return writeDate;
 	}
-	public void setWriteDate(Date writeDate) {
-		this.writeDate = writeDate;
+	public void setWriteDate(String string) {
+		this.writeDate = string;
 	}
-	public Date getModifyDate() {
+	public String getModifyDate() {
 		return modifyDate;
 	}
-	public void setModifyDate(Date modifyDate) {
+	public void setModifyDate(String modifyDate) {
 		this.modifyDate = modifyDate;
 	}
 
-	public Date getDisplayStartDate() {
+	public String getDisplayStartDate() {
 		return displayStartDate;
 	}
-	public void setDisplayStartDate(Date displayStartDate) {
+	public void setDisplayStartDate(String displayStartDate) {
 		this.displayStartDate = displayStartDate;
 	}
-	public Date getDisplayEndDate() {
+	public String getDisplayEndDate() {
 		return displayEndDate;
 	}
-	public void setDisplayEndDate(Date displayEndDate) {
+	public void setDisplayEndDate(String displayEndDate) {
 		this.displayEndDate = displayEndDate;
 	}
 	

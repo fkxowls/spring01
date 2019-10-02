@@ -1,4 +1,4 @@
-package com.spring.study.service;
+package com.spring.study.model.article;
 
 import com.spring.study.model.article.ArticleRankVo;
 

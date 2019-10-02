@@ -7,21 +7,20 @@
     <select id="rootArticleList" parameterType="com.spring.study.model.article.ArticleParam" resultType="com.spring.study.model.article.Article">
         SELECT 
                      ARTICLE_ID
-                   , PARENT_ID
+                   ,  CONNECT_BY_ROOT T.ARTICLE_ID AS PARENT_ID
                    , TITLE
                    , CONTENT
                    , WRITE_MEMBER_ID
                    , WRITE_DATE
-		FROM         ARTICLE_TB
-		WHERE        1=1
-		AND          PARENT_ID           = 0
-		START WITH   ARTICLE_ID IN 
-					              ( <!-- 10024->10008, 10030->10018, 10031->10018, 100032->100018, 10033->10032->10018, 10030->10018 -->
-					                SELECT regexp_substr(#{articleId}, '[^,]+', 1, LEVEL) AS ARTICLE_ID
-					                FROM DUAL
-					                CONNECT BY LEVEL &lt;= length(regexp_replace(#{articleId}, '[^,]+', '')) + 1
-					              )            
-		CONNECT BY  ARTICLE_ID =  PRIOR PARENT_ID
+		FROM         ARTICLE_TB T
+		WHERE ARTICLE_ID IN
+              ( 
+              SELECT regexp_substr('10024,10030,10031,10032,10033,10034', '[^,]+', 1, LEVEL) AS ARTICLE_ID
+              FROM DUAL
+              CONNECT BY LEVEL &lt;= length(regexp_replace('10024,10030,10031,10032,10033,10034', '[^,]+', '')) + 1
+              )           
+		START WITH T.PARENT_ID = 0 <!--IS NULL로 교체해야하는데 db에 모두 0으로 넣어둬서 임시로 이렇게 해둠  -->
+        CONNECT BY PRIOR T.ARTICLE_ID = T.PARENT_ID
     </select>
     
 	<select id="listArticle2" parameterType="com.spring.study.model.article.ArticleParam" resultType="com.spring.study.model.article.Article">
@@ -66,7 +65,7 @@
 	                                                   )
 	                                AND     (#{userId, jdbcType=VARCHAR} IS NULL OR C.WRITE_MEMBER_ID = #{userId, jdbcType=VARCHAR}) 
 	                                START WITH
-	                                        PARENT_ID           = 0 
+	                                        PARENT_ID           = 0 <!--IS NULL로 교체해야하는데 db에 모두 0으로 넣어둬서 임시로 이렇게 해둠  -->
 	                                CONNECT BY
 	                                        PRIOR ARTICLE_ID    = C.PARENT_ID 
 	                                ORDER SIBLINGS BY
@@ -155,13 +154,22 @@
 	</select>
 	
 	<select id="viewArticle" parameterType="String" resultType="com.spring.study.model.article.Article">
-		SELECT   ARTICLE_ID
-				,TITLE
-				,CONTENT
-				,WRITE_MEMBER_ID
-				,WRITE_DATE
-		FROM 	ARTICLE_TB
-		WHERE 	ARTICLE_ID = #{articleId}
+		SELECT   A.ARTICLE_ID
+                ,A.TITLE
+                ,A.CONTENT
+                ,A.WRITE_MEMBER_ID
+                ,A.WRITE_DATE
+                ,B.READ_COUNT
+        FROM (
+                SELECT  B.ARTICLE_ID
+                        , COUNT(1) AS READ_COUNT
+                FROM   
+                        ARTICLE_COUNT_TB B
+                GROUP BY 
+                        B.ARTICLE_ID
+              ) B, ARTICLE_TB A
+        WHERE   B.ARTICLE_ID =  A.ARTICLE_ID
+        AND     B.ARTICLE_ID =  #{articleId}
 	</select>
 	
 	<insert id="addArticleReadCount" parameterType="String">
@@ -392,4 +400,64 @@
         FROM        DUAL
 	    </foreach>
 	</insert>
+     <!-- 네이밍 고민해보기 최상위 글은 안가져오므로 clipboardList는 어울리지 않음...` -->
+     <select id="getClipboardList" parameterType="com.spring.study.model.article.ArticleParam" resultType="com.spring.study.model.article.Article">
+        SELECT  
+                X.*
+        FROM    (
+                    SELECT
+                            Y.*
+                    FROM    (
+                                SELECT
+                                        Z.*
+                                      , ROWNUM RNUM
+                                FROM    (
+                                            SELECT  /*+ INDEX_DESC(A ARTICLE_PK) */
+											          A.ARTICLE_ID
+											        , A.WRITE_MEMBER_ID
+											        , A.TITLE
+											        , A.CONTENT
+											        , A.WRITE_DATE
+											        , CONNECT_BY_ROOT A.ARTICLE_ID AS ROOT_ID
+											FROM    ARTICLE_TB  A
+											WHERE   1              =       1
+											AND     WRITE_MEMBER_ID        =       {writeMemberId}
+											START WITH
+											        PARENT_ID   =   0
+											CONNECT BY
+											        PARENT_ID   =   PRIOR ARTICLE_ID
+											ORDER   BY 
+											        A.ARTICLE_ID    DESC   
+                                        ) Z
+                            ) Y
+                    WHERE Y.RNUM &lt;= #{endNum}
+                ) X
+        WHERE X.RNUM &gt;= #{startNum}
+    </select>
+    
+    <select id="selectParentArticleList" parameterType="String" resultType="com.spring.study.model.article.ArticleParam">
+        SELECT    /*+ INDEX_DESC(A ARTICLE_PK) */
+                     A.ARTICLE_ID
+                   , A.PARENT_ID
+                   , A.TITLE
+                   , A.CONTENT
+                   , A.WRITE_MEMBER_ID
+                   , A.WRITE_DATE
+		FROM    ARTICLE_TB   A
+		WHERE   ARTICLE_ID  IN  (
+		                          SELECT CONNECT_BY_ROOT ARTICLE_ID AS ARTICLE_ID
+		                          FROM  ARTICLE_TB
+		                          WHERE ARTICLE_ID IN   (
+		                                                SELECT regexp_substr(#{articleIds}, '[^,]+', 1, LEVEL) AS ARTICLE_ID
+		                                                FROM DUAL
+		                                                CONNECT BY LEVEL &lt;= length(regexp_replace(#{articleIds}, '[^,]+', '')) + 1
+		                                                
+		                        ) 
+		                        START WITH 
+		                            PARENT_ID   = 0
+		                        CONNECT BY 
+		                            PARENT_ID   =   PRIOR ARTICLE_ID
+		                    )
+    </select>
+    
 </mapper>

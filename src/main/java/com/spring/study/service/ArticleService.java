@@ -1,6 +1,7 @@
 package com.spring.study.service;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,6 +21,8 @@ import com.spring.study.model.article.ArticleDto;
 import com.spring.study.model.article.ArticleParam;
 import com.spring.study.model.article.ArticleRankVo;
 import com.spring.study.model.article.ArticleReadCountVo;
+import com.spring.study.model.article.ArticleVo;
+import com.spring.study.model.article.NoticeVo;
 import com.spring.study.model.comments.Comment;
 import com.spring.study.model.user.User;
 
@@ -32,10 +35,6 @@ public class ArticleService {
 
 	@Autowired
 	private ArticleDao articleDao;
-	
-//	public boolean isNotice(String articleId) {
-//		return articleDao.isNoticeId(articleId);
-//	}
 
 	public Article getArticle(String articleId, User user) throws RuntimeException {
 		boolean isNoticeId = articleDao.isNoticeId(articleId);
@@ -57,25 +56,43 @@ public class ArticleService {
 	@Transactional(rollbackFor = Exception.class)
 	public void writeArticle(ArticleDto articleDto, User user) throws SQLException {
 		String articleId = this.getArticleIdNextSeq();
+		
+		ArticleVo articleVo = new ArticleVo();
+		articleVo.setArticleId(articleId);
+		articleVo.setWriteMemberId(user.getUserId());
+		articleVo.setTitle(articleDto.getTitle());
+		articleVo.setContent(articleDto.getContent());
+		articleVo.setWriteMemberId(articleDto.getWriteMemberId());
 
-		int result = articleDao.insertArticle(articleId, articleDto, user);
+		int result = articleDao.insertArticle(articleVo);
 		if(1 != result) { throw new SQLException(" 글 등록중 오류가 발생하였습니다. "); }
 		
 		if (CommonCode.ARTICLE_TYPE_CD_NOTICE_Y.getCode().equals(articleDto.getArticleTypeCd())) {
-			result = articleDao.registerNotice(articleId, articleDto);
+			NoticeVo noticeArticleVo = new NoticeVo();
+			noticeArticleVo.setArticleId(articleId);
+			noticeArticleVo.setDisplayStartDate(articleDto.getDisplayStartDate());
+			noticeArticleVo.setDisplayEndDate(articleDto.getDisplayEndDate());
+			
+			result = articleDao.registerNotice(noticeArticleVo);
 			if(1 != result) { throw new SQLException(" 글 등록중 오류가 발생하였습니다. "); }
 		}
 		
 	}
 
 	public void modifyArticle(ArticleDto articleDto, User user) throws NotFoundException, SQLException {
+		ArticleVo articleVo = new ArticleVo();
+		articleVo.setArticleId(articleDto.getArticleId());
+		articleVo.setWriteMemberId(user.getUserId());
+		articleVo.setTitle(articleDto.getTitle());
+		articleVo.setContent(articleDto.getContent());
+		articleVo.setModifyMemberId(articleDto.getModifyMemberId());
+		
 		boolean isExistsArticle = articleDao.isExistsArticle(articleDto.getArticleId());
-
 		if (!isExistsArticle) {
 			new NotFoundException("해당 글이 존재하지 않습니다.");
 		}
 		
-		int result = articleDao.updateArticle(articleDto, user);
+		int result = articleDao.updateArticle(articleVo);
 		if(1 != result) {
 			throw new SQLException("글 수정 중 오류가 발생하였습니다.");
 		}
@@ -94,13 +111,19 @@ public class ArticleService {
 	
 	// transaction
 	public void writeReply(ArticleDto articleDto) throws NotFoundException, SQLException {
-		// 답글쓰기전 부모글 체크
+		ArticleVo articleVo = new ArticleVo();
+		articleVo.setArticleId(articleDao.getNextArticleId());
+		articleVo.setParentId(articleDto.getParentId());
+		articleVo.setTitle(articleDto.getTitle());
+		articleVo.setContent(articleDto.getContent());
+		articleVo.setWriteMemberId(articleDto.getWriteMemberId());
+		
 		boolean isExistsArticle = articleDao.isExistsArticle(articleDto.getParentId());
 		if (!isExistsArticle) {
 			throw new NotFoundException("답변하려는 글이 존재하지 않습니다.");
 		}
 
-		int result = articleDao.replyArticle(articleDto);
+		int result = articleDao.replyArticle(articleVo);
 		if (0 == result) {
 			throw new SQLException("답글 쓰기중에 오류가 발생하였습니다. 잠시후 다시 시도해주세요");
 		}
@@ -118,26 +141,8 @@ public class ArticleService {
 		return result;
 	}
 	
-	public Article getWriterId(String articleId) {
-		return articleDao.getWriterId(articleId);
-	}
-	
-	public PageList<Article> getArticlePageListWithCount(ArticleParam req) {
-		// PageList<ArticleVo> pageList = articleDao.getArticlePageListWithCount(req);
-		// feed형으로 받을 시
-		PageList<Article> feedTypePageList = articleDao.getArticlePageListWithTotalCount(req);
-		return feedTypePageList;
-	}
-
-	public List<Article> getArticleList(ArticleParam req) {
-		List<Article> list = articleDao.getMoreListArticle(req);
-		//List<Article> list = articleDao.ListArticleTest(req);
-		return list;
-	}
-
-	public PageList<Article> getArticlePageList(ArticleParam req) {
-		PageList<Article> resp = articleDao.getArticlePageList(req);
-		return resp;
+	public Article getWriterId(String writeMemberId) {
+		return articleDao.getWriterId(writeMemberId);
 	}
 
 	public int getTotalArticles() {
@@ -147,43 +152,57 @@ public class ArticleService {
 	public int getSequence() {
 		return articleDao.getSequence();
 	}
-
-	public PageList<Article> getMyClipboard(ArticleParam reqParam) {
-		return articleDao.getMyClipboard(reqParam);
+/**********************************************************************************************************/	
+	//EndPaging TotalCount포함에서 가져오는 메서드
+	public PageList<Article> getArticlePageListWithCount(ArticleParam req) {
+		PageList<Article> feedTypePageList = articleDao.getArticlePageListWithTotalCount(req);
+		return feedTypePageList;
 	}
-	//검색한 글의 최상위 글 가져오는 메서드
-	public List<Article> getTopLevelArticles(PageList<Article> myArticleList) {
-		String articleNumbers = myArticleList.getList().stream()
-											 .filter( vo -> !vo.getParentId().equals("0") )
-											 .map( vo -> vo.getArticleId() )
-											 .collect(Collectors.joining(","));
-		List<Article> rootArticleList = articleDao.getTopLevelArticles(articleNumbers);
-									
+	//EndPaging 2페이부터 글리스트만 가져오는 메서드
+	public List<Article> getArticleList(ArticleParam req) {
+		List<Article> list = articleDao.getMoreListArticle(req);
+		return list;
+	}
+	//hasNextPaing
+	public PageList<Article> getArticlePageList(ArticleParam req) {
+		PageList<Article> resp = articleDao.getArticlePageListByHasNext(req);
+		return resp;
+	}	
+/**********************************************************************************************************/	
+	public PageList<Article> getClipboardList(ArticleParam articleParam) {
+		PageList<Article> clipboardList = articleDao.getClipboardListAddCommentsMore(articleParam);
+		List<Article> articleList = clipboardList.getList();
 		
-		return rootArticleList;
-	}
-	//글정렬 - 내글 보기
-//	public List<ArticleVo> getMyArticleList(Member member) {
-//		String userId = "";
-//
-//		try {
-//			userId = member.getMemberId();
-//		} catch (NullPointerException e) {
-//			throw new NullPointerException("로그인 세션 만료");
-//		}
-//
-//		List<ArticleVo> myArticleList = articleDao.getMyArticleList(userId);
-//		return myArticleList;
-//	}
-
-	public void setClipboard(PageList<Article> myArticleList, List<Article> topArticleList) {
+		String articleIds = articleList.stream()
+				.map(article -> article.getRootId())
+				.collect(Collectors.joining(","));
 		
+		List<Article> parentArticleList = articleDao.selectParentArticleList(articleIds);
+		
+		//TODO 오류 방어 로직 생각해보기
+		Map<String, Object> parentArticleMap = new HashMap<>();
+		for(Article article : parentArticleList) {
+			parentArticleMap.put(article.getArticleId(), article);
+		}
+		
+		for(int i=0; i<articleList.size(); i++) {
+			Article article = articleList.get(i);
+			String key = article.getArticleId();
+			article.setRootArticle((ArticleDto) parentArticleMap.get(key));
+		}
+		return clipboardList;
 	}
+	//미구현 
+	public PageList<Article> getFeedList(ArticleParam articleParam) {
+		return articleDao.getFeedArticleListAddCommentsMore(articleParam);
+	}
+	
+/**********************************************************************************************************/		
 	
 	//배치 로직
 	public void sortArticleRank() {
 		List<ArticleRankVo> allArticleList = articleDao.getAllArticleIds();
-		List<Comment> commentsCntList = articleDao.getCommentsCntList();//Article에 필드로
+		List<Comment> commentsCntList = articleDao.getCommentsCntList();
 		List<ArticleReadCountVo> readCntList = articleDao.getReadCntList();
 		
 		Map<String, Integer> commentsCntListMap = commentsCntList.stream()
@@ -207,5 +226,7 @@ public class ArticleService {
 		articleDao.insertArticleRank(allArticleList);
 	}
 
+
+	
 
 }

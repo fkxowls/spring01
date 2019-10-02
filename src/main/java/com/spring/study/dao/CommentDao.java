@@ -35,11 +35,11 @@ public class CommentDao  extends BaseDao{
 	}
 	 
 	public PageList<Comment> getCommentsList(CommentParam commentsParam) {
-		return super.selectPageList(mapper + "listComment", commentsParam);
+		return super.getPageListMore(mapper + "listComment", commentsParam);
 	}
 	 
-	public Map<String, PageList<Comment>> getCommentsListMap(CommentParam commentParam, Function<Comment, String> articleIdGroup) {
-		return super.selectPageListMap(mapper + "listComment", commentParam, articleIdGroup);
+	public Map<String, PageList<Comment>> getCommentsListMap(CommentParam commentParam, Function<Comment, String> groupById) {
+		return super.selectPageListMore(mapper + "listComment", commentParam, groupById);
 	}
 		
 	public int writeComment(CommentDto dto, User user) {
@@ -53,10 +53,6 @@ public class CommentDao  extends BaseDao{
 		return sqlSession.insert(mapper + "insertComment", vo);
 	}
 
-	public String getWriterOfArticle(String articleId) {
-		// 글작성자 가져오는 쿼리 날리기
-		return null;
-	}
 
 	
 }
